@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import remix from '@remix-run/vite'
+import { vitePlugin as remix } from '@remix-run/dev'
 
 export default defineConfig({
   plugins: [remix()],
