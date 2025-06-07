@@ -18,10 +18,12 @@ This rule enforces that each feature slice under `app/features/` contains the re
 Each feature slice directory `app/features/<feature>/` **must** contain:
 
 - `api.ts` — Backend interactions and data fetching logic
-- `hooks.ts` — React hooks specific to this feature
+- `api.spec.ts` — Unit tests for API functions (next to api.ts)
+- `hooks.ts` — React hooks specific to this feature  
+- `hooks.spec.ts` — Unit tests for hooks (next to hooks.ts)
 - `ui/` — UI components directory
-- `<feature>.page.tsx` — Main page component (where `<feature>` matches the directory name)
-- `<feature>.spec.ts` — Test specifications (where `<feature>` matches the directory name)
+- `ui/<feature>.page.tsx` — Main page component (where `<feature>` matches the directory name)
+- `ui/<feature>.page.spec.ts` — Integration tests for page component (next to page.tsx)
 - `README.md` — Feature documentation
 
 ## Enforcement Rules
@@ -41,12 +43,14 @@ When working in any feature slice directory (`app/features/<feature>/`):
 ```
 app/features/auth/
 ├── api.ts
-├── hooks.ts
+├── api.spec.ts
+├── hooks.ts  
+├── hooks.spec.ts
 ├── ui/
 │   ├── LoginForm.tsx
-│   └── SignupForm.tsx
-├── auth.page.tsx
-├── auth.spec.ts
+│   ├── SignupForm.tsx
+│   ├── auth.page.tsx
+│   └── auth.page.spec.ts
 └── README.md
 ```
 
@@ -55,22 +59,26 @@ app/features/auth/
 app/features/profile/
 ├── hooks.ts
 ├── ui/
-│   └── ProfileCard.tsx
-└── profile.page.tsx
-# Missing: api.ts, profile.spec.ts, README.md
+│   ├── ProfileCard.tsx
+│   └── profile.page.tsx
+# Missing: api.ts, api.spec.ts, hooks.spec.ts, ui/profile.page.spec.ts, README.md
 ```
 
 In the incorrect example above, the rule should prompt:
 - "Create missing file app/features/profile/api.ts with template from scripts/templates/feature_README.md."
-- "Create missing file app/features/profile/profile.spec.ts with template from scripts/templates/feature_README.md."
+- "Create missing file app/features/profile/api.spec.ts with template from scripts/templates/feature_README.md."
+- "Create missing file app/features/profile/hooks.spec.ts with template from scripts/templates/feature_README.md."
+- "Create missing file app/features/profile/ui/profile.page.spec.ts with template from scripts/templates/feature_README.md."
 - "Create missing file app/features/profile/README.md with template from scripts/templates/feature_README.md."
 
 ## Feature Name Matching
 
-- The `<feature>.page.tsx` and `<feature>.spec.ts` files must use the exact directory name
+- The `ui/<feature>.page.tsx` and related test files must use the exact directory name
 - For feature directory `app/features/user-profile/`, the files should be:
-  - `user-profile.page.tsx`
-  - `user-profile.spec.ts`
+  - `ui/user-profile.page.tsx`
+  - `ui/user-profile.page.spec.ts`
+  - `api.spec.ts`
+  - `hooks.spec.ts`
 
 ## Integration with FSD
 

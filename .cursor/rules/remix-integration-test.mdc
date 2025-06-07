@@ -5,7 +5,7 @@ alwaysApply: true
 ---
 ---
 description: "Ensure each feature page component has corresponding Playwright or Cypress integration tests"
-globs: ["app/features/*/ui/*.page.tsx", "app/features/*/*.spec.ts"]
+globs: ["app/features/*/ui/*.page.tsx", "app/features/*/ui/*.spec.ts"]
 alwaysApply: true
 ---
 
@@ -18,7 +18,7 @@ This rule ensures that each `<feature>.page.tsx` component in the features layer
 ### Required Test Coverage
 Every feature page component `app/features/<feature>/ui/<feature>.page.tsx` **must** have:
 
-1. **Corresponding test file**: `app/features/<feature>/<feature>.spec.ts`
+1. **Corresponding test file**: `app/features/<feature>/ui/<feature>.page.spec.ts` (next to the page component)
 2. **Integration test framework**: Tests must use either Playwright or Cypress
 3. **Minimum test coverage**: At least one test that exercises the page component
 
@@ -31,8 +31,8 @@ This rule scans for:
 - Example: `app/features/auth/ui/auth.page.tsx`
 
 ### Expected Test Files
-- Files matching pattern: `app/features/*/*.spec.ts` 
-- Example: `app/features/auth/auth.spec.ts`
+- Files matching pattern: `app/features/*/ui/*.spec.ts` 
+- Example: `app/features/auth/ui/auth.page.spec.ts`
 
 ### Required Test Content
 Test files must contain at least one of these framework imports:
@@ -43,7 +43,7 @@ Test files must contain at least one of these framework imports:
 
 When working with feature page components:
 
-1. **Check for missing test file** — If `ui/<feature>.page.tsx` exists but `<feature>.spec.ts` doesn't exist
+1. **Check for missing test file** — If `ui/<feature>.page.tsx` exists but `ui/<feature>.page.spec.ts` doesn't exist
 2. **Check for empty test file** — If test file exists but contains no Playwright/Cypress tests
 3. **If violations found**, prompt:
    ```
@@ -56,8 +56,8 @@ When working with feature page components:
 ```
 app/features/auth/
 ├── ui/
-│   └── auth.page.tsx      ← Feature page component
-├── auth.spec.ts           ← Integration tests (required)
+│   ├── auth.page.tsx      ← Feature page component
+│   └── auth.page.spec.ts  ← Integration tests (required, next to page)
 ├── api.ts
 └── hooks.ts
 ```
@@ -66,15 +66,15 @@ app/features/auth/
 ```
 app/features/profile/
 ├── ui/
-│   └── profile.page.tsx   ← Feature page component
+│   └── profile.page.tsx   ← Feature page component  
 ├── api.ts
 └── hooks.ts
-# Missing: profile.spec.ts
+# Missing: ui/profile.page.spec.ts
 ```
 
 **❌ Empty Test File:**
 ```typescript
-// app/features/dashboard/dashboard.spec.ts
+// app/features/dashboard/ui/dashboard.page.spec.ts
 // Empty file or no actual tests
 export {};
 ```
@@ -129,7 +129,7 @@ describe('<Feature> Page', () => {
 This rule flags these issues:
 
 ### Missing Test File
-- `ui/<feature>.page.tsx` exists but `<feature>.spec.ts` doesn't exist
+- `ui/<feature>.page.tsx` exists but `ui/<feature>.page.spec.ts` doesn't exist
 - **Action**: Create test file using `scripts/templates/integration_test.ts`
 
 ### Empty or Invalid Test File
@@ -146,8 +146,8 @@ The rule identifies valid test frameworks by checking for:
 
 When violations are detected:
 
-- **Missing test file**: "Create missing integration test file `app/features/<feature>/<feature>.spec.ts` using template from `scripts/templates/integration_test.ts`"
-- **Empty test file**: "Add integration tests to `<feature>.spec.ts` using Playwright or Cypress framework"
+- **Missing test file**: "Create missing integration test file `app/features/<feature>/ui/<feature>.page.spec.ts` using template from `scripts/templates/integration_test.ts`"
+- **Empty test file**: "Add integration tests to `<feature>.page.spec.ts` using Playwright or Cypress framework"
 - **Invalid framework**: "Test file must use Playwright (`@playwright/test`) or Cypress framework"
 
 ## Integration with FSD

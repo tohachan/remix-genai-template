@@ -9,184 +9,210 @@ globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js"]
 alwaysApply: true
 ---
 
-# Enforce Design Tokens in Styled Components and CSS-in-JS
+# Enforce Design Tokens - Ban Inline Styles and Literal Values
 
-This rule specifically targets styled-components, emotion, and other CSS-in-JS libraries to enforce the use of design tokens from `~/shared/design-system/theme.ts` instead of literal values.
+This rule prevents the use of hard-coded color values, numeric spacing values, and other design literals in JSX inline styles, CSS files, styled-components, emotion, and other CSS-in-JS libraries. All styling values must reference design tokens from `~/shared/config/theme.ts`.
 
-## Targeted Patterns
+## Prohibited Patterns
 
-This rule scans for these CSS-in-JS patterns:
+### Hard-coded Colors
+❌ **Avoid these patterns everywhere:**
+- Hex colors: `#ffffff`, `#000000`, `#3b82f6`
+- RGB/RGBA values: `rgb(255, 255, 255)`, `rgba(0, 0, 0, 0.5)`  
+- HSL/HSLA values: `hsl(200, 100%, 50%)`, `hsla(200, 100%, 50%, 0.8)`
+- Named colors: `red`, `blue`, `green` (except semantic ones like `transparent`)
+
+### Hard-coded Spacing Values
+❌ **Avoid these patterns everywhere:**
+- Pixel values: `margin: 16px`, `padding: 8px`
+- Rem values: `margin: 1rem`, `padding: 0.5rem`
+- Em values: `margin: 1em`, `padding: 0.25em`
+- Percentage spacing: `margin: 5%`, `padding: 10%`
+
+### Hard-coded Typography Values
+❌ **Avoid these patterns everywhere:**
+- Font sizes: `font-size: 16px`, `fontSize: '1.5rem'`
+- Font weights: `font-weight: 600`, `fontWeight: 'bold'`
+- Line heights: `line-height: 1.2`, `lineHeight: '1.5'`
+
+### Hard-coded Design Property Values
+❌ **Avoid these patterns everywhere:**
+- Border radius: `border-radius: 4px`, `borderRadius: '8px'`
+- Box shadows: `box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1)`
+- Z-index values: `z-index: 999`, `zIndex: 10`
+
+## Context-Specific Violations
+
+### Inline Styles (JSX)
+```tsx
+// ❌ Bad - Inline style literals
+<div style={{ 
+  backgroundColor: '#f8f9fa',
+  margin: '16px',
+  color: '#333',
+  fontSize: '1.125rem',
+  borderRadius: '8px'
+}}>
+```
+
+### CSS-in-JS (Styled Components, Emotion)
+```tsx
+// ❌ Bad - CSS-in-JS literals
+const Button = styled.button`
+  background-color: #3b82f6;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+`;
+
+// ❌ Bad - Emotion css prop
+<div css={{
+  backgroundColor: '#f8f9fa',
+  margin: '16px',
+  borderRadius: '8px'
+}} />
+```
+
+### CSS Classes
+```css
+/* ❌ Bad - CSS class literals */
+.card {
+  background-color: #ffffff;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  font-size: 1rem;
+}
+```
+
+## Required Replacements
+
+### Colors
+✅ **Use design system colors:**
+```tsx
+// Instead of: backgroundColor: '#3b82f6'
+backgroundColor: theme.colors.primary[500]
+
+// Instead of: color: '#ffffff'  
+color: theme.colors.white
+
+// Instead of: borderColor: 'rgba(0, 0, 0, 0.1)'
+borderColor: theme.colors.gray[200]
+```
+
+### Spacing
+✅ **Use design system spacing:**  
+```tsx
+// Instead of: margin: '16px'
+margin: theme.spacing[4]
+
+// Instead of: padding: '0.5rem'  
+padding: theme.spacing[2]
+
+// Instead of: gap: '24px'
+gap: theme.spacing[6]
+```
+
+### Typography
+✅ **Use design system typography:**
+```tsx
+// Instead of: fontSize: '1.125rem'
+fontSize: theme.typography.fontSize.lg[0]
+
+// Instead of: fontWeight: '600'
+fontWeight: theme.typography.fontWeight.semibold
+
+// Instead of: lineHeight: '1.5'
+lineHeight: theme.typography.fontSize.lg[1].lineHeight
+```
+
+### Other Design Properties
+✅ **Use design system tokens:**
+```tsx
+// Instead of: borderRadius: '8px'
+borderRadius: theme.borderRadius.lg
+
+// Instead of: boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+boxShadow: theme.shadows.md
+
+// Instead of: zIndex: 50
+zIndex: theme.zIndex[50]
+```
+
+## Implementation Examples
+
+### Inline Styles (Corrected)
+```tsx
+// ✅ Good - Using theme tokens
+<div style={{ 
+  backgroundColor: theme.colors.gray[50],
+  margin: theme.spacing[4],
+  color: theme.colors.gray[700],
+  fontSize: theme.typography.fontSize.lg[0],
+  borderRadius: theme.borderRadius.lg
+}}>
+```
+
+### Styled Components (Corrected)
+```tsx
+// ✅ Good - Using theme tokens
+const Button = styled.button`
+  background-color: ${theme.colors.primary[500]};
+  padding: ${theme.spacing[3]} ${theme.spacing[6]};
+  border-radius: ${theme.borderRadius.md};
+  font-size: ${theme.typography.fontSize.base[0]};
+`;
+```
+
+### Emotion CSS Function (Corrected)
+```tsx
+import { css } from '@emotion/react';
+import { theme } from '~/shared/config/theme';
+
+// ✅ Good - Using theme tokens
+const buttonStyles = css`
+  background-color: ${theme.colors.primary[500]};
+  padding: ${theme.spacing[3]} ${theme.spacing[6]};
+  border-radius: ${theme.borderRadius.md};
+`;
+```
+
+### CSS Classes (Corrected)
+```css
+/* ✅ Good - Use CSS custom properties set by theme */
+.card {
+  background-color: var(--color-white);
+  padding: var(--spacing-6);
+  border: 1px solid var(--color-gray-200);
+  font-size: var(--font-size-base);
+}
+```
+
+## Required Theme Import
+
+When using design tokens, you **must** import the theme:
+
+```tsx
+import { theme } from '~/shared/config/theme';
+// or with helpers
+import { theme, getColor, getSpacing } from '~/shared/config/theme';
+```
+
+## Targeted CSS-in-JS Patterns
+
+This rule specifically detects and flags:
 
 ### Styled Components
 - `styled.div```, `styled.button```, `styled(Component)```
 - Template literals with CSS properties
 - `css`` helper from styled-components or emotion
 
-### Other CSS-in-JS Libraries  
+### Other CSS-in-JS Libraries
 - `css()` function calls from emotion
-- `sx` prop objects in MUI/Chakra-like libraries
+- `sx` prop objects in MUI/Chakra-like libraries  
 - `css` prop objects in emotion
+- Inline `style` prop objects in JSX
 
-## Prohibited Literal Values
-
-### Color Literals
-❌ **These literal values are prohibited:**
-
-```tsx
-// Hex colors
-const Button = styled.button`
-  background-color: #3b82f6;
-  color: #ffffff;
-  border: 1px solid #e5e7eb;
-`;
-
-// RGB/RGBA values
-const Card = styled.div`
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 0 0 1px rgb(229, 231, 235);
-`;
-
-// HSL values
-const Text = styled.p`
-  color: hsl(215, 25%, 27%);
-`;
-
-// Named colors (except semantic ones)
-const Alert = styled.div`
-  background-color: red;
-  color: white;
-`;
-```
-
-### Spacing Literals
-❌ **These spacing values are prohibited:**
-
-```tsx
-const Container = styled.div`
-  margin: 16px;
-  padding: 24px 32px;
-  gap: 12px;
-`;
-
-const Layout = styled.section`
-  margin-top: 2rem;
-  padding-bottom: 1.5em;
-`;
-```
-
-### Typography Literals
-❌ **These typography values are prohibited:**
-
-```tsx
-const Heading = styled.h1`
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 1.2;
-`;
-```
-
-### Other Design Property Literals
-❌ **These property values are prohibited:**
-
-```tsx
-const Modal = styled.div`
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 999;
-`;
-```
-
-## Required Replacements
-
-### Colors
-✅ **Use theme color tokens:**
-
-```tsx
-import { theme } from '~/shared/design-system/theme';
-
-const Button = styled.button`
-  background-color: ${theme.colors.primary[500]};
-  color: ${theme.colors.white};
-  border: 1px solid ${theme.colors.gray[200]};
-`;
-
-const Card = styled.div`
-  background: ${theme.colors.white};
-  box-shadow: 0 0 0 1px ${theme.colors.gray[200]};
-`;
-```
-
-### Spacing
-✅ **Use theme spacing tokens:**
-
-```tsx
-const Container = styled.div`
-  margin: ${theme.spacing[4]};
-  padding: ${theme.spacing[6]} ${theme.spacing[8]};
-  gap: ${theme.spacing[3]};
-`;
-```
-
-### Typography  
-✅ **Use theme typography tokens:**
-
-```tsx
-const Heading = styled.h1`
-  font-size: ${theme.typography.fontSize['2xl'][0]};
-  font-weight: ${theme.typography.fontWeight.semibold};
-  line-height: ${theme.typography.fontSize['2xl'][1].lineHeight};
-`;
-```
-
-### Other Properties
-✅ **Use theme design tokens:**
-
-```tsx
-const Modal = styled.div`
-  border-radius: ${theme.borderRadius.lg};
-  box-shadow: ${theme.shadows.md};
-  z-index: ${theme.zIndex[50]};
-`;
-```
-
-## CSS-in-JS Library Examples
-
-### Emotion CSS Function
-```tsx
-import { css } from '@emotion/react';
-import { theme } from '~/shared/design-system/theme';
-
-// ❌ Bad
-const buttonStyles = css`
-  background-color: #3b82f6;
-  padding: 12px 24px;
-`;
-
-// ✅ Good
-const buttonStyles = css`
-  background-color: ${theme.colors.primary[500]};
-  padding: ${theme.spacing[3]} ${theme.spacing[6]};
-`;
-```
-
-### Emotion CSS Prop
-```tsx
-// ❌ Bad
-<div css={{
-  backgroundColor: '#f8f9fa',
-  margin: '16px',
-  borderRadius: '8px'
-}} />
-
-// ✅ Good  
-<div css={{
-  backgroundColor: theme.colors.gray[50],
-  margin: theme.spacing[4],
-  borderRadius: theme.borderRadius.lg
-}} />
-```
-
-### MUI sx Prop Style
+### MUI sx Prop Example
 ```tsx
 // ❌ Bad
 <Box sx={{
@@ -205,58 +231,55 @@ const buttonStyles = css`
 
 ## Pattern Detection
 
-This rule specifically looks for:
+This rule looks for literal values in these contexts:
 
-1. **Template literal CSS** inside styled-components
-2. **Object-style CSS** in css() functions or css props
-3. **Literal values** in these CSS contexts:
+1. **JSX inline styles** - `style` prop objects
+2. **Template literal CSS** inside styled-components
+3. **Object-style CSS** in css() functions or css props
+4. **CSS class files** - .css, .scss, .less files
+5. **Literal values** in these CSS properties:
    - Color properties: `color`, `background-color`, `border-color`, etc.
-   - Spacing properties: `margin`, `padding`, `gap`, `top`, `left`, etc.
+   - Spacing properties: `margin`, `padding`, `gap`, `top`, `left`, etc.  
    - Typography: `font-size`, `font-weight`, `line-height`
    - Visual properties: `border-radius`, `box-shadow`, `z-index`
-
-## Required Theme Import
-
-When using design tokens, you **must** import the theme:
-
-```tsx
-import { theme } from '~/shared/design-system/theme';
-// or with helpers
-import { theme, getColor, getSpacing } from '~/shared/design-system/theme';
-```
 
 ## Acceptable Exceptions
 
 These values are **allowed** and don't trigger the rule:
 
-- `transparent` color
+- `transparent` color value
 - `0` values: `margin: 0`, `padding: 0`
-- `100%`, `100vh`, `100vw` for full dimensions  
+- `100%`, `100vh`, `100vw` for full dimensions
 - `auto` values: `margin: auto`
-- CSS custom properties: `var(--custom-property)`
+- CSS custom properties: `var(--color-primary)`, `var(--spacing-4)`
 - `calc()` expressions using theme tokens: `calc(${theme.spacing[4]} + 1px)`
 
 ## Error Messages
 
-When violations are detected:
+When violations are detected, provide specific guidance:
 
 - **Colors**: "Replace literal color `#3b82f6` with `theme.colors.primary[500]`"
 - **Spacing**: "Replace literal spacing `16px` with `theme.spacing[4]`"  
 - **Typography**: "Replace literal font-size `1.5rem` with `theme.typography.fontSize.xl[0]`"
-- **General**: "Use design system token from theme.ts instead of literal value"
-
-## Integration with Existing Rules
-
-This rule works alongside the existing "ban-inline-styles" rule by:
-- Providing **more specific detection** for CSS-in-JS patterns
-- Offering **detailed pattern matching** for styled-components
-- Ensuring **consistent theme usage** across all styling approaches
-- Complementing inline style restrictions with CSS-in-JS enforcement
+- **Border radius**: "Replace literal border-radius `8px` with `theme.borderRadius.lg`"
+- **General**: "Use design system token from ~/shared/config/theme.ts instead of literal value"
 
 ## Benefits
 
-- **Consistency**: Uniform design token usage across CSS-in-JS libraries
-- **Maintainability**: Centralized theme management in theme.ts
-- **Type Safety**: Leverages TypeScript for theme token validation  
-- **Design System Compliance**: Enforces systematic approach to styling
+Following this rule ensures:
+
+- **Consistency**: All components use the same design language
+- **Maintainability**: Design changes can be made in one place (theme.ts)
+- **Accessibility**: Colors are chosen with proper contrast ratios
+- **Design System Adoption**: Enforces usage of the centralized design system
+- **Theme Support**: Easy to implement dark mode and other theme variants
+- **Type Safety**: Leverages TypeScript for theme token validation
 - **Developer Experience**: Clear guidance on proper token usage
+
+## FSD Architecture Integration
+
+This rule works with Feature-Sliced Design by:
+- Enforcing consistent theme usage across all FSD layers  
+- Supporting the shared layer's role in providing common utilities
+- Ensuring design tokens are properly abstracted from business logic
+- Maintaining clean separation between design system and feature implementation
