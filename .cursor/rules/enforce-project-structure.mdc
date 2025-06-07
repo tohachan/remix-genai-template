@@ -1,0 +1,142 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "This rule is attached to every chat and command+k request"
+globs: []
+alwaysApply: true
+---
+
+# Feature-Sliced Design Project Structure (Remix)
+
+This project follows **Feature-Sliced Design (FSD)** architectural methodology within the Remix `app/` directory. All code organization must adhere to the standardized FSD structure.
+
+## Project Structure Overview
+
+```
+project-root/
+├── app/                    ← Remix application directory
+│   ├── shared/            ← FSD shared layer
+│   ├── entities/          ← FSD entities layer
+│   ├── features/          ← FSD features layer  
+│   ├── widgets/           ← FSD widgets layer
+│   ├── pages/             ← FSD pages layer
+│   ├── routes/            ← Remix routing convention
+│   ├── entry.client.tsx   ← Remix entry points
+│   ├── entry.server.tsx   ← Remix entry points
+│   ├── root.tsx           ← Remix root component
+│   └── tailwind.css       ← Global styles
+├── public/                ← Static assets
+├── package.json           ← Dependencies
+└── vite.config.ts         ← Build configuration
+```
+
+## Required Layer Structure (inside `app/`)
+
+The `app/` directory **must** contain these FSD layers when applicable:
+
+- `📁 app/shared/` — Reusable functionality detached from business specifics
+- `📁 app/entities/` — Business entities the project works with (user, product, etc.)
+- `📁 app/features/` — Reusable product feature implementations that bring business value
+- `📁 app/widgets/` — Large self-contained UI chunks delivering complete use cases
+- `📁 app/pages/` — Full pages or large page sections for nested routing
+
+**Note:** Not all layers are required, but their names must follow FSD standards exactly.
+
+## Layer-Specific Rules
+
+### Shared Layer
+- **NO slices** — divide directly into segments
+- Structure: `app/shared/[segment]/`
+- Example: `app/shared/ui/`, `app/shared/lib/`, `app/shared/api/`
+
+### Entities, Features, Widgets, Pages Layers  
+- **MUST have slices** — divide by business domain first
+- Structure: `app/[layer]/[slice]/[segment]/`
+- Example: `app/pages/home/ui/`, `app/entities/user/model/`, `app/features/auth/api/`
+
+## Standard Segments
+
+Use these conventional segment names:
+
+- `ui/` — UI components, formatters, styles
+- `api/` — Backend interactions, requests, data types  
+- `model/` — Data schemas, stores, business logic
+- `lib/` — Slice-specific library code
+- `config/` — Configuration files, feature flags
+
+## Import Rules (Critical)
+
+**Layer Import Hierarchy** (top to bottom):
+1. `app/pages/` → can import from: widgets, features, entities, shared
+2. `app/widgets/` → can import from: features, entities, shared
+3. `app/features/` → can import from: entities, shared
+4. `app/entities/` → can import from: shared
+5. `app/shared/` → can only import from: shared
+
+**Special Remix Files:**
+- `app/routes/` → can import from: pages, widgets, features, entities, shared
+- `app/root.tsx` → can import from: shared (for global styles/providers)
+- `app/entry.*.tsx` → can import from: shared (for initialization)
+
+**Slice Import Rules:**
+- Slices **CANNOT** import from other slices on the same layer
+- This ensures high cohesion and low coupling
+
+## File Placement Requirements
+
+When creating new files in `app/`, **always**:
+
+1. **Identify the appropriate layer** based on the code's purpose
+2. **Create or use existing slice** (except for shared)  
+3. **Choose the correct segment** based on technical purpose
+4. **Verify import rules** are not violated
+
+## Examples
+
+**✅ Correct Structure:**
+```
+app/
+├── shared/
+│   ├── ui/button.tsx
+│   ├── lib/utils.ts
+│   └── api/client.ts
+├── entities/
+│   └── user/
+│       ├── model/types.ts
+│       └── api/requests.ts
+├── features/
+│   └── auth/
+│       ├── ui/LoginForm.tsx
+│       └── api/login.ts
+├── pages/
+│   └── home/
+│       └── ui/index.tsx
+├── routes/
+│   └── _index.tsx
+├── root.tsx
+└── tailwind.css
+```
+
+**❌ Incorrect:**
+- `app/components/` (use `app/shared/ui/` or appropriate layer)
+- `app/utils/` (use `app/shared/lib/`)  
+- `app/pages/home.tsx` (missing segments, should be `app/pages/home/ui/index.tsx`)
+- Cross-layer violations (features importing from widgets)
+
+## Before Adding Files
+
+1. **Determine layer** — What is this code's primary purpose?
+2. **Identify slice** — What business domain does it belong to? (skip for shared)
+3. **Choose segment** — What technical purpose does it serve?
+4. **Check imports** — Verify no layer/slice rule violations
+5. **Verify path** — Ensure file is inside `app/` directory
+
+## Remix-Specific Considerations
+
+- **Routes**: Use `app/routes/` for Remix routing, import page components from `app/pages/`
+- **Global Styles**: Keep in `app/` root or `app/shared/ui/`
+- **Entry Points**: `app/entry.*.tsx` and `app/root.tsx` follow Remix conventions
+- **Build Config**: `vite.config.ts` stays in project root

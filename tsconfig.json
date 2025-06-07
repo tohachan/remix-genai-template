@@ -12,5 +12,5 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": "."
   },
-  "include": ["app/**/*", "remix.env.d.ts", "vite.config.ts", "tailwind.config.ts"]
+  "include": ["app/**/*", "remix.env.d.ts", "vite.config.ts", "tailwind.config.ts", "app/types/css.d.ts"]
 }
