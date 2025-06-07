@@ -1,0 +1,80 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Feature Slice Baseline Structure"
+globs: []
+alwaysApply: true
+---
+
+# Feature Slice Baseline Structure
+
+This rule enforces that each feature slice under `app/features/` contains the required baseline files and directories.
+
+## Required Structure
+
+Each feature slice directory `app/features/<feature>/` **must** contain:
+
+- `api.ts` — Backend interactions and data fetching logic
+- `hooks.ts` — React hooks specific to this feature
+- `ui/` — UI components directory
+- `<feature>.page.tsx` — Main page component (where `<feature>` matches the directory name)
+- `<feature>.spec.ts` — Test specifications (where `<feature>` matches the directory name)
+- `README.md` — Feature documentation
+
+## Enforcement Rules
+
+When working in any feature slice directory (`app/features/<feature>/`):
+
+1. **Check for missing baseline files** before making changes
+2. **If any required files are missing**, immediately prompt:
+   ```
+   Create missing file <path> with template from scripts/templates/feature_README.md.
+   ```
+3. **Do not proceed** with feature development until baseline structure is complete
+
+## Examples
+
+**✅ Correct Feature Structure:**
+```
+app/features/auth/
+├── api.ts
+├── hooks.ts
+├── ui/
+│   ├── LoginForm.tsx
+│   └── SignupForm.tsx
+├── auth.page.tsx
+├── auth.spec.ts
+└── README.md
+```
+
+**❌ Missing Required Files:**
+```
+app/features/profile/
+├── hooks.ts
+├── ui/
+│   └── ProfileCard.tsx
+└── profile.page.tsx
+# Missing: api.ts, profile.spec.ts, README.md
+```
+
+In the incorrect example above, the rule should prompt:
+- "Create missing file app/features/profile/api.ts with template from scripts/templates/feature_README.md."
+- "Create missing file app/features/profile/profile.spec.ts with template from scripts/templates/feature_README.md."
+- "Create missing file app/features/profile/README.md with template from scripts/templates/feature_README.md."
+
+## Feature Name Matching
+
+- The `<feature>.page.tsx` and `<feature>.spec.ts` files must use the exact directory name
+- For feature directory `app/features/user-profile/`, the files should be:
+  - `user-profile.page.tsx`
+  - `user-profile.spec.ts`
+
+## Integration with FSD
+
+This rule works in conjunction with Feature-Sliced Design principles:
+- Each feature represents a complete product feature
+- All baseline files ensure consistent development patterns
+- The `ui/` directory can contain multiple components following FSD segment conventions

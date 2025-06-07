@@ -1,0 +1,167 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Enforce dependency injection pattern for service singletons in React components"
+globs: ["app/**/*.tsx", "app/**/*.jsx"]
+alwaysApply: true
+---
+
+# Dependency Injection Pattern for Service Singletons
+
+This rule enforces proper dependency injection patterns in React components by flagging direct imports of service singletons and suggesting the use of DI providers or React context hooks instead.
+
+## Problem
+
+Direct imports of service singletons in React components create tight coupling, make testing difficult, and violate dependency inversion principles.
+
+## Rule Requirements
+
+### ❌ Avoid Direct Service Imports
+
+**Do NOT** directly import service singletons in React components:
+
+```tsx
+// ❌ BAD - Direct service import
+import authService from '~/shared/api/authService';
+import userService from '~/entities/user/api/userService'; 
+import notificationService from '~/shared/services/notificationService';
+
+function UserProfile() {
+  const handleLogin = () => {
+    authService.login(); // Direct usage
+  };
+  // ...
+}
+```
+
+### ✅ Use Dependency Injection Instead
+
+**DO** retrieve services via DI provider or React context hooks:
+
+```tsx
+// ✅ GOOD - Using React context hooks
+import { useAuthService } from '~/shared/lib/di/useAuthService';
+import { useUserService } from '~/entities/user/lib/useUserService';
+import { useNotificationService } from '~/shared/lib/di/useNotificationService';
+
+function UserProfile() {
+  const authService = useAuthService();
+  const userService = useUserService();
+  const notificationService = useNotificationService();
+  
+  const handleLogin = () => {
+    authService.login(); // Injected service
+  };
+  // ...
+}
+```
+
+## Flagged Patterns
+
+This rule flags these import patterns in React component files:
+
+### Service Singleton Imports
+- `import authService from '...'`
+- `import userService from '...'` 
+- `import apiService from '...'`
+- `import dataService from '...'`
+- `import storageService from '...'`
+- `import notificationService from '...'`
+- Any import ending with `Service` or `service`
+
+### API Client Imports
+- `import apiClient from '...'`
+- `import httpClient from '...'`
+- Any import ending with `Client` or `client`
+
+### Store/State Manager Imports
+- `import store from '...'`
+- `import appStore from '...'`
+- Any direct store imports (except React context)
+
+## Suggested Solutions
+
+When this rule is triggered, consider these alternatives:
+
+### 1. React Context Hooks
+```tsx
+// Create context hook
+export const useAuthService = () => {
+  const context = useContext(AuthServiceContext);
+  if (!context) {
+    throw new Error('useAuthService must be used within AuthServiceProvider');
+  }
+  return context;
+};
+
+// Use in component
+const authService = useAuthService();
+```
+
+### 2. Custom Hook with DI Container
+```tsx
+// Custom hook that accesses DI container
+export const useServices = () => {
+  return {
+    authService: container.get<AuthService>('AuthService'),
+    userService: container.get<UserService>('UserService'),
+  };
+};
+
+// Use in component
+const { authService, userService } = useServices();
+```
+
+### 3. Props-Based Injection
+```tsx
+// Pass services as props
+interface UserProfileProps {
+  authService: AuthService;
+  userService: UserService;
+}
+
+function UserProfile({ authService, userService }: UserProfileProps) {
+  // Use injected services
+}
+```
+
+## Exceptions
+
+This rule allows these import patterns:
+
+### React-Specific Imports
+- React hooks and utilities
+- Component imports
+- Type-only imports: `import type { AuthService } from '...'`
+
+### Configuration Imports
+- Constants and configuration objects
+- Static utility functions (pure functions)
+
+### Example Valid Imports:
+```tsx
+import { useState, useEffect } from 'react';
+import type { User } from '~/entities/user/model/types';
+import { API_ENDPOINTS } from '~/shared/config/api';
+import { formatDate } from '~/shared/lib/date';
+```
+
+## Benefits
+
+Following this pattern provides:
+
+- **Testability**: Easy to mock services in unit tests
+- **Flexibility**: Switch implementations without changing components  
+- **Loose Coupling**: Components depend on abstractions, not concrete implementations
+- **Separation of Concerns**: Clear boundary between UI and business logic
+- **Maintainability**: Easier to refactor and update service implementations
+
+## File Scope
+
+This rule applies to:
+- React component files (`.tsx`, `.jsx`)
+- Files in `app/` directory following FSD architecture
+- Excludes service implementation files and DI setup files

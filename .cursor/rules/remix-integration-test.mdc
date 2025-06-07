@@ -1,0 +1,178 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Ensure each feature page component has corresponding Playwright or Cypress integration tests"
+globs: ["app/features/*/ui/*.page.tsx", "app/features/*/*.spec.ts"]
+alwaysApply: true
+---
+
+# Remix Integration Test Requirements
+
+This rule ensures that each `<feature>.page.tsx` component in the features layer has corresponding integration tests using Playwright or Cypress in the matching `<feature>.spec.ts` file.
+
+## Rule Requirements
+
+### Required Test Coverage
+Every feature page component `app/features/<feature>/ui/<feature>.page.tsx` **must** have:
+
+1. **Corresponding test file**: `app/features/<feature>/<feature>.spec.ts`
+2. **Integration test framework**: Tests must use either Playwright or Cypress
+3. **Minimum test coverage**: At least one test that exercises the page component
+
+## Detection Patterns
+
+This rule scans for:
+
+### Feature Page Components
+- Files matching pattern: `app/features/*/ui/*.page.tsx`
+- Example: `app/features/auth/ui/auth.page.tsx`
+
+### Expected Test Files
+- Files matching pattern: `app/features/*/*.spec.ts` 
+- Example: `app/features/auth/auth.spec.ts`
+
+### Required Test Content
+Test files must contain at least one of these framework imports:
+- Playwright: `import { test, expect } from '@playwright/test'`
+- Cypress: `import { describe, it, cy } from 'cypress'` or `describe()` and `it()` functions
+
+## Enforcement Rules
+
+When working with feature page components:
+
+1. **Check for missing test file** — If `ui/<feature>.page.tsx` exists but `<feature>.spec.ts` doesn't exist
+2. **Check for empty test file** — If test file exists but contains no Playwright/Cypress tests
+3. **If violations found**, prompt:
+   ```
+   Create missing integration test file <path> using template from scripts/templates/integration_test.ts
+   ```
+
+## Examples
+
+**✅ Correct Structure:**
+```
+app/features/auth/
+├── ui/
+│   └── auth.page.tsx      ← Feature page component
+├── auth.spec.ts           ← Integration tests (required)
+├── api.ts
+└── hooks.ts
+```
+
+**❌ Missing Test File:**
+```
+app/features/profile/
+├── ui/
+│   └── profile.page.tsx   ← Feature page component
+├── api.ts
+└── hooks.ts
+# Missing: profile.spec.ts
+```
+
+**❌ Empty Test File:**
+```typescript
+// app/features/dashboard/dashboard.spec.ts
+// Empty file or no actual tests
+export {};
+```
+
+## Required Test Template
+
+Missing test files should be created using the template from `scripts/templates/integration_test.ts` with these characteristics:
+
+### Playwright Template Structure
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('<Feature> Page', () => {
+  test('should load and render the page', async ({ page }) => {
+    await page.goto('/feature-route');
+    
+    // Add assertions for page elements
+    await expect(page.locator('[data-testid="feature-main"]')).toBeVisible();
+  });
+
+  test('should handle user interactions', async ({ page }) => {
+    await page.goto('/feature-route');
+    
+    // Add interaction tests
+    // await page.click('[data-testid="submit-button"]');
+    // await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
+  });
+});
+```
+
+### Cypress Template Structure
+```typescript
+describe('<Feature> Page', () => {
+  beforeEach(() => {
+    cy.visit('/feature-route');
+  });
+
+  it('should load and render the page', () => {
+    cy.get('[data-testid="feature-main"]').should('be.visible');
+  });
+
+  it('should handle user interactions', () => {
+    // Add interaction tests
+    // cy.get('[data-testid="submit-button"]').click();
+    // cy.get('[data-testid="success-message"]').should('be.visible');
+  });
+});
+```
+
+## Violation Detection
+
+This rule flags these issues:
+
+### Missing Test File
+- `ui/<feature>.page.tsx` exists but `<feature>.spec.ts` doesn't exist
+- **Action**: Create test file using `scripts/templates/integration_test.ts`
+
+### Empty or Invalid Test File
+- Test file exists but contains no Playwright or Cypress test functions
+- No `test()`, `it()`, or `describe()` function calls found
+- Missing required framework imports
+
+### Framework Detection
+The rule identifies valid test frameworks by checking for:
+- **Playwright**: `@playwright/test` import and `test()` function usage
+- **Cypress**: Cypress globals (`describe`, `it`, `cy`) or Cypress imports
+
+## Error Messages
+
+When violations are detected:
+
+- **Missing test file**: "Create missing integration test file `app/features/<feature>/<feature>.spec.ts` using template from `scripts/templates/integration_test.ts`"
+- **Empty test file**: "Add integration tests to `<feature>.spec.ts` using Playwright or Cypress framework"
+- **Invalid framework**: "Test file must use Playwright (`@playwright/test`) or Cypress framework"
+
+## Integration with FSD
+
+This rule works with Feature-Sliced Design architecture by:
+
+- **Feature Layer Focus**: Only applies to `app/features/` layer page components
+- **Slice Isolation**: Each feature slice maintains its own integration tests
+- **Page Component Testing**: Specifically targets `*.page.tsx` components that represent complete user-facing pages
+- **Baseline Structure**: Ensures test files are part of the required feature baseline
+
+## Benefits
+
+This rule provides:
+
+- **Quality Assurance**: Ensures all user-facing features have integration test coverage
+- **Consistency**: Standardized test file naming and location conventions
+- **Early Detection**: Catches missing tests during development
+- **Template Guidance**: Provides starting point for new integration tests
+- **Framework Flexibility**: Supports both Playwright and Cypress testing approaches
+
+## Template Location
+
+The rule references `scripts/templates/integration_test.ts` which should contain:
+- Boilerplate test structure for both Playwright and Cypress
+- Common test patterns for feature page components
+- Placeholder assertions and interactions
+- Best practices for integration testing in Remix applications

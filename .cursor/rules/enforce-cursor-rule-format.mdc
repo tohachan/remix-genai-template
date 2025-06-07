@@ -4,7 +4,7 @@ globs:
 alwaysApply: true
 ---
 ---
-description: "Enforce consistent structure and format for all Cursor rules"
+description: "Rule Content Structure Requirements"
 globs: []
 alwaysApply: true
 ---

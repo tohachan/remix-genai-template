@@ -1,0 +1,107 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Auto-Generate README for FSD Slices"
+globs: []
+alwaysApply: true
+---
+
+# Auto-Generate README for FSD Slices
+
+This rule automatically suggests running the README generation command when files are modified in Feature-Sliced Design (FSD) slice directories.
+
+## Trigger Conditions
+
+This rule activates when **any file changes** are detected in these FSD layer directories:
+
+- `app/features/<slice>/` — Feature slices
+- `app/pages/<slice>/` — Page slices  
+- `app/widgets/<slice>/` — Widget slices
+- `app/entities/<slice>/` — Entity slices
+
+## Suggested Action
+
+When file changes are detected in a slice directory, the rule suggests:
+
+### Command Format
+```bash
+npm run generate:readme <slice-name>
+```
+
+### Specific Examples
+
+**For feature changes:**
+- Changes in `app/features/auth/` → Suggest: `npm run generate:readme auth`
+- Changes in `app/features/user-profile/` → Suggest: `npm run generate:readme user-profile`
+
+**For page changes:**
+- Changes in `app/pages/home/` → Suggest: `npm run generate:readme home`  
+- Changes in `app/pages/dashboard/` → Suggest: `npm run generate:readme dashboard`
+
+**For widget changes:**
+- Changes in `app/widgets/navigation/` → Suggest: `npm run generate:readme navigation`
+- Changes in `app/widgets/sidebar/` → Suggest: `npm run generate:readme sidebar`
+
+**For entity changes:**
+- Changes in `app/entities/user/` → Suggest: `npm run generate:readme user`
+- Changes in `app/entities/product/` → Suggest: `npm run generate:readme product`
+
+## Suggestion Message Format
+
+When suggesting the command, display:
+
+```
+📝 Slice files modified. Consider updating documentation:
+
+npm run generate:readme <slice-name>
+
+This will update the README.md with current slice structure and API information.
+```
+
+## Detection Logic
+
+The rule should:
+
+1. **Monitor file changes** in specified glob patterns
+2. **Extract slice name** from the directory path (e.g., `app/features/auth/api.ts` → slice name is `auth`)
+3. **Suggest the command** with the extracted slice name
+4. **Show exact CLI command** that can be copy-pasted
+
+## File Change Scope
+
+This rule triggers on changes to:
+
+- Source files (`.ts`, `.tsx`, `.js`, `.jsx`)
+- Component files in `ui/` directories
+- API files (`api.ts`, `*.api.ts`)
+- Hook files (`hooks.ts`, `*.hooks.ts`)
+- Model files (`model/`, `*.model.ts`)
+- Configuration files (`config/`, `*.config.ts`)
+- Test files (`*.spec.ts`, `*.test.ts`)
+
+## Integration with FSD
+
+This rule supports Feature-Sliced Design methodology by:
+
+- **Maintaining documentation consistency** across all FSD layers
+- **Encouraging up-to-date README files** when slice code changes
+- **Automating documentation workflow** to reduce manual overhead
+- **Supporting all FSD layers** (features, pages, widgets, entities)
+
+## Benefits
+
+- **Automated Documentation**: Prompts for README updates when code changes
+- **Consistency**: Ensures all slices maintain current documentation
+- **Developer Experience**: Reduces friction in keeping docs up-to-date
+- **Team Coordination**: Helps team members understand slice changes through updated documentation
+- **CI/CD Integration**: Can be incorporated into development workflow automation
+
+## Usage Notes
+
+- The command should be run from the project root directory
+- The `<slice-name>` parameter must match the exact directory name
+- The suggestion appears automatically when relevant files are modified
+- Manual dismissal is possible if README update is not needed for the current changes

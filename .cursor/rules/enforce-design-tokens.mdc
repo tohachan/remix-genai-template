@@ -1,0 +1,262 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Enforce Design Tokens in Styled Components and CSS-in-JS"
+globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js"]
+alwaysApply: true
+---
+
+# Enforce Design Tokens in Styled Components and CSS-in-JS
+
+This rule specifically targets styled-components, emotion, and other CSS-in-JS libraries to enforce the use of design tokens from `~/shared/design-system/theme.ts` instead of literal values.
+
+## Targeted Patterns
+
+This rule scans for these CSS-in-JS patterns:
+
+### Styled Components
+- `styled.div```, `styled.button```, `styled(Component)```
+- Template literals with CSS properties
+- `css`` helper from styled-components or emotion
+
+### Other CSS-in-JS Libraries  
+- `css()` function calls from emotion
+- `sx` prop objects in MUI/Chakra-like libraries
+- `css` prop objects in emotion
+
+## Prohibited Literal Values
+
+### Color Literals
+❌ **These literal values are prohibited:**
+
+```tsx
+// Hex colors
+const Button = styled.button`
+  background-color: #3b82f6;
+  color: #ffffff;
+  border: 1px solid #e5e7eb;
+`;
+
+// RGB/RGBA values
+const Card = styled.div`
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 0 1px rgb(229, 231, 235);
+`;
+
+// HSL values
+const Text = styled.p`
+  color: hsl(215, 25%, 27%);
+`;
+
+// Named colors (except semantic ones)
+const Alert = styled.div`
+  background-color: red;
+  color: white;
+`;
+```
+
+### Spacing Literals
+❌ **These spacing values are prohibited:**
+
+```tsx
+const Container = styled.div`
+  margin: 16px;
+  padding: 24px 32px;
+  gap: 12px;
+`;
+
+const Layout = styled.section`
+  margin-top: 2rem;
+  padding-bottom: 1.5em;
+`;
+```
+
+### Typography Literals
+❌ **These typography values are prohibited:**
+
+```tsx
+const Heading = styled.h1`
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+`;
+```
+
+### Other Design Property Literals
+❌ **These property values are prohibited:**
+
+```tsx
+const Modal = styled.div`
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+`;
+```
+
+## Required Replacements
+
+### Colors
+✅ **Use theme color tokens:**
+
+```tsx
+import { theme } from '~/shared/design-system/theme';
+
+const Button = styled.button`
+  background-color: ${theme.colors.primary[500]};
+  color: ${theme.colors.white};
+  border: 1px solid ${theme.colors.gray[200]};
+`;
+
+const Card = styled.div`
+  background: ${theme.colors.white};
+  box-shadow: 0 0 0 1px ${theme.colors.gray[200]};
+`;
+```
+
+### Spacing
+✅ **Use theme spacing tokens:**
+
+```tsx
+const Container = styled.div`
+  margin: ${theme.spacing[4]};
+  padding: ${theme.spacing[6]} ${theme.spacing[8]};
+  gap: ${theme.spacing[3]};
+`;
+```
+
+### Typography  
+✅ **Use theme typography tokens:**
+
+```tsx
+const Heading = styled.h1`
+  font-size: ${theme.typography.fontSize['2xl'][0]};
+  font-weight: ${theme.typography.fontWeight.semibold};
+  line-height: ${theme.typography.fontSize['2xl'][1].lineHeight};
+`;
+```
+
+### Other Properties
+✅ **Use theme design tokens:**
+
+```tsx
+const Modal = styled.div`
+  border-radius: ${theme.borderRadius.lg};
+  box-shadow: ${theme.shadows.md};
+  z-index: ${theme.zIndex[50]};
+`;
+```
+
+## CSS-in-JS Library Examples
+
+### Emotion CSS Function
+```tsx
+import { css } from '@emotion/react';
+import { theme } from '~/shared/design-system/theme';
+
+// ❌ Bad
+const buttonStyles = css`
+  background-color: #3b82f6;
+  padding: 12px 24px;
+`;
+
+// ✅ Good
+const buttonStyles = css`
+  background-color: ${theme.colors.primary[500]};
+  padding: ${theme.spacing[3]} ${theme.spacing[6]};
+`;
+```
+
+### Emotion CSS Prop
+```tsx
+// ❌ Bad
+<div css={{
+  backgroundColor: '#f8f9fa',
+  margin: '16px',
+  borderRadius: '8px'
+}} />
+
+// ✅ Good  
+<div css={{
+  backgroundColor: theme.colors.gray[50],
+  margin: theme.spacing[4],
+  borderRadius: theme.borderRadius.lg
+}} />
+```
+
+### MUI sx Prop Style
+```tsx
+// ❌ Bad
+<Box sx={{
+  bgcolor: '#ffffff',
+  p: 3,
+  borderRadius: '8px'
+}} />
+
+// ✅ Good
+<Box sx={{
+  bgcolor: theme.colors.white,
+  p: theme.spacing[6],
+  borderRadius: theme.borderRadius.lg
+}} />
+```
+
+## Pattern Detection
+
+This rule specifically looks for:
+
+1. **Template literal CSS** inside styled-components
+2. **Object-style CSS** in css() functions or css props
+3. **Literal values** in these CSS contexts:
+   - Color properties: `color`, `background-color`, `border-color`, etc.
+   - Spacing properties: `margin`, `padding`, `gap`, `top`, `left`, etc.
+   - Typography: `font-size`, `font-weight`, `line-height`
+   - Visual properties: `border-radius`, `box-shadow`, `z-index`
+
+## Required Theme Import
+
+When using design tokens, you **must** import the theme:
+
+```tsx
+import { theme } from '~/shared/design-system/theme';
+// or with helpers
+import { theme, getColor, getSpacing } from '~/shared/design-system/theme';
+```
+
+## Acceptable Exceptions
+
+These values are **allowed** and don't trigger the rule:
+
+- `transparent` color
+- `0` values: `margin: 0`, `padding: 0`
+- `100%`, `100vh`, `100vw` for full dimensions  
+- `auto` values: `margin: auto`
+- CSS custom properties: `var(--custom-property)`
+- `calc()` expressions using theme tokens: `calc(${theme.spacing[4]} + 1px)`
+
+## Error Messages
+
+When violations are detected:
+
+- **Colors**: "Replace literal color `#3b82f6` with `theme.colors.primary[500]`"
+- **Spacing**: "Replace literal spacing `16px` with `theme.spacing[4]`"  
+- **Typography**: "Replace literal font-size `1.5rem` with `theme.typography.fontSize.xl[0]`"
+- **General**: "Use design system token from theme.ts instead of literal value"
+
+## Integration with Existing Rules
+
+This rule works alongside the existing "ban-inline-styles" rule by:
+- Providing **more specific detection** for CSS-in-JS patterns
+- Offering **detailed pattern matching** for styled-components
+- Ensuring **consistent theme usage** across all styling approaches
+- Complementing inline style restrictions with CSS-in-JS enforcement
+
+## Benefits
+
+- **Consistency**: Uniform design token usage across CSS-in-JS libraries
+- **Maintainability**: Centralized theme management in theme.ts
+- **Type Safety**: Leverages TypeScript for theme token validation  
+- **Design System Compliance**: Enforces systematic approach to styling
+- **Developer Experience**: Clear guidance on proper token usage
