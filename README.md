@@ -1,5 +1,9 @@
 # Remix + Gen AI Template
 
+> [!WARNING]  
+> **🚧 Work in Progress**  
+> This template is currently under active development. Not all features described in this README are fully implemented yet. Some scripts, generators, and architectural components are still being built. Use with caution in production environments.
+
 A comprehensive starter kit for building scalable Remix applications using **Feature-Sliced Design (FSD)** architecture, optimized for seamless **Gen AI development** workflows.
 
 ## 🚀 What This Template Provides
