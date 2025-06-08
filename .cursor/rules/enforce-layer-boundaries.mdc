@@ -1,0 +1,242 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Enforce Layer Boundaries in FSD Feature Slices
+
+This rule prevents direct cross-imports between different segments within the same FSD feature slice, maintaining clean separation of concerns and proper architectural boundaries.
+
+## Prohibited Import Patterns
+
+### ❌ UI Layer importing from API/Hooks Layer
+**Do NOT** import API or hooks directly in UI components:
+
+```tsx
+// ❌ BAD - Direct API import in UI component
+import { loginUser, fetchUserProfile } from '../api';
+import { useAuthState } from '../hooks';
+
+function LoginForm() {
+  const handleSubmit = async (data: FormData) => {
+    await loginUser(data); // Direct API call from UI
+  };
+  // ...
+}
+```
+
+### ❌ API/Hooks Layer importing from UI Layer
+**Do NOT** import UI components in API or hooks files:
+
+```typescript
+// ❌ BAD - UI component import in API file
+import { showNotification } from './ui/Notification';
+
+export const loginUser = async (credentials: LoginData) => {
+  const result = await api.login(credentials);
+  showNotification('Login successful'); // UI dependency in API
+  return result;
+};
+```
+
+## Required Architecture Pattern
+
+### ✅ Proper Layer Separation
+
+**UI components should only import:**
+- Other UI components from the same feature
+- Hooks from the same feature (public API)
+- Entities, shared utilities, and external libraries
+
+**API files should only contain:**
+- Backend interaction logic
+- Data transformation
+- Type definitions
+- External API calls
+
+**Hooks files should:**
+- Combine API calls with React state management
+- Provide the public interface for the feature
+- Abstract away implementation details
+
+## Correct Implementation Examples
+
+### ✅ UI Component Using Public Hook API
+```tsx
+// app/features/auth/ui/LoginForm.tsx
+import { useAuth } from '../hooks'; // ✅ Using public hook API
+import { Button } from '~/shared/ui/Button';
+import { Form } from '~/shared/ui/Form';
+
+function LoginForm() {
+  const { login, isLoading, error } = useAuth(); // Public API
+
+  const handleSubmit = async (data: FormData) => {
+    await login(data); // Using abstracted hook method
+  };
+
+  return (
+    <Form onSubmit={handleSubmit}>
+      {error && <div className="error">{error}</div>}
+      <Button type="submit" disabled={isLoading}>
+        {isLoading ? 'Logging in...' : 'Login'}
+      </Button>
+    </Form>
+  );
+}
+```
+
+### ✅ Hook Orchestrating API Calls
+```typescript
+// app/features/auth/hooks.ts
+import { useState } from 'react';
+import { loginUser, fetchUserProfile, logoutUser } from './api'; // ✅ Hook uses API
+import type { LoginData, User } from '~/entities/user';
+
+export const useAuth = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const login = async (credentials: LoginData) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await loginUser(credentials); // Using API layer
+      const profile = await fetchUserProfile(result.userId);
+      setUser(profile);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    await logoutUser(); // Using API layer
+    setUser(null);
+  };
+
+  return { user, login, logout, isLoading, error };
+};
+```
+
+### ✅ Clean API Layer
+```typescript
+// app/features/auth/api.ts
+import { apiClient } from '~/shared/api/client';
+import type { LoginData, User, LoginResponse } from '~/entities/user';
+
+export const loginUser = async (credentials: LoginData): Promise<LoginResponse> => {
+  const response = await apiClient.post('/auth/login', credentials);
+  return response.data;
+};
+
+export const fetchUserProfile = async (userId: string): Promise<User> => {
+  const response = await apiClient.get(`/users/${userId}`);
+  return response.data;
+};
+
+export const logoutUser = async (): Promise<void> => {
+  await apiClient.post('/auth/logout');
+};
+```
+
+## Architectural Benefits
+
+This pattern provides:
+
+### **Clear Separation of Concerns**
+- UI handles presentation and user interaction
+- Hooks manage state and business logic orchestration  
+- API handles data fetching and backend communication
+
+### **Testability**
+- Each layer can be tested independently
+- UI components can be tested with mocked hooks
+- API functions can be tested with mocked HTTP calls
+
+### **Reusability**
+- Hooks can be used by multiple UI components
+- API functions can be used by different hooks
+- Clean interfaces make components more composable
+
+### **Maintainability**
+- Changes to API don't directly affect UI components
+- UI changes don't impact backend logic
+- Clear boundaries make refactoring safer
+
+## Error Messages
+
+When violations are detected:
+
+### UI importing from API
+```
+❌ UI component should not directly import from API layer
+Replace: import { loginUser } from '../api'
+With: const { login } = useAuth() // Use public hook API
+```
+
+### UI importing from Hooks (incorrect usage)
+```
+❌ Avoid importing internal hook implementations
+Replace: import { useAuthState } from '../hooks'  
+With: import { useAuth } from '../hooks' // Use public hook API
+```
+
+### API importing from UI
+```
+❌ API layer should not import UI components
+Remove: import { showNotification } from './ui/Notification'
+Solution: Return status/error data and let UI handle presentation
+```
+
+### Hooks importing from UI
+```
+❌ Hooks should not import UI components
+Remove: import { Modal } from './ui/Modal'
+Solution: Return modal state and let UI components handle rendering
+```
+
+## Exception Cases
+
+These imports are **allowed**:
+
+### Within Same Segment
+- UI components importing other UI components: `import { LoginForm } from './LoginForm'`
+- API functions importing other API functions: `import { refreshToken } from './tokenApi'`
+
+### Across Segments (Following Hierarchy)
+- Hooks importing from API: `import { loginUser } from './api'` ✅
+- UI importing from Hooks (public API): `import { useAuth } from '../hooks'` ✅
+
+### External Dependencies
+- Any segment importing from shared, entities, or external libraries ✅
+
+## Implementation Guide
+
+To fix violations:
+
+### 1. Move Logic to Appropriate Layer
+- Move API calls from UI components to hooks
+- Move UI logic from API/hooks to UI components
+- Create proper abstractions in hooks layer
+
+### 2. Create Public Hook APIs
+- Export hooks that combine API calls with state management
+- Provide clean interfaces for UI components to consume
+- Abstract away implementation details
+
+### 3. Separate Concerns
+- Keep UI focused on presentation and user interaction
+- Keep API focused on data fetching and transformation
+- Use hooks as the orchestration layer between UI and API
+
+## Integration with FSD
+
+This rule supports Feature-Sliced Design by:
+- Enforcing proper segment boundaries within feature slices
+- Maintaining clean separation between technical layers
+- Supporting the principle of dependency inversion
+- Enabling better testing and maintainability
+- Following FSD's architectural guidelines for slice organization
