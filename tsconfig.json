@@ -1,16 +1,29 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
+    "module": "esnext", 
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "moduleResolution": "node",
     "noEmit": true,
     "isolatedModules": true,
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./app/*"]
+    }
   },
   "include": ["app/**/*", "remix.env.d.ts", "vite.config.ts", "tailwind.config.ts", "app/types/css.d.ts"]
 }

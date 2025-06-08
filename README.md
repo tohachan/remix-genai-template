@@ -15,7 +15,9 @@ This template combines modern web development tools with architectural best prac
 - 🏗️ **Feature-Sliced Design (FSD)** - Scalable architecture methodology
 - 🤖 **Gen AI Optimized** - Structured rules and conventions for reliable AI assistance
 - 📝 **Automated Documentation** - Self-maintaining documentation system
-- 🧪 **Testing Standards** - Built-in testing patterns and requirements
+- 🧪 **Complete Testing Suite** - Jest for unit tests, Playwright for e2e testing
+- 🔧 **Developer Tools** - ESLint, Prettier, TypeScript strict mode
+- 📋 **Code Generation** - Automated feature and test scaffolding
 
 ## 🏛️ Architecture Overview
 
@@ -56,20 +58,64 @@ The template maintains **integrity and consistency** during AI-assisted developm
    npm install
    ```
 
-2. **Start the development server**:
+2. **Install Playwright browsers** (for e2e testing):
+   ```bash
+   npx playwright install
+   ```
+
+3. **Start the development server**:
    ```bash
    npm run dev
    ```
 
-3. **Build for production**:
+4. **Build for production**:
    ```bash
    npm run build
    ```
 
-4. **Start the production server**:
+5. **Start the production server**:
    ```bash
    npm start
    ```
+
+## 🧪 Testing
+
+The template includes a comprehensive testing setup:
+
+### Unit Testing (Jest)
+- **Framework**: Jest with TypeScript support
+- **Environment**: jsdom for DOM testing
+- **Testing Library**: React Testing Library included
+- **Location**: `*.spec.ts` files next to source files
+
+```bash
+# Run all unit tests
+npm test
+
+# Watch mode for development
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+```
+
+### End-to-End Testing (Playwright)
+- **Framework**: Playwright for cross-browser testing
+- **Location**: `*.page.spec.ts` files for integration tests
+- **Browsers**: Chromium, Firefox, WebKit
+
+```bash
+# Run e2e tests
+npm run test:e2e
+
+# Run in UI mode
+npm run test:e2e -- --ui
+```
+
+### Testing Requirements
+- **Unit tests** - Required for all utility functions in `shared/utils/`
+- **Integration tests** - Required for all feature page components (`*.page.tsx`)
+- **Type safety** - Strict TypeScript configuration enforced
 
 ## 🎨 UI Components
 
@@ -90,16 +136,28 @@ All components automatically follow the design token system for consistent themi
    npm run generate:feature <feature-name>
    ```
 
-2. **Update documentation**:
+2. **Generate tests for utilities**:
+   ```bash
+   npm run generate:test <file-path>
+   ```
+
+3. **Update documentation**:
    ```bash
    npm run generate:readme <feature-name>
    ```
 
-### Testing
+### Code Quality
 
-- **Unit tests** - Required for all utility functions
-- **Integration tests** - Required for all page components
-- **Type safety** - Strict TypeScript configuration enforced
+```bash
+# Lint code
+npm run lint
+
+# Format code
+npm run format
+
+# Type check
+npm run typecheck
+```
 
 ## 🏗️ Feature-Sliced Design Benefits
 
@@ -117,16 +175,71 @@ Each feature maintains its own documentation with:
 - API specifications
 - Testing guidelines
 
-## 🔧 Configuration
+The template automatically enforces documentation standards through:
+- Required README.md files in feature slices
+- Standardized format for human and AI consumption
+- Auto-generation commands for keeping docs up-to-date
 
-The template includes optimized configurations for:
-- **TypeScript** - Strict mode for better type safety
-- **Tailwind CSS** - Design system integration
+## 🔧 Configuration Files
+
+The template includes optimized configurations:
+
+### TypeScript
+- **tsconfig.json** - Strict mode enabled for better type safety
+- **Path mapping** - Clean imports with `~` alias
+
+### Code Quality
+- **.eslintrc.js** - ESLint with TypeScript and Prettier integration
+- **.prettierrc** - Consistent code formatting
+- **jest.config.js** - Unit testing configuration
+- **playwright.config.ts** - E2E testing configuration
+
+### Build & Development
 - **Vite** - Fast development and build processes
-- **ESLint/Prettier** - Code quality and formatting
+- **Tailwind CSS** - Design system integration
+- **PostCSS** - CSS processing pipeline
+
+## 📋 Available Scripts
+
+```bash
+# Development
+npm run dev          # Start development server
+npm run build        # Build for production
+npm start           # Start production server
+
+# Testing
+npm test            # Run unit tests
+npm run test:watch  # Unit tests in watch mode
+npm run test:coverage # Generate test coverage
+npm run test:e2e    # Run e2e tests
+
+# Code Quality
+npm run lint        # Lint code
+npm run format      # Format code
+npm run typecheck   # TypeScript type checking
+
+# Code Generation
+npm run generate:feature <name>  # Generate feature structure
+npm run generate:test <path>     # Generate test file
+npm run generate:readme <name>   # Update slice documentation
+```
+
+## 🔍 Project Rules
+
+The template enforces architectural consistency through comprehensive rules:
+
+- **FSD Structure** - Proper layer organization and import restrictions
+- **Design Tokens** - No hard-coded values in styling
+- **Testing Requirements** - Mandatory tests for utilities and page components
+- **Documentation Standards** - Structured README format for slices
+- **Code Quality** - TypeScript strict mode and linting rules
 
 ## 🤝 Contributing
 
-This template is designed to maintain consistency across teams and AI tools. Please follow the established patterns and run validation scripts before submitting changes.
+This template is designed to maintain consistency across teams and AI tools. Please follow the established patterns and run validation scripts before submitting changes:
+
+1. Run tests: `npm test && npm run test:e2e`
+2. Check code quality: `npm run lint && npm run typecheck`
+3. Update documentation if needed: `npm run generate:readme <slice>`
 
 For more details, see the [shadcn documentation](https://ui.shadcn.com/) and [Feature-Sliced Design methodology](https://feature-sliced.design/).
