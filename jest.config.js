@@ -9,11 +9,16 @@ module.exports = {
     '!**/*.page.spec.ts' // Exclude Playwright tests
   ],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest'
+    '^.+\\.(ts|tsx)$': ['ts-jest', {
+      tsconfig: {
+        jsx: 'react-jsx'
+      }
+    }]
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  moduleNameMapping: {
-    '^~/(.*)$': '<rootDir>/app/$1'
+  moduleNameMapper: {
+    '^~/(.*)$': '<rootDir>/app/$1',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
   },
   collectCoverageFrom: [
     'app/**/*.{ts,tsx}',

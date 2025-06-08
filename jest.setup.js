@@ -1,5 +1,5 @@
 // Global test setup
-import '@testing-library/jest-dom';
+require('@testing-library/jest-dom');
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
