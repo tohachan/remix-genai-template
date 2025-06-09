@@ -135,13 +135,20 @@ All components automatically follow the design token system for consistent themi
    ```bash
    npm run generate:feature <feature-name>
    ```
+   This creates the complete baseline structure: `api.ts`, `hooks.ts`, `ui/` directory, tests, and README.
 
-2. **Generate tests for utilities**:
+2. **Follow layer separation**:
+   - Place backend logic in `api.ts`
+   - Create React hooks in `hooks.ts` that use API functions
+   - Build UI components in `ui/` that consume hooks (not API directly)
+   - Keep components under 200 lines
+
+3. **Generate tests for utilities**:
    ```bash
    npm run generate:test <file-path>
    ```
 
-3. **Update documentation**:
+4. **Update documentation**:
    ```bash
    npm run generate:readme <feature-name>
    ```
@@ -166,6 +173,45 @@ npm run typecheck
 - **Code Reusability** - Shared components across features
 - **Maintainability** - Easy to locate and modify functionality
 - **Testing** - Isolated features are easier to test
+
+### Architectural Patterns
+
+The template enforces **clean architecture patterns** within feature slices:
+
+#### Layer Separation
+Each feature follows a **three-layer architecture**:
+- **UI Layer** (`ui/`) - Presentation components and user interaction
+- **Hooks Layer** (`hooks.ts`) - State management and business logic orchestration
+- **API Layer** (`api.ts`) - Backend communication and data fetching
+
+**Import Rules:**
+- ✅ UI components use public hook APIs: `import { useAuth } from '../hooks'`
+- ✅ Hooks orchestrate API calls: `import { loginUser } from './api'`
+- ❌ UI components should NOT directly import API: `import { loginUser } from '../api'`
+- ❌ API/hooks should NOT import UI components
+
+#### Component Responsibility
+React components in `ui/` directories follow **single responsibility principle**:
+- **Maximum 200 lines** per component file
+- **One default export** per file
+- **Extract large components** into smaller, focused pieces:
+  - Container/Presentational pattern
+  - Custom hooks for complex logic
+  - Sub-components for UI composition
+
+**Refactoring strategies:**
+```tsx
+// ❌ Large component (200+ lines)
+export default function UserDashboard() {
+  // Too much logic and UI in one place
+}
+
+// ✅ Split components
+export default function UserDashboard() {
+  const { user, loading, actions } = useUserDashboard(); // Logic in hook
+  return <UserDashboardView user={user} loading={loading} {...actions} />; // Pure UI
+}
+```
 
 ## 📖 Documentation
 
@@ -228,11 +274,32 @@ npm run generate:readme <name>   # Update slice documentation
 
 The template enforces architectural consistency through comprehensive rules:
 
-- **FSD Structure** - Proper layer organization and import restrictions
-- **Design Tokens** - No hard-coded values in styling
+### Architecture Rules
+- **Layer Boundaries** - Strict import restrictions between UI, hooks, and API layers
+- **Component Size Limits** - React components limited to 200 lines with single responsibility
+- **FSD Structure** - Proper layer organization and slice boundaries
+- **Design Tokens** - No hard-coded values in styling (colors, spacing, typography)
+
+### Quality Rules  
 - **Testing Requirements** - Mandatory tests for utilities and page components
 - **Documentation Standards** - Structured README format for slices
-- **Code Quality** - TypeScript strict mode and linting rules
+- **TypeScript Strict Mode** - Full type safety enforcement
+- **Code Formatting** - ESLint and Prettier consistency
+
+### Feature Development Rules
+Each feature slice must include:
+- `api.ts` + `api.spec.ts` - Backend integration with tests
+- `hooks.ts` + `hooks.spec.ts` - React hooks with tests  
+- `ui/<feature>.page.tsx` + `ui/<feature>.page.spec.ts` - Main page with integration tests
+- `README.md` - Human and AI documentation
+
+### Validation
+The template automatically validates:
+- Import patterns and layer boundaries
+- Component size and responsibility
+- Test coverage for utilities and pages
+- Documentation completeness
+- TypeScript compliance
 
 ## 🤝 Contributing
 
