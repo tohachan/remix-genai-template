@@ -1,9 +1,4 @@
 ---
-description: 
-globs: 
-alwaysApply: true
----
----
 description: "Require Pure Function Tests"
 globs: []
 alwaysApply: true

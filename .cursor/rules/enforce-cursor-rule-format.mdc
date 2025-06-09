@@ -1,9 +1,4 @@
 ---
-description: 
-globs: 
-alwaysApply: true
----
----
 description: "Rule Content Structure Requirements"
 globs: []
 alwaysApply: true

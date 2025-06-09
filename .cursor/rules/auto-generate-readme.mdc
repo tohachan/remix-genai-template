@@ -1,9 +1,4 @@
 ---
-description: 
-globs: 
-alwaysApply: true
----
----
 description: "Auto-Generate README for FSD Slices"
 globs: []
 alwaysApply: true

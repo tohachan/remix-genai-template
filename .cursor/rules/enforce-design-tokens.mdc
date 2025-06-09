@@ -1,9 +1,4 @@
 ---
-description: 
-globs: 
-alwaysApply: true
----
----
 description: "Enforce Design Tokens in Styled Components and CSS-in-JS"
 globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js"]
 alwaysApply: true

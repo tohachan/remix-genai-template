@@ -1,9 +1,4 @@
 ---
-description: 
-globs: 
-alwaysApply: true
----
----
 description: "Enforce dependency injection pattern for service singletons in React components"
 globs: ["app/**/*.tsx", "app/**/*.jsx"]
 alwaysApply: true

@@ -1,9 +1,4 @@
 ---
-description: 
-globs: 
-alwaysApply: true
----
----
 description: "TypeScript Strict Mode Requirements"
 globs: []
 alwaysApply: true
