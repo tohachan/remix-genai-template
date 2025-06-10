@@ -1,0 +1,41 @@
+import { render, screen } from '@testing-library/react';
+import { {{componentName}} } from './{{componentName}}';
+
+describe('{{componentName}}', () => {
+  it('renders children when provided', () => {
+    const testContent = 'Test content';
+    render(
+      <{{componentName}}>
+        <p>{testContent}</p>
+      </{{componentName}}>
+    );
+    
+    expect(screen.getByText(testContent)).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const customClass = 'custom-test-class';
+    render(<{{componentName}} className={customClass} />);
+    
+    const element = screen.getByRole('generic');
+    expect(element).toHaveClass(customClass);
+  });
+
+  it('forwards ref correctly', () => {
+    const ref = jest.fn();
+    render(<{{componentName}} ref={ref} />);
+    
+    expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+  });
+
+  it('passes through additional props', () => {
+    const testId = 'test-component';
+    render(<{{componentName}} data-testid={testId} />);
+    
+    expect(screen.getByTestId(testId)).toBeInTheDocument();
+  });
+
+  it('has correct display name', () => {
+    expect({{componentName}}.displayName).toBe('{{componentName}}');
+  });
+}); 

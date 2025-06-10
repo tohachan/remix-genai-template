@@ -1,0 +1,29 @@
+import * as React from 'react';
+import { cn } from '~/shared/lib/utils';
+
+interface {{componentName}}Props {
+  children?: React.ReactNode;
+  className?: string;
+}
+
+const {{componentName}} = React.forwardRef<
+  HTMLDivElement,
+  {{componentName}}Props
+>(({ children, className, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "p-4",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+});
+
+{{componentName}}.displayName = '{{componentName}}';
+
+export { {{componentName}} }; 
