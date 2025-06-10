@@ -1,7 +1,7 @@
 ---
-description: "Ensure each feature page component has corresponding Playwright or Cypress integration tests"
-globs: ["app/features/*/ui/*.page.tsx", "app/features/*/ui/*.spec.ts"]
-alwaysApply: true
+description: 
+globs: app/features/*/ui/*.page.tsx, app/features/*/ui/*.spec.ts
+alwaysApply: false
 ---
 
 # Remix Integration Test Requirements

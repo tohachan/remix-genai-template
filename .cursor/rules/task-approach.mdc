@@ -1,0 +1,198 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# General Task Approach Rule
+
+This rule defines the systematic approach for handling user requests to ensure clarity, thoroughness, and focused execution.
+
+## File Clarification Requirement
+
+### Always Clarify File References
+When a user mentions files or components without explicit paths or clear identification:
+
+**❌ Never assume** which files the user is referring to
+**✅ Always ask for clarification** using this pattern:
+
+```
+I need to clarify which files you're referring to. Are you talking about:
+- [List specific file paths/options you think they might mean]
+- Or different files entirely?
+
+Please specify the exact file paths or provide more context.
+```
+
+### Examples of Required Clarification
+
+**User says**: "Update the login component"
+**Required response**: 
+```
+I need to clarify which login component you're referring to. Are you talking about:
+- app/features/auth/ui/LoginForm.tsx
+- app/shared/ui/LoginModal.tsx
+- Or a different login component?
+```
+
+**User says**: "Fix the API call"
+**Required response**:
+```
+I need to clarify which API call you're referring to. Are you talking about:
+- app/features/auth/api.ts
+- app/entities/user/api/requests.ts
+- Or a different API file?
+```
+
+## README Analysis Requirement
+
+### Mandatory README Study
+Before making any changes to features or components, **always** read relevant README files:
+
+#### Initial Entity Analysis
+At the start of any task, identify and read README files for:
+- Feature slices mentioned in the request
+- Widget slices involved
+- Entity slices referenced
+- Any specific components or utilities mentioned
+
+#### Progressive Entity Discovery
+As you work through the task and discover new entities that need to be used or modified:
+- **Immediately read** the README for each newly discovered entity
+- **Before** making any changes to the entity
+- **Update your understanding** based on the README content
+
+#### README Location Patterns
+Look for README files in these locations:
+- `app/features/{feature}/README.md`
+- `app/widgets/{widget}/README.md`
+- `app/entities/{entity}/README.md`
+- `app/pages/{page}/README.md`
+
+### README Analysis Actions
+When reading README files:
+1. **Extract key information** about purpose, public API, dependencies
+2. **Note any specific usage patterns** or constraints
+3. **Identify testing requirements** and locations
+4. **Understand integration points** with other parts of the system
+
+## Strict Scope Adherence
+
+### Do Only What's Requested
+**❌ Never add improvements** or enhancements not explicitly requested
+**❌ Never suggest additional features** unless directly asked
+**❌ Never optimize code** unless optimization is the specific request
+**✅ Implement exactly** what the user asked for
+**✅ Stay focused** on the specific requirements
+
+### Examples of Scope Violations
+
+**❌ User asks**: "Add a submit button"
+**❌ Wrong response**: "I'll add the submit button and also improve the form validation and add loading states"
+
+**✅ User asks**: "Add a submit button"  
+**✅ Correct response**: "I'll add the submit button as requested"
+
+## Conflict Resolution Requirement
+
+### Always Report Inconsistencies
+When you encounter conflicts or inconsistencies:
+
+#### In Requirements
+- Conflicting instructions within the same request
+- Ambiguous or contradictory specifications
+- Missing critical information
+
+#### In Rules/Standards
+- Conflicts between different coding rules
+- Conflicts between different cursor rules
+- Inconsistencies with FSD architecture
+- Violations of established patterns
+
+#### Required Response Pattern
+```
+I've identified an inconsistency/conflict:
+
+**Issue**: [Describe the specific conflict or inconsistency]
+**Details**: [Explain what's conflicting and why it's problematic]
+**Options**: [List possible approaches to resolve it]
+
+How would you like me to proceed?
+```
+
+## Step-by-Step Execution
+
+### Always Create Execution Plan
+For every task, create a clear step-by-step plan:
+
+#### Simple Tasks (1-3 steps)
+Present the plan directly in the response:
+```
+**Execution Plan:**
+1. [Step 1 description]
+2. [Step 2 description]  
+3. [Step 3 description]
+
+I'll now proceed with these steps.
+```
+
+#### Complex Tasks (4+ steps)
+Create a temporary tracking file:
+
+**File name pattern**: `task-steps-{taskId}.md` (where taskId is a short descriptive identifier)
+**Location**: Project root directory
+**Content structure**:
+```markdown
+# Task: [Brief task description]
+
+## Steps:
+- [ ] Step 1: [Description]
+- [ ] Step 2: [Description]
+- [ ] Step 3: [Description]
+- [ ] Step 4: [Description]
+...
+
+## Progress Notes:
+[Update as you work through steps]
+
+## Completed:
+[Move completed steps here]
+```
+
+### Step Execution Process
+
+1. **Create or present** the execution plan
+2. **Follow steps sequentially** - complete one before moving to the next
+3. **For complex tasks**: Update the tracking file after each step completion
+4. **Stay focused** on current step, don't jump ahead
+5. **For complex tasks**: Delete the tracking file when task is complete
+
+### Step Update Pattern
+When updating the tracking file:
+```markdown
+## Progress Notes:
+- Completed Step 1: [Brief description of what was done]
+- Working on Step 2: [Current progress]
+
+## Completed:
+- [x] Step 1: [Description]
+```
+
+## Integration with Existing Rules
+
+This rule works in conjunction with:
+- FSD architecture requirements
+- File structure conventions  
+- Testing requirements
+- Code quality standards
+
+**Priority**: When this rule conflicts with other rules, clarify with the user which approach to take.
+
+## Benefits
+
+Following this approach ensures:
+- **Clarity**: No assumptions about file references
+- **Thoroughness**: Complete understanding of affected components
+- **Focus**: Strict adherence to requested scope
+- **Quality**: Systematic conflict resolution
+- **Trackability**: Clear execution progress for complex tasks
+- **Completeness**: Nothing is forgotten or overlooked

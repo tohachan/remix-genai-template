@@ -1,7 +1,7 @@
 ---
 description: "Enforce standardized README.md format in FSD slice directories"
-globs: ["app/features/*/README.md", "app/pages/*/README.md", "app/widgets/*/README.md", "app/entities/*/README.md"]
-alwaysApply: true
+globs: app/features/*/README.md, app/pages/*/README.md, app/widgets/*/README.md, app/entities/*/README.md
+alwaysApply: false
 ---
 
 # FSD Slice README Format Requirements
