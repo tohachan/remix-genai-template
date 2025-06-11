@@ -168,12 +168,106 @@ function loadTemplate(templateName) {
   return fs.readFileSync(templatePath, 'utf8');
 }
 
+function generateFeatureBaseline(sliceRootPath, templateData) {
+  const { slice } = templateData;
+  
+  // Generate api.ts
+  const apiPath = path.join(sliceRootPath, 'api.ts');
+  if (!fs.existsSync(apiPath)) {
+    const apiTemplate = loadTemplate('api');
+    const compiledApi = Handlebars.compile(apiTemplate);
+    const apiContent = compiledApi(templateData);
+    fs.writeFileSync(apiPath, apiContent);
+    console.log(`✅ Created API: ${apiPath}`);
+  }
+
+  // Generate api.spec.ts
+  const apiSpecPath = path.join(sliceRootPath, 'api.spec.ts');
+  if (!fs.existsSync(apiSpecPath)) {
+    const apiSpecTemplate = loadTemplate('api.spec');
+    const compiledApiSpec = Handlebars.compile(apiSpecTemplate);
+    const apiSpecContent = compiledApiSpec(templateData);
+    fs.writeFileSync(apiSpecPath, apiSpecContent);
+    console.log(`✅ Created API test: ${apiSpecPath}`);
+  }
+
+  // Generate hooks.ts
+  const hooksPath = path.join(sliceRootPath, 'hooks.ts');
+  if (!fs.existsSync(hooksPath)) {
+    const hooksTemplate = loadTemplate('hooks');
+    const compiledHooks = Handlebars.compile(hooksTemplate);
+    const hooksContent = compiledHooks(templateData);
+    fs.writeFileSync(hooksPath, hooksContent);
+    console.log(`✅ Created hooks: ${hooksPath}`);
+  }
+
+  // Generate hooks.spec.ts
+  const hooksSpecPath = path.join(sliceRootPath, 'hooks.spec.ts');
+  if (!fs.existsSync(hooksSpecPath)) {
+    const hooksSpecTemplate = loadTemplate('hooks.spec');
+    const compiledHooksSpec = Handlebars.compile(hooksSpecTemplate);
+    const hooksSpecContent = compiledHooksSpec(templateData);
+    fs.writeFileSync(hooksSpecPath, hooksSpecContent);
+    console.log(`✅ Created hooks test: ${hooksSpecPath}`);
+  }
+
+  // Generate README.md
+  const readmePath = path.join(sliceRootPath, 'README.md');
+  if (!fs.existsSync(readmePath)) {
+    const readmeTemplate = loadTemplate('readme');
+    const compiledReadme = Handlebars.compile(readmeTemplate);
+    const readmeContent = compiledReadme(templateData);
+    fs.writeFileSync(readmePath, readmeContent);
+    console.log(`✅ Created README: ${readmePath}`);
+  }
+}
+
+function updateIndexFile(indexPath, componentName, actualComponentName, isFeature) {
+  let indexContent = '';
+  
+  if (fs.existsSync(indexPath)) {
+    indexContent = fs.readFileSync(indexPath, 'utf8');
+  }
+  
+  if (isFeature) {
+    // For features, create comprehensive exports
+    const newIndexContent = `// UI Components
+export { ${componentName} } from './ui/${actualComponentName}';
+
+// Hooks
+export { use${componentName.replace(/Page$/, '')} } from './hooks';
+
+// API
+export { ${componentName.replace(/Page$/, '').toLowerCase()}Api } from './api';
+export type { ${componentName.replace(/Page$/, '')}ApiResponse } from './api';
+`;
+    
+    // Only write if content is different
+    if (indexContent !== newIndexContent) {
+      fs.writeFileSync(indexPath, newIndexContent);
+      console.log(`✅ Updated index: ${indexPath}`);
+    }
+  } else {
+    // For other layers, use simple export
+    const exportLine = `export { ${componentName} } from './ui/${actualComponentName}';`;
+    if (!indexContent.includes(exportLine)) {
+      indexContent += `${exportLine}\n`;
+      fs.writeFileSync(indexPath, indexContent);
+      console.log(`✅ Updated index: ${indexPath}`);
+    }
+  }
+}
+
 function generateComponentFiles(options) {
   const { layer, slice, componentName, includeTests, includeStorybook } = options;
   
   const componentPath = getComponentPath(layer, slice, componentName);
-  const componentFileName = `${componentName}.tsx`;
-  const testFileName = `${componentName}.spec.tsx`;
+  
+  // For features layer, use slice-based naming
+  const isFeature = layer === 'features';
+  const actualComponentName = isFeature ? `${slice}.page` : componentName;
+  const componentFileName = `${actualComponentName}.tsx`;
+  const testFileName = `${actualComponentName}.spec.ts`;
   const storyFileName = `${componentName}.stories.tsx`;
 
   // Ensure directory exists
@@ -217,27 +311,22 @@ function generateComponentFiles(options) {
     console.log(`✅ Created story: ${storyFilePath}`);
   }
 
-  // Update index.ts in slice root (not in ui/ folder)
+  // Get slice root path
   let sliceRootPath;
   if (FSD_LAYERS[layer].requiresSlice) {
     sliceRootPath = path.join(FSD_LAYERS[layer].path, slice);
   } else {
     sliceRootPath = FSD_LAYERS[layer].path;
   }
-  
+
+  // For features layer, generate baseline structure
+  if (isFeature && slice) {
+    generateFeatureBaseline(sliceRootPath, templateData);
+  }
+
+  // Update index.ts in slice root (not in ui/ folder)
   const indexPath = path.join(sliceRootPath, 'index.ts');
-  let indexContent = '';
-  
-  if (fs.existsSync(indexPath)) {
-    indexContent = fs.readFileSync(indexPath, 'utf8');
-  }
-  
-  const exportLine = `export { ${componentName} } from './ui/${componentName}';`;
-  if (!indexContent.includes(exportLine)) {
-    indexContent += `${exportLine}\n`;
-    fs.writeFileSync(indexPath, indexContent);
-    console.log(`✅ Updated index: ${indexPath}`);
-  }
+  updateIndexFile(indexPath, componentName, actualComponentName, isFeature);
 
   return {
     componentPath: componentFilePath,

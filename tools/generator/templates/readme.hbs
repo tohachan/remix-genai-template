@@ -1,0 +1,69 @@
+# For Humans
+
+## Overview
+The {{pascalCase slice}} feature provides {{slice}}-related functionality with empty content for demonstration purposes.
+
+## How to Run
+1. Import the feature components:
+   ```tsx
+   import { {{pascalCase slice}}Page, use{{pascalCase slice}}, {{camelCase slice}}Api } from '~/features/{{slice}}';
+   ```
+
+2. Use in your routes or components:
+   ```tsx
+   <{{pascalCase slice}}Page />
+   ```
+
+## How to Test
+Run tests for this feature:
+```bash
+npm test -- features/{{slice}}
+```
+
+Run all tests:
+```bash
+npm test
+```
+
+# For AI
+
+<!-- AI_META -->
+```json
+{
+  "purpose": "{{pascalCase slice}} feature with empty placeholder content for {{slice}}-related functionality",
+  "publicApi": [
+    "{{pascalCase slice}}Page - Main page component",
+    "use{{pascalCase slice}} - React hook for {{slice}} functionality", 
+    "{{camelCase slice}}Api - API functions for {{slice}} backend interactions"
+  ],
+  "dependencies": [
+    "React",
+    "@testing-library/react",
+    "~/shared/lib/utils"
+  ],
+  "tests": {
+    "location": "app/features/{{slice}}/**/*.spec.{ts,tsx}",
+    "command": "npm test -- features/{{slice}}"
+  }
+}
+```
+
+## Structure
+```
+app/features/{{slice}}/
+├── api.ts              # Backend interactions
+├── api.spec.ts         # API tests
+├── hooks.ts            # React hooks
+├── hooks.spec.ts       # Hook tests
+├── ui/
+│   ├── {{slice}}.page.tsx   # Main page component
+│   └── {{slice}}.page.spec.ts # Page tests
+├── index.ts            # Public exports
+└── README.md           # This file
+```
+
+## TODO
+- Add actual {{slice}} content when requirements are defined
+- Implement specific {{slice}} functionality
+- Add proper API endpoints
+- Enhance UI components 
