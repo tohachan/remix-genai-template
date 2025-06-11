@@ -1,23 +1,23 @@
 # For Humans
 
 ## Overview
-The {{pascalCase slice}} feature provides {{slice}}-related functionality with empty content for demonstration purposes.
+The {{pascalCase slice}} {{layer}} provides {{slice}}-related functionality with empty content for demonstration purposes.
 
 ## How to Run
-1. Import the feature components:
+1. Import the {{layer}} components:
    ```tsx
-   import { {{pascalCase slice}}Page, use{{pascalCase slice}}, {{camelCase slice}}Api } from '~/features/{{slice}}';
+   import { {{#each publicApi}}{{#if @first}}{{this}}{{/if}}{{/each}} } from '~/{{layer}}/{{slice}}';
    ```
 
 2. Use in your routes or components:
    ```tsx
-   <{{pascalCase slice}}Page />
+   <{{#each publicApi}}{{#if @first}}{{this}}{{/if}}{{/each}} />
    ```
 
 ## How to Test
-Run tests for this feature:
+Run tests for this {{layer}}:
 ```bash
-npm test -- features/{{slice}}
+npm test -- {{layer}}/{{slice}}
 ```
 
 Run all tests:
@@ -30,34 +30,34 @@ npm test
 <!-- AI_META -->
 ```json
 {
-  "purpose": "{{pascalCase slice}} feature with empty placeholder content for {{slice}}-related functionality",
+  "purpose": "{{pascalCase slice}} {{layer}} with {{#if hasApi}}API backend interactions{{/if}}{{#if hasHooks}} React hooks{{/if}}{{#if hasUi}} UI components{{/if}} for {{slice}}-related functionality",
   "publicApi": [
-    "{{pascalCase slice}}Page - Main page component",
-    "use{{pascalCase slice}} - React hook for {{slice}} functionality", 
-    "{{camelCase slice}}Api - API functions for {{slice}} backend interactions"
+    {{#each publicApiWithDescriptions}}
+    "{{this}}"{{#unless @last}},{{/unless}}
+    {{/each}}
   ],
   "dependencies": [
-    "React",
-    "@testing-library/react",
-    "~/shared/lib/utils"
+    {{#each dependencies}}
+    "{{this}}"{{#unless @last}},{{/unless}}
+    {{/each}}
   ],
   "tests": {
-    "location": "app/features/{{slice}}/**/*.spec.{ts,tsx}",
-    "command": "npm test -- features/{{slice}}"
+    "location": "app/{{layer}}/{{slice}}/**/*.spec.{ts,tsx}",
+    "command": "npm test -- {{layer}}/{{slice}}"
   }
 }
 ```
 
 ## Structure
 ```
-app/features/{{slice}}/
-├── api.ts              # Backend interactions
-├── api.spec.ts         # API tests
-├── hooks.ts            # React hooks
-├── hooks.spec.ts       # Hook tests
-├── ui/
-│   ├── {{slice}}.page.tsx   # Main page component
-│   └── {{slice}}.page.spec.ts # Page tests
+app/{{layer}}/{{slice}}/
+{{#if hasApi}}├── api.ts              # Backend interactions{{/if}}
+{{#if structure.hasApiTests}}├── api.spec.ts         # API tests{{/if}}
+{{#if hasHooks}}├── hooks.ts            # React hooks{{/if}}
+{{#if structure.hasHooksTests}}├── hooks.spec.ts       # Hook tests{{/if}}
+{{#if hasUi}}├── ui/                    # UI components{{/if}}
+{{#each structure.uiComponents}}{{#if ../hasUi}}│   ├── {{this}}.tsx{{#if @first}}     # Main component{{else}}     # UI component{{/if}}{{/if}}
+{{/each}}{{#if structure.hasTests}}│   └── *.spec.ts       # Component tests{{/if}}
 ├── index.ts            # Public exports
 └── README.md           # This file
 ```

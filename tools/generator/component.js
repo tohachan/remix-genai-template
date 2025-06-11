@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const inquirer = require('inquirer');
 const Handlebars = require('handlebars');
+const { generateReadme } = require('./readme');
 
 // Parse command line arguments
 function parseArgs() {
@@ -168,7 +169,7 @@ function loadTemplate(templateName) {
   return fs.readFileSync(templatePath, 'utf8');
 }
 
-function generateFeatureBaseline(sliceRootPath, templateData) {
+function generateFeatureBaseline(sliceRootPath, templateData, layer) {
   const { slice } = templateData;
   
   // Generate api.ts
@@ -211,13 +212,11 @@ function generateFeatureBaseline(sliceRootPath, templateData) {
     console.log(`✅ Created hooks test: ${hooksSpecPath}`);
   }
 
-  // Generate README.md
+  // Generate README.md using dedicated readme generator
   const readmePath = path.join(sliceRootPath, 'README.md');
   if (!fs.existsSync(readmePath)) {
-    const readmeTemplate = loadTemplate('readme');
-    const compiledReadme = Handlebars.compile(readmeTemplate);
-    const readmeContent = compiledReadme(templateData);
-    fs.writeFileSync(readmePath, readmeContent);
+    // Use the dedicated README generator for consistency
+    generateReadme(sliceRootPath, slice, layer, true);
     console.log(`✅ Created README: ${readmePath}`);
   }
 }
@@ -321,7 +320,7 @@ function generateComponentFiles(options) {
 
   // For features layer, generate baseline structure
   if (isFeature && slice) {
-    generateFeatureBaseline(sliceRootPath, templateData);
+    generateFeatureBaseline(sliceRootPath, templateData, layer);
   }
 
   // Update index.ts in slice root (not in ui/ folder)
