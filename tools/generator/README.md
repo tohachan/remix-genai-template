@@ -18,7 +18,42 @@ A component generator for projects following the Feature-Sliced Design (FSD) arc
 
 ## Usage
 
-### Interactive Generation
+### CLI Generation (Recommended)
+
+```bash
+npm run generate:component -- [ComponentName] [options]
+```
+
+**Available CLI Arguments:**
+- `--layer <layer>` - FSD layer (shared, entities, features, widgets, pages) **[REQUIRED]**
+- `--slice <slice>` - Slice name (required for entities, features, widgets, pages)
+- `--includeTests <bool>` - Generate test file (default: true)
+- `--includeStorybook <bool>` - Generate Storybook story (default: false)
+- `--help, -h` - Show help with examples
+
+**Important:** Always specify all arguments including defaults to avoid interactive prompts.
+
+### CLI Arguments Reference
+
+| Argument | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| `ComponentName` | string | Yes | - | Component name in PascalCase |
+| `--layer` | string | Yes | - | FSD layer: shared, entities, features, widgets, pages |
+| `--slice` | string | Conditional | - | Slice name (required for non-shared layers) |
+| `--includeTests` | boolean | Yes | true | Generate test file (.spec.tsx) |
+| `--includeStorybook` | boolean | Yes | false | Generate Storybook story (.stories.tsx) |
+
+**Best Practice:** Always specify ALL arguments to prevent interactive prompts:
+
+```bash
+# ✅ CORRECT - Full arguments specified
+npm run generate:component -- Button --layer shared --includeTests true --includeStorybook false
+
+# ❌ WRONG - Missing arguments will trigger prompts  
+npm run generate:component -- Button --layer shared
+```
+
+### Interactive Generation (Alternative)
 
 ```bash
 npm run generate:component
@@ -31,7 +66,56 @@ The generator will ask you to select:
 4. **Generate Tests** (enabled by default)
 5. **Generate Storybook Stories** (optional)
 
-### Examples
+### CLI Examples
+
+#### Creating a Component in the Shared Layer
+
+```bash
+# Full command with all arguments (recommended approach)
+npm run generate:component -- CustomButton --layer shared --includeTests true --includeStorybook false
+
+# Result:
+# app/shared/ui/CustomButton.tsx
+# app/shared/ui/CustomButton.spec.tsx
+# app/shared/index.ts (updated)
+```
+
+#### Creating a Component in the Feature Layer
+
+```bash
+# Full command with all arguments (recommended approach)
+npm run generate:component -- LoginForm --layer features --slice auth --includeTests true --includeStorybook false
+
+# Result:
+# app/features/auth/ui/LoginForm.tsx
+# app/features/auth/ui/LoginForm.spec.tsx
+# app/features/auth/index.ts (updated)
+```
+
+#### Creating a Component with Storybook in the Widgets Layer
+
+```bash
+# Full command with all arguments (recommended approach)
+npm run generate:component -- UserCard --layer widgets --slice profile --includeStorybook true --includeTests true
+
+# Result:
+# app/widgets/profile/ui/UserCard.tsx
+# app/widgets/profile/ui/UserCard.spec.tsx
+# app/widgets/profile/ui/UserCard.stories.tsx
+# app/widgets/profile/index.ts (updated)
+```
+
+#### Creating Components in Other Layers
+
+```bash
+# Entity layer component
+npm run generate:component -- ProductCard --layer entities --slice products --includeTests true --includeStorybook false
+
+# Page layer component  
+npm run generate:component -- HomePage --layer pages --slice home --includeTests true --includeStorybook false
+```
+
+### Interactive Examples (Alternative Approach)
 
 #### Creating a Component in the Shared Layer
 
@@ -54,7 +138,7 @@ npm run generate:component
 npm run generate:component
 # Select:
 # - Layer: features
-# - Slice: auth
+# - Slice: auth  
 # - Component Name: LoginForm
 # - Include tests: Yes
 
@@ -62,24 +146,6 @@ npm run generate:component
 # app/features/auth/ui/LoginForm.tsx
 # app/features/auth/ui/LoginForm.spec.tsx
 # app/features/auth/index.ts (updated)
-```
-
-#### Creating a Component with Storybook in the Widgets Layer
-
-```bash
-npm run generate:component
-# Select:
-# - Layer: widgets
-# - Slice: notifications
-# - Component Name: NotificationCard
-# - Include tests: Yes
-# - Include storybook: Yes
-
-# Result:
-# app/widgets/notifications/ui/NotificationCard.tsx
-# app/widgets/notifications/ui/NotificationCard.spec.tsx
-# app/widgets/notifications/ui/NotificationCard.stories.tsx
-# app/widgets/notifications/index.ts (updated)
 ```
 
 ## File Structure

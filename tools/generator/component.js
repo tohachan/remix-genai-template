@@ -5,6 +5,44 @@ const path = require('path');
 const inquirer = require('inquirer');
 const Handlebars = require('handlebars');
 
+// Parse command line arguments
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const parsed = {};
+  
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    
+    if (arg.startsWith('--')) {
+      const key = arg.slice(2);
+      const value = args[i + 1];
+      
+      if (value && !value.startsWith('--') && !value.startsWith('-')) {
+        // Convert string boolean values to actual booleans
+        if (value === 'true') {
+          parsed[key] = true;
+        } else if (value === 'false') {
+          parsed[key] = false;
+        } else {
+          parsed[key] = value;
+        }
+        i++; // Skip next argument as it's the value
+      } else {
+        parsed[key] = true;
+      }
+    } else if (arg === '-h') {
+      parsed.help = true;
+    } else if (!arg.startsWith('-')) {
+      // First non-flag argument is component name
+      if (!parsed.componentName) {
+        parsed.componentName = arg;
+      }
+    }
+  }
+  
+  return parsed;
+}
+
 // Register Handlebars helpers
 Handlebars.registerHelper('pascalCase', function(str) {
   return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
@@ -31,19 +69,28 @@ const FSD_LAYERS = {
   pages: { requiresSlice: true, path: 'app/pages' }
 };
 
-async function promptForComponentDetails() {
-  const questions = [
-    {
+async function promptForComponentDetails(cliArgs = {}) {
+  const questions = [];
+  
+  // Only prompt for missing values
+  if (!cliArgs.layer) {
+    questions.push({
       type: 'list',
       name: 'layer',
       message: 'Select FSD layer:',
       choices: Object.keys(FSD_LAYERS)
-    },
-    {
+    });
+  }
+  
+  if (!cliArgs.slice) {
+    questions.push({
       type: 'input',
       name: 'slice',
       message: 'Enter slice name (e.g., auth, user, product):',
-      when: (answers) => FSD_LAYERS[answers.layer].requiresSlice,
+      when: (answers) => {
+        const layer = cliArgs.layer || answers.layer;
+        return FSD_LAYERS[layer].requiresSlice;
+      },
       validate: (input) => {
         if (!input.trim()) {
           return 'Slice name is required for this layer';
@@ -53,8 +100,11 @@ async function promptForComponentDetails() {
         }
         return true;
       }
-    },
-    {
+    });
+  }
+  
+  if (!cliArgs.componentName) {
+    questions.push({
       type: 'input',
       name: 'componentName',
       message: 'Enter component name (e.g., LoginForm, UserCard):',
@@ -67,23 +117,37 @@ async function promptForComponentDetails() {
         }
         return true;
       }
-    },
+    });
+  }
 
-    {
+  if (cliArgs.includeTests === undefined) {
+    questions.push({
       type: 'confirm',
       name: 'includeTests',
       message: 'Generate test file?',
       default: true
-    },
-    {
+    });
+  }
+  
+  if (cliArgs.includeStorybook === undefined) {
+    questions.push({
       type: 'confirm',
       name: 'includeStorybook',
       message: 'Generate Storybook story?',
       default: false
-    }
-  ];
+    });
+  }
 
-  return await inquirer.prompt(questions);
+  const answers = await inquirer.prompt(questions);
+  
+  // Merge CLI args with prompted answers
+  return {
+    layer: cliArgs.layer || answers.layer,
+    slice: cliArgs.slice || answers.slice,
+    componentName: cliArgs.componentName || answers.componentName,
+    includeTests: cliArgs.includeTests !== undefined ? cliArgs.includeTests : answers.includeTests,
+    includeStorybook: cliArgs.includeStorybook !== undefined ? cliArgs.includeStorybook : answers.includeStorybook
+  };
 }
 
 function getComponentPath(layer, slice, componentName) {
@@ -186,9 +250,38 @@ function generateComponentFiles(options) {
 
 async function main() {
   try {
+    const cliArgs = parseArgs();
+    
+    // Show help if requested
+    if (cliArgs.help || cliArgs.h) {
+      console.log(`
+🚀 FSD Component Generator
+
+Usage:
+  npm run generate:component -- [ComponentName] [options]
+
+Options:
+  --layer <layer>         FSD layer (shared, entities, features, widgets, pages)
+  --slice <slice>         Slice name (required for entities, features, widgets, pages)
+  --includeTests <bool>   Generate test file (default: true)
+  --includeStorybook <bool> Generate Storybook story (default: false)
+  --help, -h              Show this help
+
+Examples:
+  # Interactive mode
+  npm run generate:component
+
+  # Non-interactive mode
+  npm run generate:component -- Button --layer shared --includeTests true
+  npm run generate:component -- LoginForm --layer features --slice auth
+  npm run generate:component -- UserCard --layer widgets --slice profile --includeStorybook true
+      `);
+      return;
+    }
+    
     console.log('🚀 FSD Component Generator\n');
     
-    const options = await promptForComponentDetails();
+    const options = await promptForComponentDetails(cliArgs);
     const generatedFiles = generateComponentFiles(options);
     
     console.log('\n✨ Component generation completed!');

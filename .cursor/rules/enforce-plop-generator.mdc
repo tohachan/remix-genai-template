@@ -1,0 +1,163 @@
+---
+description: "Enforce CLI component generator usage for all component creation"
+globs: ["**/ui/**/*.tsx", "**/ui/**/*.ts"]
+alwaysApply: true
+---
+
+# Enforce CLI Component Generator Usage for Component Creation
+
+This rule mandates the use of the CLI component generator with full arguments for creating all new React components in the project to ensure consistency, proper structure, and adherence to FSD architecture.
+
+## Required Generator Usage
+
+### Mandatory Generator Command
+All new components **must** be created using the component generator in CLI mode with full arguments:
+
+```bash
+# CLI mode with FULL arguments (REQUIRED approach)
+npm run generate:component -- ComponentName --layer <layer> --includeTests <true|false> --includeStorybook <true|false>
+
+# Examples with full arguments:
+npm run generate:component -- Button --layer shared --includeTests true --includeStorybook false
+npm run generate:component -- LoginForm --layer features --slice auth --includeTests true --includeStorybook false
+npm run generate:component -- UserCard --layer widgets --slice profile --includeStorybook true --includeTests true
+
+# Show help with all options
+npm run generate:component -- --help
+```
+
+**❌ Manual component creation is prohibited** - Do not create component files manually.
+**❌ Interactive mode is discouraged** - Always use CLI mode with full arguments to avoid prompts.
+**❌ Partial arguments are prohibited** - Always specify ALL arguments including defaults.
+
+## Enforcement Scope
+
+This rule applies to all component files in:
+- `**/ui/**/*.tsx` - React component files
+- `**/ui/**/*.ts` - TypeScript utility files in UI segments
+- All FSD layers: `shared`, `entities`, `features`, `widgets`, `pages`
+
+## Required Generator-Created Structure
+
+When creating components, the generator must produce:
+
+### Component Files
+```
+[layer]/[slice?]/ui/
+├── ComponentName.tsx        # Main component (generated)
+├── ComponentName.spec.tsx   # Tests (generated)
+└── ComponentName.stories.tsx # Storybook (optional, generated)
+```
+
+### Index Files
+```
+[layer]/[slice?]/
+└── index.ts                 # Exports (auto-updated by generator)
+```
+
+## Error Messages and Actions
+
+### When Manual Creation is Detected
+```
+❌ Manual component creation detected: [file-path]
+✅ Use generator instead: npm run generate:component -- ComponentName --layer <layer> --slice <slice> --includeTests true --includeStorybook false
+Delete manually created files and regenerate using the proper CLI command with full arguments.
+```
+
+### When Test Files are Missing
+```
+❌ Component created without tests: [component-path]
+✅ Regenerate with tests: npm run generate:component -- ComponentName --layer <layer> --slice <slice> --includeTests true --includeStorybook false
+Always use CLI mode with full arguments.
+```
+
+### When Index Exports are Incorrect
+```
+❌ Incorrect index.ts structure detected
+✅ Use generator to create proper exports: npm run generate:component -- ComponentName --layer <layer> --slice <slice> --includeTests true --includeStorybook false
+Generator automatically updates index.ts with correct patterns when using CLI mode with full arguments.
+```
+
+## Generator Command Reference
+
+### CLI Generation (Required Approach)
+```bash
+# CLI mode with FULL arguments - prevents any interactive prompts
+npm run generate:component -- ComponentName --layer <layer> --includeTests <true|false> --includeStorybook <true|false>
+
+# Always specify ALL arguments including defaults
+npm run generate:component -- ComponentName --layer shared --includeTests true --includeStorybook false
+```
+
+### Required Command Line Arguments
+- `--layer <layer>` - FSD layer (shared, entities, features, widgets, pages) **[REQUIRED]**
+- `--slice <slice>` - Slice name (required for entities, features, widgets, pages) **[REQUIRED for non-shared layers]**
+- `--includeTests <true|false>` - Generate test file **[REQUIRED - specify even if default]**
+- `--includeStorybook <true|false>` - Generate Storybook story **[REQUIRED - specify even if default]**
+- `--help, -h` - Show help with examples
+
+**Important:** ALL arguments must be specified to prevent interactive prompts.
+
+### Example Generator Sessions
+
+**CLI Mode with Full Arguments (Required Approach):**
+```bash
+$ npm run generate:component -- LoginButton --layer features --slice auth --includeTests true --includeStorybook false
+🚀 FSD Component Generator
+
+✅ Created component: app/features/auth/ui/LoginButton.tsx
+✅ Created test: app/features/auth/ui/LoginButton.spec.tsx
+✅ Updated index: app/features/auth/index.ts
+```
+
+**Additional CLI Examples:**
+```bash
+# Shared layer component with full arguments
+$ npm run generate:component -- Button --layer shared --includeTests true --includeStorybook false
+
+# Widget component with Storybook
+$ npm run generate:component -- UserCard --layer widgets --slice profile --includeStorybook true --includeTests true
+
+# Entity component 
+$ npm run generate:component -- ProductCard --layer entities --slice products --includeTests true --includeStorybook false
+```
+
+## Integration with Project Rules
+
+This rule works in conjunction with:
+
+### FSD Architecture Rules
+- `enforce-project-structure.mdc` - Proper layer organization
+- `feature-slice-baseline.mdc` - Required slice structure
+- `enforce-layer-boundaries.mdc` - Import restrictions
+
+### Code Quality Rules
+- `limit-component-responsibility.mdc` - Component size limits
+- `require-pure-function-tests.mdc` - Testing requirements
+- `enforce-design-tokens.mdc` - Styling standards
+
+### Development Workflow
+- `auto-generate-readme.mdc` - Documentation updates
+- Generated components trigger README updates for feature slices
+
+## Benefits Summary
+
+Following this rule provides:
+
+- **Consistency**: All components follow identical patterns through CLI generation
+- **Quality**: Built-in testing and TypeScript compliance with full argument specification
+- **Speed**: Faster development with automated boilerplate via CLI commands
+- **Maintainability**: Standardized structure across the codebase
+- **Architecture**: Automatic FSD compliance through CLI generator
+- **Documentation**: Integrated Storybook support when specified in CLI arguments
+- **Testing**: Complete test coverage from creation with --includeTests true
+- **Predictability**: No interactive prompts when using full CLI arguments
+
+## Implementation Timeline
+
+- **Immediate**: All new components must use CLI generator with full arguments
+- **Phase 1**: Update team documentation and training on CLI usage
+- **Phase 2**: Gradual migration of frequently-modified legacy components using CLI generator
+- **Phase 3**: Full codebase alignment during major refactors
+
+This rule ensures that all component creation follows established CLI patterns with full argument specification, reducing inconsistencies and improving overall code quality through standardized non-interactive generation processes. 
