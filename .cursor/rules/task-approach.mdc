@@ -3,6 +3,7 @@ description:
 globs: 
 alwaysApply: true
 ---
+
 # General Task Approach Rule
 
 This rule defines the systematic approach for handling user requests to ensure clarity, thoroughness, and focused execution.
@@ -91,6 +92,83 @@ When reading README files:
 
 **✅ User asks**: "Add a submit button"  
 **✅ Correct response**: "I'll add the submit button as requested"
+
+## File Editing and Search-Replace Error Handling
+
+### Proper Response to "String Not Found" Errors
+
+When `search_replace` fails with "string not found" errors, follow this systematic approach:
+
+#### First Attempt Failed
+If the first `search_replace` attempt fails:
+1. **Re-read the file** around the target area to verify exact formatting
+2. **Check for whitespace differences** - extra spaces, tabs, or line endings
+3. **Try a smaller, more specific string** that you're certain exists
+4. **Consider that the string may have already been changed** in a previous edit
+
+#### Multiple Failures (2-3 attempts)
+If multiple `search_replace` attempts fail:
+1. **Re-examine your target string** - it likely doesn't exist as written
+2. **Use `grep_search`** to find the actual text pattern in the file
+3. **Read the specific file section** to see the current state
+4. **Adjust your search string** based on what actually exists
+
+#### What NOT to Do
+
+**❌ Never resort to complex workarounds** after `search_replace` failures:
+- Do NOT use `sed` commands for text replacement
+- Do NOT attempt line-by-line file reconstruction
+- Do NOT use terminal commands to edit files character by character
+- Do NOT over-analyze with excessive `read_file` calls
+
+#### Correct Escalation Process
+
+If `search_replace` consistently fails after 2-3 reasonable attempts:
+
+1. **Acknowledge the limitation**:
+```
+I'm having trouble with the exact text replacement. The search string doesn't seem to match the file content exactly.
+```
+
+2. **Provide the exact replacement needed**:
+```
+Please manually replace this line:
+[exact current text]
+
+With:
+[exact new text]
+```
+
+3. **If needed, suggest using edit_file for larger changes**:
+```
+Alternatively, I can use edit_file to rewrite the entire section if you prefer.
+```
+
+#### Examples of Correct Behavior
+
+**✅ Good approach after search_replace fails:**
+```
+The search_replace failed to find the exact string. Let me read the file to see the current content.
+[reads file]
+I can see the actual text is slightly different. Let me try with the correct string.
+[attempts corrected search_replace]
+```
+
+**❌ Bad approach after search_replace fails:**
+```
+Let me use sed to replace this line by line...
+[starts complex terminal manipulation]
+Actually, let me read each line individually to find the exact position...
+[over-complicates simple task]
+```
+
+### Benefits of This Approach
+
+- **Efficiency**: Avoids time-consuming workarounds for simple tasks
+- **Simplicity**: Keeps text replacement straightforward
+- **Reliability**: Reduces errors from complex command chains
+- **Clarity**: Makes the editing process transparent to users
+- **Speed**: Resolves text replacement issues quickly
 
 ## Conflict Resolution Requirement
 
