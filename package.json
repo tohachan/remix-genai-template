@@ -12,8 +12,6 @@
     "test:coverage": "jest --coverage",
     "test:e2e": "playwright test",
     "generate:readme": "node tools/generator/readme.js",
-    "generate:test": "node scripts/generate-test.js",
-    "generate:feature": "node scripts/generate-feature.js",
     "generate:component": "node tools/generator/component.js",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "format": "prettier --write ."

@@ -133,7 +133,7 @@ All components automatically follow the design token system for consistent themi
 
 1. **Generate feature structure**:
    ```bash
-   npm run generate:feature <feature-name>
+   npm run generate:component -- FeaturePage --layer features --slice feature-name --includeTests true --includeStorybook false
    ```
    This creates the complete baseline structure: `api.ts`, `hooks.ts`, `ui/` directory, tests, and README.
 
@@ -143,14 +143,11 @@ All components automatically follow the design token system for consistent themi
    - Build UI components in `ui/` that consume hooks (not API directly)
    - Keep components under 200 lines
 
-3. **Generate tests for utilities**:
-   ```bash
-   npm run generate:test <file-path>
-   ```
+3. **Write tests manually** for utilities and components following the project testing patterns.
 
 4. **Update documentation**:
    ```bash
-   npm run generate:readme <feature-name>
+   npm run generate:readme <slice-name>
    ```
 
 ### Code Quality
@@ -265,8 +262,8 @@ npm run format      # Format code
 npm run typecheck   # TypeScript type checking
 
 # Code Generation
-npm run generate:feature <name>  # Generate feature structure
-npm run generate:test <path>     # Generate test file
+npm run generate:component <name> # Generate component with full options
+                                  # For features: npm run generate:component -- FeaturePage --layer features --slice feature-name
 npm run generate:readme <name>   # Update slice documentation
 ```
 
