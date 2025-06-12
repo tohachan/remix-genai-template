@@ -13,6 +13,7 @@ This template combines modern web development tools with architectural best prac
 - ⚡ **Remix + Vite** - Modern full-stack React framework with fast build tooling
 - 🎨 **Tailwind CSS + shadcn/ui** - Utility-first CSS with beautiful, accessible components
 - 🏗️ **Feature-Sliced Design (FSD)** - Scalable architecture methodology
+- 🔄 **RTK Query** - Powerful data fetching and caching with automatic re-validation
 - 🤖 **Gen AI Optimized** - Structured rules and conventions for reliable AI assistance
 - 📝 **Automated Documentation** - Self-maintaining documentation system
 - 🧪 **Complete Testing Suite** - Jest for unit tests, Playwright for e2e testing
@@ -126,6 +127,86 @@ npx shadcn-ui@latest add <component>
 ```
 
 All components automatically follow the design token system for consistent theming.
+
+## 🔄 RTK Query Integration
+
+The template includes **RTK Query** for efficient data fetching and state management:
+
+### Key Features
+- **Automatic Caching** - Intelligent request deduplication and background synchronization
+- **Real-time Updates** - Automatic cache invalidation and refetching
+- **Optimistic Updates** - Immediate UI updates with rollback on errors
+- **TypeScript Integration** - Fully typed API requests and responses
+- **FSD Architecture** - Clean separation between API, hooks, and UI layers
+
+### Architecture Pattern
+
+RTK Query follows the FSD layer separation pattern:
+
+```typescript
+// 1. API Layer (api.ts) - RTK Query endpoints
+export const userApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getUsers: builder.query<PaginatedResponse<User>, QueryParams>({
+      query: (params) => ({ url: '/users', params }),
+      providesTags: ['User'],
+    }),
+  }),
+});
+
+// 2. Hooks Layer (hooks.ts) - Business logic orchestration
+export function useUsersList(params: QueryParams = {}) {
+  const { data, isLoading, error } = useGetUsersQuery(params);
+  return { users: data?.data || [], isLoading, error };
+}
+
+// 3. UI Layer (ui/) - Components use hooks, not RTK Query directly
+export default function UserList() {
+  const { users, isLoading } = useUsersList(); // Use hook abstraction
+  return <div>{/* UI rendering */}</div>;
+}
+```
+
+### Creating New APIs
+
+1. **Extend the base API** in your feature's `api.ts`:
+   ```typescript
+   import { baseApi } from '~/shared/lib/store/api';
+   
+   export const featureApi = baseApi.injectEndpoints({
+     endpoints: (builder) => ({
+       getData: builder.query({
+         query: () => '/data',
+         providesTags: ['Data'],
+       }),
+     }),
+   });
+   ```
+
+2. **Create business logic hooks** in `hooks.ts`:
+   ```typescript
+   export function useFeatureData() {
+     const { data, isLoading, error } = useGetDataQuery();
+     return { items: data?.data || [], isLoading, error };
+   }
+   ```
+
+3. **Use hooks in UI components** - never import RTK Query directly in UI:
+   ```typescript
+   export default function FeatureComponent() {
+     const { items, isLoading } = useFeatureData();
+     // Component logic...
+   }
+   ```
+
+### Example Implementation
+
+See `app/features/example-api/` for a complete RTK Query implementation with:
+- CRUD operations (Create, Read, Update, Delete)
+- Pagination and search
+- Error handling and loading states
+- Cache invalidation patterns
+- TypeScript integration
 
 ## 📚 Development Workflows
 
@@ -285,10 +366,16 @@ The template enforces architectural consistency through comprehensive rules:
 
 ### Feature Development Rules
 Each feature slice must include:
-- `api.ts` + `api.spec.ts` - Backend integration with tests
-- `hooks.ts` + `hooks.spec.ts` - React hooks with tests  
+- `api.ts` + `api.spec.ts` - RTK Query endpoints with tests
+- `hooks.ts` + `hooks.spec.ts` - Business logic hooks using RTK Query with tests  
 - `ui/<feature>.page.tsx` + `ui/<feature>.page.spec.ts` - Main page with integration tests
 - `README.md` - Human and AI documentation
+
+### RTK Query Rules
+- **API Layer** - Use RTK Query endpoints in `api.ts`, extend `baseApi`
+- **Hooks Layer** - Create business logic hooks that wrap RTK Query hooks
+- **UI Layer** - Components use business logic hooks, never RTK Query directly
+- **Cache Management** - Proper tag configuration for automatic invalidation
 
 ### Validation
 The template automatically validates:

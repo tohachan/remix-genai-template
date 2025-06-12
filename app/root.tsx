@@ -1,5 +1,6 @@
 import type { LinksFunction } from '@remix-run/node'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
+import { ReduxProvider } from '~/shared/lib/providers/redux-provider'
 
 import styles from './tailwind.css?url'
 
@@ -15,7 +16,9 @@ export default function App() {
         <Links />
       </head>
       <body className="min-h-full bg-background font-sans antialiased">
-        <Outlet />
+        <ReduxProvider>
+          <Outlet />
+        </ReduxProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

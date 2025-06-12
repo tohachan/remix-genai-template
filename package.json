@@ -17,12 +17,14 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.8.2",
     "@remix-run/node": "^2.16.8",
     "@remix-run/react": "^2.16.8",
     "@remix-run/serve": "^2.16.8",
     "clsx": "^2.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-redux": "^9.2.0",
     "tailwind-merge": "^3.3.0"
   },
   "devDependencies": {
