@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import { vitePlugin as remix } from '@remix-run/dev'
+import path from 'path'
 
 export default defineConfig({
   plugins: [
@@ -10,6 +11,11 @@ export default defineConfig({
       serverModuleFormat: "esm",
     })
   ],
+  resolve: {
+    alias: {
+      "~": path.resolve(__dirname, "./app"),
+    },
+  },
   build: {
     cssMinify: true,
   },

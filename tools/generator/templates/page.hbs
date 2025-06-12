@@ -1,0 +1,25 @@
+import React from 'react';
+import { cn } from '~/shared/lib/utils';
+
+interface {{componentName}}Props {
+  className?: string;
+}
+
+export default function {{componentName}}({ className }: {{componentName}}Props) {
+  return (
+    <div className={cn("min-h-screen p-6", className)}>
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">
+          {{componentName}}
+        </h1>
+        
+        <div className="bg-white rounded-lg shadow-md p-6">
+          {/* Page content goes here */}
+          <p className="text-gray-600">
+            Welcome to the {{componentName}} page. This is a generated page component.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+} 

@@ -221,14 +221,18 @@ function generateFeatureBaseline(sliceRootPath, templateData, layer) {
   }
 }
 
-function updateIndexFile(indexPath, componentName, actualComponentName, isFeature) {
+function updateIndexFile(indexPath, componentName, actualComponentName, isFeature, isPage) {
   let indexContent = '';
   
   if (fs.existsSync(indexPath)) {
     indexContent = fs.readFileSync(indexPath, 'utf8');
   }
   
-  if (isFeature) {
+  if (isPage) {
+    // For pages, don't create index.ts - pages are imported directly from ui/index.tsx
+    // This matches the existing pattern where routes import from '../pages/[page]/ui'
+    return;
+  } else if (isFeature) {
     // For features, create comprehensive exports
     const newIndexContent = `// UI Components
 export { ${componentName} } from './ui/${actualComponentName}';
@@ -263,10 +267,27 @@ function generateComponentFiles(options) {
   const componentPath = getComponentPath(layer, slice, componentName);
   
   // For features layer, use slice-based naming
+  // For pages layer, use index.tsx pattern to match existing project structure
   const isFeature = layer === 'features';
-  const actualComponentName = isFeature ? `${slice}.page` : componentName;
-  const componentFileName = `${actualComponentName}.tsx`;
-  const testFileName = `${actualComponentName}.spec.ts`;
+  const isPage = layer === 'pages';
+  
+  let actualComponentName, componentFileName;
+  
+  if (isPage) {
+    // Pages use index.tsx pattern (like home page)
+    actualComponentName = 'index';
+    componentFileName = 'index.tsx';
+  } else if (isFeature) {
+    // Features use slice-based naming
+    actualComponentName = `${slice}.page`;
+    componentFileName = `${actualComponentName}.tsx`;
+  } else {
+    // Other layers use component name
+    actualComponentName = componentName;
+    componentFileName = `${actualComponentName}.tsx`;
+  }
+  
+  const testFileName = isPage ? 'index.spec.ts' : `${actualComponentName}.spec.ts`;
   const storyFileName = `${componentName}.stories.tsx`;
 
   // Ensure directory exists
@@ -279,8 +300,9 @@ function generateComponentFiles(options) {
     importPath: slice ? `~/app/${layer}/${slice}` : `~/app/${layer}`
   };
 
-  // Generate component file
-  const componentTemplate = loadTemplate('component');
+  // Generate component file - use page template for pages layer
+  const templateName = isPage ? 'page' : 'component';
+  const componentTemplate = loadTemplate(templateName);
   const compiledComponent = Handlebars.compile(componentTemplate);
   const componentContent = compiledComponent(templateData);
   
@@ -325,7 +347,7 @@ function generateComponentFiles(options) {
 
   // Update index.ts in slice root (not in ui/ folder)
   const indexPath = path.join(sliceRootPath, 'index.ts');
-  updateIndexFile(indexPath, componentName, actualComponentName, isFeature);
+  updateIndexFile(indexPath, componentName, actualComponentName, isFeature, isPage);
 
   return {
     componentPath: componentFilePath,
