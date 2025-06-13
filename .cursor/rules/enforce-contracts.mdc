@@ -1,0 +1,281 @@
+---
+description: 
+globs: **/api.ts
+alwaysApply: false
+---
+---
+description: "Enforce explicit TypeScript interfaces or imported schemas for API endpoints in feature slices"
+globs: ["features/*/api.ts"]
+alwaysApply: false
+---
+
+# Enforce API Contracts in Feature Slices
+
+This rule ensures that all API files in feature slices (`features/*/api.ts`) contain explicit TypeScript interfaces or imported schema definitions for requests and responses.
+
+## Rule Requirements
+
+### Mandatory Contract Definitions
+Every `features/*/api.ts` file **must** contain at least one of the following:
+
+#### TypeScript Interface Definitions
+```typescript
+// Request/Response interfaces
+interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+interface LoginResponse {
+  token: string;
+  user: User;
+}
+
+// Or type aliases
+type CreateUserRequest = {
+  name: string;
+  email: string;
+};
+
+type CreateUserResponse = {
+  id: string;
+  name: string;
+  email: string;
+};
+```
+
+#### Imported Schema Libraries
+```typescript
+// Zod schemas
+import { z } from 'zod';
+
+const LoginRequestSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+// JSON Schema imports
+import { loginRequestSchema, loginResponseSchema } from './schemas';
+
+// Type imports from shared contracts
+import type { ApiRequest, ApiResponse } from '~/shared/types/api';
+```
+
+#### Entity Type Imports
+```typescript
+// Importing entity types that serve as contracts
+import type { User, UserCreateData, UserUpdateData } from '~/entities/user';
+```
+
+## Detection Patterns
+
+This rule looks for these patterns in `features/*/api.ts` files:
+
+### Interface Declarations
+- `interface RequestName { ... }`
+- `interface ResponseName { ... }`
+- `interface ApiEndpointName { ... }`
+
+### Type Aliases
+- `type RequestName = { ... }`
+- `type ResponseName = { ... }`
+- `type ApiDataName = { ... }`
+
+### Schema Imports
+- `import { z } from 'zod'` (Zod schema library)
+- `import * as yup from 'yup'` (Yup validation)
+- `import { schema } from './schemas'` (JSON Schema)
+- `import { validator } from './validation'` (Custom validation)
+
+### Entity Type Imports
+- `import type { EntityName } from '~/entities/'`
+- `import { type ApiTypes } from '~/shared/types/'`
+
+## Error Conditions
+
+### Missing Contracts
+If a `features/*/api.ts` file contains API endpoint functions but lacks any contract definitions:
+
+**Error Message**: 
+```
+Missing API contract: please define or import TS interfaces (or Zod/JSON Schema) for all API endpoints.
+```
+
+### Examples of Missing Contracts
+
+**❌ API file without contracts:**
+```typescript
+// features/auth/api.ts
+export const loginUser = async (email: string, password: string) => {
+  // API call without explicit request/response types
+  const response = await fetch('/api/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+  return response.json(); // No response type
+};
+```
+
+**✅ API file with proper contracts:**
+```typescript
+// features/auth/api.ts
+interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+interface LoginResponse {
+  token: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+export const loginUser = async (request: LoginRequest): Promise<LoginResponse> => {
+  const response = await fetch('/api/login', {
+    method: 'POST',
+    body: JSON.stringify(request),
+  });
+  return response.json();
+};
+```
+
+## Implementation Examples
+
+### TypeScript Interfaces Approach
+```typescript
+// features/user-profile/api.ts
+interface GetProfileRequest {
+  userId: string;
+}
+
+interface GetProfileResponse {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
+interface UpdateProfileRequest {
+  name?: string;
+  email?: string;
+  avatar?: string;
+}
+
+interface UpdateProfileResponse {
+  success: boolean;
+  user: GetProfileResponse;
+}
+
+export const getUserProfile = async (request: GetProfileRequest): Promise<GetProfileResponse> => {
+  // Implementation with typed contracts
+};
+
+export const updateUserProfile = async (
+  userId: string, 
+  request: UpdateProfileRequest
+): Promise<UpdateProfileResponse> => {
+  // Implementation with typed contracts
+};
+```
+
+### Zod Schema Approach
+```typescript
+// features/auth/api.ts
+import { z } from 'zod';
+
+const LoginRequestSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+const LoginResponseSchema = z.object({
+  token: z.string(),
+  user: z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string(),
+  }),
+});
+
+type LoginRequest = z.infer<typeof LoginRequestSchema>;
+type LoginResponse = z.infer<typeof LoginResponseSchema>;
+
+export const loginUser = async (request: LoginRequest): Promise<LoginResponse> => {
+  const validatedRequest = LoginRequestSchema.parse(request);
+  const response = await fetch('/api/login', {
+    method: 'POST',
+    body: JSON.stringify(validatedRequest),
+  });
+  const data = await response.json();
+  return LoginResponseSchema.parse(data);
+};
+```
+
+### Entity Import Approach
+```typescript
+// features/product-catalog/api.ts
+import type { Product, ProductFilters, PaginatedResponse } from '~/entities/product';
+import type { ApiResponse } from '~/shared/types/api';
+
+interface GetProductsRequest extends ProductFilters {
+  page: number;
+  limit: number;
+}
+
+type GetProductsResponse = PaginatedResponse<Product>;
+
+export const getProducts = async (
+  request: GetProductsRequest
+): Promise<ApiResponse<GetProductsResponse>> => {
+  // Implementation using entity types as contracts
+};
+```
+
+## Benefits
+
+Following this rule ensures:
+
+### **Type Safety**
+- All API calls are properly typed at compile time
+- Request and response data structures are explicit and validated
+- Reduces runtime errors from incorrect API data handling
+
+### **Documentation**
+- API contracts serve as living documentation
+- Clear understanding of what each endpoint expects and returns
+- Better developer onboarding and maintenance
+
+### **Consistency**
+- Standardized approach to API contract definition across features
+- Consistent error handling and data validation
+- Unified patterns for API integration
+
+### **Integration**
+- Better integration with TypeScript tooling and IDE support
+- Easier refactoring when API contracts change
+- Clear boundaries between frontend and backend data structures
+
+## Rule Application
+
+This rule applies to files matching the glob pattern `features/*/api.ts` and will:
+
+1. **Scan each matching file** for contract definitions
+2. **Check for the presence** of interfaces, types, or schema imports
+3. **Validate that API functions** reference these contracts
+4. **Log rule application**: `[Cursor Rule] Applying enforce-contracts – API contract enforcement`
+5. **Report violations** with the required error message
+
+## Integration with FSD Architecture
+
+This rule supports Feature-Sliced Design by:
+
+- **Enforcing clean contracts** at the feature API boundary
+- **Supporting type safety** across the application layers
+- **Maintaining separation** between feature implementation and data contracts
+- **Enabling proper testing** with well-defined API shapes
+- **Supporting documentation** through explicit contract definitions
+
+The rule ensures that each feature slice maintains clear, explicit contracts for its API interactions, supporting the overall architectural quality and maintainability of the FSD-based application.
