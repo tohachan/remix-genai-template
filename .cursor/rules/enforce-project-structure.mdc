@@ -135,3 +135,42 @@ app/
 - **Global Styles**: Keep in `app/` root or `app/shared/ui/`
 - **Entry Points**: `app/entry.*.tsx` and `app/root.tsx` follow Remix conventions
 - **Build Config**: `vite.config.ts` stays in project root
+
+## Route Import Rules
+
+### Required Import Pattern for Pages
+Route files in `app/routes/` **must** import page components using relative paths:
+
+```tsx
+// ✅ CORRECT - Relative import to ui/index.tsx
+import UserPage from '../pages/user/ui';
+export default UserPage;
+```
+
+### Prohibited Import Patterns
+**❌ Do NOT use these import patterns in routes:**
+
+```tsx
+// ❌ WRONG - Named import from root index
+import { UserPage } from '~/pages/user';
+
+// ❌ WRONG - Direct file import with extension
+import UserPage from '~/pages/user/ui/user.page.tsx';
+```
+
+### Vite Alias Configuration
+Ensure `vite.config.ts` includes path alias for `~`:
+
+```typescript
+// vite.config.ts
+import path from 'path';
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      "~": path.resolve(__dirname, "./app"),
+    },
+  },
+  // ... other config
+});
+```

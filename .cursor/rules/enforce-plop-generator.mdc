@@ -37,6 +37,10 @@ This rule applies to all component files in:
 - `**/ui/**/*.ts` - TypeScript utility files in UI segments
 - All FSD layers: `shared`, `entities`, `features`, `widgets`, `pages`
 
+**Special Note for Pages Layer:**
+- Page components should use `ui/index.tsx` pattern (not `ui/[page].page.tsx`)
+- Generator creates proper structure following existing project patterns
+
 ## Required Generator-Created Structure
 
 When creating components, the generator must produce:
