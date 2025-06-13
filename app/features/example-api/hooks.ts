@@ -18,7 +18,7 @@ import type { QueryParams } from '~/shared/lib/rtk-query/types';
 // Hook for managing users list with filtering and pagination
 export function useUsersList(params: QueryParams = {}) {
   const {
-    data: response,
+    data: users,
     isLoading,
     isError,
     error,
@@ -26,19 +26,21 @@ export function useUsersList(params: QueryParams = {}) {
   } = useGetUsersQuery(params);
 
   return {
-    users: response?.data || [],
-    pagination: response?.pagination,
+    users: users || [],
     isLoading,
     isError,
     error,
     refetch,
+    // Computed states for UI
+    isEmpty: !isLoading && (!users || users.length === 0),
+    hasUsers: !isLoading && users && users.length > 0,
   };
 }
 
 // Hook for managing single user data
 export function useUser(userId: string) {
   const {
-    data: response,
+    data: user,
     isLoading,
     isError,
     error,
@@ -48,7 +50,7 @@ export function useUser(userId: string) {
   });
 
   return {
-    user: response?.data,
+    user,
     isLoading,
     isError,
     error,
@@ -63,7 +65,7 @@ export function useCreateUser() {
   const handleCreateUser = useCallback(async (userData: CreateUserRequest) => {
     try {
       const result = await createUser(userData).unwrap();
-      return result.data;
+      return result;
     } catch (err) {
       throw err;
     }
@@ -85,7 +87,7 @@ export function useUpdateUser() {
   const handleUpdateUser = useCallback(async (userData: UpdateUserRequest) => {
     try {
       const result = await updateUser(userData).unwrap();
-      return result.data;
+      return result;
     } catch (err) {
       throw err;
     }

@@ -29,15 +29,28 @@ export interface UpdateUserRequest {
 export const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Get all users with pagination
-    getUsers: builder.query<PaginatedResponse<User>, QueryParams>({
-      query: (params) => ({
-        url: '/users',
-        params,
-      }),
+    getUsers: builder.query<User[], QueryParams>({
+      query: (params) => {
+        const searchParams = new URLSearchParams();
+        
+        if (params.page) searchParams.append('_page', params.page.toString());
+        if (params.limit) searchParams.append('_limit', params.limit.toString());
+        if (params.search) searchParams.append('q', params.search);
+        if (params.sortBy) searchParams.append('_sort', params.sortBy);
+        if (params.sortOrder) searchParams.append('_order', params.sortOrder);
+        
+        return {
+          url: `/users?${searchParams.toString()}`,
+        };
+      },
+      transformResponse: (response: User[], meta, arg) => {
+        // json-server returns array directly
+        return response || [];
+      },
       providesTags: (result) =>
         result
           ? [
-              ...result.data.map(({ id }) => ({ type: 'User', id } as const)),
+              ...result.map(({ id }) => ({ type: 'User', id } as const)),
               { type: 'User', id: 'LIST' },
             ]
           : [{ type: 'User', id: 'LIST' }],

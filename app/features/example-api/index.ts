@@ -1,5 +1,6 @@
 // UI Components
 export { default as UserList } from './ui/UserList';
+export { default as CreateUserForm } from './ui/CreateUserForm';
 
 // Hooks
 export {

@@ -1,0 +1,86 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    },
+    {
+      "id": "3",
+      "name": "Bob Johnson",
+      "email": "bob.johnson@example.com",
+      "createdAt": "2024-01-17T09:15:00.000Z",
+      "updatedAt": "2024-01-17T09:15:00.000Z"
+    },
+    {
+      "id": "4",
+      "name": "Alice Williams",
+      "email": "alice.williams@example.com",
+      "createdAt": "2024-01-18T16:45:00.000Z",
+      "updatedAt": "2024-01-18T16:45:00.000Z"
+    },
+    {
+      "id": "5",
+      "name": "Charlie Brown",
+      "email": "charlie.brown@example.com",
+      "createdAt": "2024-01-19T11:30:00.000Z",
+      "updatedAt": "2024-01-19T11:30:00.000Z"
+    },
+    {
+      "id": "6",
+      "name": "Diana Prince",
+      "email": "diana.prince@example.com",
+      "createdAt": "2024-01-20T13:20:00.000Z",
+      "updatedAt": "2024-01-20T13:20:00.000Z"
+    },
+    {
+      "id": "7",
+      "name": "Edward Davis",
+      "email": "edward.davis@example.com",
+      "createdAt": "2024-01-21T08:45:00.000Z",
+      "updatedAt": "2024-01-21T08:45:00.000Z"
+    },
+    {
+      "id": "8",
+      "name": "Fiona Green",
+      "email": "fiona.green@example.com",
+      "createdAt": "2024-01-22T15:10:00.000Z",
+      "updatedAt": "2024-01-22T15:10:00.000Z"
+    },
+    {
+      "id": "9",
+      "name": "George Miller",
+      "email": "george.miller@example.com",
+      "createdAt": "2024-01-23T12:00:00.000Z",
+      "updatedAt": "2024-01-23T12:00:00.000Z"
+    },
+    {
+      "id": "10",
+      "name": "Helen Clark",
+      "email": "helen.clark@example.com",
+      "createdAt": "2024-01-24T17:30:00.000Z",
+      "updatedAt": "2024-01-24T17:30:00.000Z"
+    },
+    {
+      "id": "11",
+      "name": "Ivan Petrov",
+      "email": "ivan.petrov@example.com",
+      "createdAt": "2024-01-25T10:15:00.000Z",
+      "updatedAt": "2024-01-25T10:15:00.000Z"
+    },
+    {
+      "id": "12",
+      "name": "Julia Roberts",
+      "email": "julia.roberts@example.com",
+      "createdAt": "2024-01-26T14:50:00.000Z",
+      "updatedAt": "2024-01-26T14:50:00.000Z"
+    },
+    {
+      "id": "98d6",
+      "name": "Vasya",
+      "email": "pupkin@gmail.com"
+    }
+  ]
+}

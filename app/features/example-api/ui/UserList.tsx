@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useUsersList, useDeleteUser } from '../hooks';
+import CreateUserForm from './CreateUserForm';
 
 /**
  * Example UI component demonstrating RTK Query usage
@@ -10,7 +11,7 @@ export default function UserList() {
   const [search, setSearch] = useState('');
   
   // Use custom hook that wraps RTK Query
-  const { users, pagination, isLoading, isError, error, refetch } = useUsersList({
+  const { users, isLoading, isError, error, refetch, isEmpty, hasUsers } = useUsersList({
     page,
     limit: 10,
     search,
@@ -61,6 +62,9 @@ export default function UserList() {
 
   return (
     <div className="space-y-4">
+      {/* Create User Form */}
+      <CreateUserForm />
+
       {/* Search */}
       <div>
         <input
@@ -99,33 +103,31 @@ export default function UserList() {
         ))}
       </div>
 
-      {/* Pagination */}
-      {pagination && (
-        <div className="flex justify-between items-center pt-4">
-          <div className="text-sm text-gray-600">
-            Showing {users.length} of {pagination.total} users
-          </div>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setPage(page - 1)}
-              disabled={page <= 1}
-              className="px-3 py-1 border border-gray-300 rounded disabled:opacity-50 hover:bg-gray-50"
-            >
-              Previous
-            </button>
-            <span className="px-3 py-1 bg-gray-100 rounded">
-              Page {page} of {pagination.totalPages}
-            </span>
-            <button
-              onClick={() => setPage(page + 1)}
-              disabled={page >= pagination.totalPages}
-              className="px-3 py-1 border border-gray-300 rounded disabled:opacity-50 hover:bg-gray-50"
-            >
-              Next
-            </button>
-          </div>
+      {/* Simple pagination (without server count) */}
+      <div className="flex justify-between items-center pt-4">
+        <div className="text-sm text-gray-600">
+          Showing {users.length} users {search && `matching "${search}"`}
         </div>
-      )}
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setPage(page - 1)}
+            disabled={page <= 1}
+            className="px-3 py-1 border border-gray-300 rounded disabled:opacity-50 hover:bg-gray-50"
+          >
+            Previous
+          </button>
+          <span className="px-3 py-1 bg-gray-100 rounded">
+            Page {page}
+          </span>
+          <button
+            onClick={() => setPage(page + 1)}
+            disabled={users.length < 10} // Assume no more pages if less than limit
+            className="px-3 py-1 border border-gray-300 rounded disabled:opacity-50 hover:bg-gray-50"
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   );
 } 

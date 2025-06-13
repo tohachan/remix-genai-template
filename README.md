@@ -66,7 +66,12 @@ The template maintains **integrity and consistency** during AI-assisted developm
 
 3. **Start the development server**:
    ```bash
-   npm run dev
+   # For full development with mock API:
+   npm run dev:full
+   
+   # Or start separately:
+   npm run dev:api    # JSON server on port 3001
+   npm run dev        # Remix app on port 3000
    ```
 
 4. **Build for production**:
@@ -199,14 +204,32 @@ export default function UserList() {
    }
    ```
 
+### Mock API Server
+
+The template includes a JSON server for RTK Query demo:
+
+```bash
+# Start mock API server (port 3001)
+npm run dev:api
+
+# Available endpoints:
+# GET    /users?_page=1&_limit=10&q=search
+# GET    /users/:id
+# POST   /users
+# PATCH  /users/:id  
+# DELETE /users/:id
+```
+
 ### Example Implementation
 
 See `app/features/example-api/` for a complete RTK Query implementation with:
-- CRUD operations (Create, Read, Update, Delete)
-- Pagination and search
-- Error handling and loading states
-- Cache invalidation patterns
-- TypeScript integration
+- **Full CRUD operations** with JSON server backend
+- **Real HTTP requests** with automatic caching
+- **Pagination and search** with URL parameters
+- **Form handling** for creating/editing users
+- **Error handling** and loading states
+- **Cache invalidation** patterns
+- **TypeScript integration** throughout
 
 ## 📚 Development Workflows
 
@@ -327,7 +350,9 @@ The template includes optimized configurations:
 
 ```bash
 # Development
-npm run dev          # Start development server
+npm run dev:full     # Start both Remix app and mock API server
+npm run dev          # Start Remix development server only
+npm run dev:api      # Start mock API server only (port 3001)
 npm run build        # Build for production
 npm start           # Start production server
 
