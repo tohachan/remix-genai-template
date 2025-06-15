@@ -46,20 +46,39 @@ function parseArgs() {
 
 // Register Handlebars helpers
 Handlebars.registerHelper('pascalCase', function(str) {
-  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
-    return index === 0 ? word.toUpperCase() : word.toUpperCase();
-  }).replace(/\s+/g, '');
+  return str.replace(/[-_\s]+(.)?/g, function(_, char) {
+    return char ? char.toUpperCase() : '';
+  }).replace(/^(.)/, function(char) {
+    return char.toUpperCase();
+  });
 });
 
 Handlebars.registerHelper('camelCase', function(str) {
-  const pascal = str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
-    return index === 0 ? word.toLowerCase() : word.toUpperCase();
-  }).replace(/\s+/g, '');
-  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+  return str.replace(/[-_\s]+(.)?/g, function(_, char) {
+    return char ? char.toUpperCase() : '';
+  }).replace(/^(.)/, function(char) {
+    return char.toLowerCase();
+  });
 });
 
 Handlebars.registerHelper('kebabCase', function(str) {
   return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+});
+
+Handlebars.registerHelper('eq', function(a, b) {
+  return a === b;
+});
+
+Handlebars.registerHelper('or', function(a, b) {
+  return a || b;
+});
+
+Handlebars.registerHelper('unless', function(conditional, options) {
+  if (!conditional) {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
 });
 
 const FSD_LAYERS = {
@@ -234,15 +253,31 @@ function updateIndexFile(indexPath, componentName, actualComponentName, isFeatur
     return;
   } else if (isFeature) {
     // For features, create comprehensive exports
+    // Get slice from the path since it's not in scope here
+    const sliceName = path.basename(path.dirname(indexPath));
+    
+    // Create proper names for exports using slice
+    const baseName = sliceName.replace(/[-_\s]+(.)?/g, function(_, char) {
+      return char ? char.toUpperCase() : '';
+    }).replace(/^(.)/, function(char) {
+      return char.toUpperCase();
+    });
+    
+    const camelBaseName = sliceName.replace(/[-_\s]+(.)?/g, function(_, char) {
+      return char ? char.toUpperCase() : '';
+    }).replace(/^(.)/, function(char) {
+      return char.toLowerCase();
+    });
+    
     const newIndexContent = `// UI Components
 export { ${componentName} } from './ui/${actualComponentName}';
 
 // Hooks
-export { use${componentName.replace(/Page$/, '')} } from './hooks';
+export { use${baseName} } from './hooks';
 
 // API
-export { ${componentName.replace(/Page$/, '').toLowerCase()}Api } from './api';
-export type { ${componentName.replace(/Page$/, '')}ApiResponse } from './api';
+export { ${camelBaseName}Api } from './api';
+export type { ${baseName}ApiResponse } from './api';
 `;
     
     // Only write if content is different
@@ -287,7 +322,7 @@ function generateComponentFiles(options) {
     componentFileName = `${actualComponentName}.tsx`;
   }
   
-  const testFileName = isPage ? 'index.spec.ts' : `${actualComponentName}.spec.ts`;
+  const testFileName = isPage ? 'index.spec.tsx' : `${actualComponentName}.spec.tsx`;
   const storyFileName = `${componentName}.stories.tsx`;
 
   // Ensure directory exists

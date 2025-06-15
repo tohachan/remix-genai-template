@@ -191,4 +191,26 @@ Following this rule provides:
 - **Phase 2**: Gradual migration of frequently-modified legacy components using CLI generator
 - **Phase 3**: Full codebase alignment during major refactors
 
-This rule ensures that all component creation follows established CLI patterns with full argument specification, reducing inconsistencies and improving overall code quality through standardized non-interactive generation processes. 
+This rule ensures that all component creation follows established CLI patterns with full argument specification, reducing inconsistencies and improving overall code quality through standardized non-interactive generation processes.
+
+## Generator Philosophy and Scope
+
+### What the Generator DOES Create:
+- ✅ **File Structure**: Proper FSD-compliant directory and file organization
+- ✅ **Naming Consistency**: Correct file names, imports, and exports
+- ✅ **Type Safety**: TypeScript interfaces and proper type definitions
+- ✅ **Test Scaffolding**: Test files with correct imports and basic structure
+- ✅ **Integration Points**: Proper index.ts exports and feature baseline files
+
+### What the Generator DOES NOT Create:
+- ❌ **Business Logic**: Specific functionality implementation
+- ❌ **API Implementation**: Actual RTK Query endpoints or data fetching
+- ❌ **Component Logic**: Props interfaces, state management, or event handlers
+- ❌ **Test Implementation**: Specific test cases or component behavior testing
+
+### Expected Workflow:
+1. **Generator Creates Foundation** → Consistent structure and naming
+2. **Developer Implements Logic** → Business requirements and functionality  
+3. **Custom Code on Scaffolding** → Real implementation over generated templates
+
+The generator's role is to ensure **structural consistency** and **eliminate setup errors**, not to replace thoughtful software design and implementation. 
