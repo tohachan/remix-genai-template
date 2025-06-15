@@ -1,6 +1,10 @@
 # Remix + Gen AI Template
 
-A comprehensive starter kit for building scalable Remix applications using **Feature-Sliced Design (FSD)** architecture, optimized for seamless **Gen AI development** workflows.
+> [!NOTE]  
+> **🤖 Cursor AI Optimized**  
+> This template is specifically designed and optimized for **Cursor AI** development workflows. The Gen AI features, architectural rules, and automation work seamlessly with Cursor's AI capabilities. For other AI tools, the template will function as a standard Remix + FSD setup.
+
+A comprehensive starter kit for building scalable Remix applications using **Feature-Sliced Design (FSD)** architecture, optimized for seamless **Gen AI development** workflows with **Cursor AI**.
 
 ## 🚀 What This Template Provides
 
@@ -10,7 +14,7 @@ This template combines modern web development tools with architectural best prac
 - 🎨 **Tailwind CSS + shadcn/ui** - Utility-first CSS with beautiful, accessible components
 - 🏗️ **Feature-Sliced Design (FSD)** - Scalable architecture methodology
 - 🔄 **RTK Query** - Powerful data fetching and caching with automatic re-validation
-- 🤖 **Gen AI Optimized** - Structured rules and conventions for reliable AI assistance
+- 🤖 **Cursor AI Optimized** - Structured rules and conventions for reliable Cursor AI assistance
 - 📝 **Automated Documentation** - Self-maintaining documentation system
 - 🧪 **Complete Testing Suite** - Jest for unit tests, Playwright for e2e testing
 - 🔧 **Developer Tools** - ESLint, TypeScript strict mode, accessibility linting
@@ -31,23 +35,32 @@ app/
 └── routes/      # Remix routing convention
 ```
 
-## 🤖 Gen AI Integration
+## 🤖 Cursor AI Integration
 
-### Why This Structure Works with AI
+### Why This Structure Works with Cursor AI
 
-The template maintains **integrity and consistency** during AI-assisted development through:
+The template is specifically designed for **Cursor AI** and maintains **integrity and consistency** during AI-assisted development through:
 
-- **Clear Rules & Conventions** - Standardized patterns that AI tools can reliably follow
-- **Structured File Organization** - Predictable locations for components and logic
-- **Automated Validation** - Built-in checks for architectural compliance
-- **Self-Documenting Code** - README files and metadata for AI context
+- **Cursor Rules Integration** - Comprehensive `.cursor/rules/` directory with 17+ specialized rules
+- **Structured File Organization** - Predictable locations for components and logic that Cursor understands
+- **Automated Validation** - Built-in checks for architectural compliance during development
+- **Self-Documenting Code** - README files and metadata specifically formatted for Cursor AI context
+- **FSD Architecture Enforcement** - Custom ESLint rules that work seamlessly with Cursor's linting
 
-### Key Benefits for AI Development
+### Key Benefits for Cursor AI Development
 
-- **Predictable Outcomes** - Consistent results across different AI tools and sessions
-- **Reduced Errors** - Clear constraints prevent architectural violations
-- **Faster Development** - AI understands the structure and can work more efficiently
+- **Predictable Outcomes** - Consistent results across different Cursor AI sessions
+- **Reduced Errors** - Clear constraints prevent architectural violations through real-time validation
+- **Faster Development** - Cursor AI understands the FSD structure and can work more efficiently
 - **Maintainable Code** - Well-organized codebase that scales with your project
+- **Rule-Based Guidance** - Cursor applies project-specific rules automatically during development
+
+### Cursor-Specific Features
+
+- **17+ Cursor Rules** - Located in `.cursor/rules/` covering architecture, accessibility, testing, and quality
+- **Automatic Rule Application** - Rules are applied contextually as you develop
+- **Generator Integration** - CLI generators work perfectly with Cursor's workflow
+- **Documentation Automation** - README generation optimized for Cursor AI understanding
 
 ## 🚀 Getting Started
 
@@ -455,10 +468,10 @@ The template automatically validates through ESLint:
 
 ## 🤝 Contributing
 
-This template is designed to maintain consistency across teams and AI tools. Please follow the established patterns and run validation scripts before submitting changes:
+This template is designed to maintain consistency across teams and **specifically optimized for Cursor AI development**. Please follow the established patterns and run validation scripts before submitting changes:
 
 1. Run tests: `npm test && npm run test:e2e`
 2. Check code quality: `npm run lint && npm run lint:a11y && npm run typecheck`
 3. Update documentation if needed: `npm run generate:readme <slice>`
 
-For more details, see the [shadcn documentation](https://ui.shadcn.com/) and [Feature-Sliced Design methodology](https://feature-sliced.design/).
+For more details, see the [Cursor AI documentation](https://cursor.sh/), [shadcn documentation](https://ui.shadcn.com/) and [Feature-Sliced Design methodology](https://feature-sliced.design/).
