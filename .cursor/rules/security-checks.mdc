@@ -1,0 +1,343 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: "Enforce secure coding practices and detect common security vulnerabilities"
+globs: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+alwaysApply: true
+---
+
+# Security Checks - Enforce Secure Coding Practices
+
+This rule enforces secure coding practices by detecting common security vulnerabilities and requiring immediate notification to users when potential security issues are found in the code.
+
+## 🚨 CRITICAL REQUIREMENT: Always Alert Users
+
+When ANY security vulnerability is detected, **immediately alert the user** using this format:
+
+```
+🚨 SECURITY ALERT: [Brief description of the issue]
+
+**Issue**: [Detailed explanation of the security problem]
+**Risk Level**: [High/Medium/Low]
+**Location**: [File path and line number if applicable]
+**Recommended Fix**: [Specific remediation steps]
+
+Please address this security issue before proceeding with development.
+```
+
+## Common Security Vulnerabilities to Detect and Flag
+
+### 1. Cross-Site Scripting (XSS) Vulnerabilities
+
+#### ❌ Dangerous Patterns
+```tsx
+// ❌ BAD - Dangerous innerHTML usage
+<div dangerouslySetInnerHTML={{__html: userInput}} />
+
+// ❌ BAD - Unescaped user input in JSX
+<div>{userComment}</div> // if userComment contains HTML
+
+// ❌ BAD - Direct DOM manipulation with user input
+element.innerHTML = userInput;
+document.write(userInput);
+```
+
+#### ✅ Secure Alternatives
+```tsx
+// ✅ GOOD - Sanitized HTML
+import DOMPurify from 'dompurify';
+<div dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(userInput)}} />
+
+// ✅ GOOD - React automatically escapes
+<div>{userComment}</div> // Safe when userComment is text only
+
+// ✅ GOOD - Use textContent for text
+element.textContent = userInput;
+```
+
+### 2. Injection Vulnerabilities
+
+#### ❌ SQL Injection Patterns
+```typescript
+// ❌ BAD - String concatenation in queries
+const query = `SELECT * FROM users WHERE id = ${userId}`;
+
+// ❌ BAD - Template literals with user input
+const query = `SELECT * FROM users WHERE name = '${userName}'`;
+```
+
+#### ✅ Secure Database Queries
+```typescript
+// ✅ GOOD - Parameterized queries
+const query = 'SELECT * FROM users WHERE id = ?';
+db.query(query, [userId]);
+
+// ✅ GOOD - ORM with prepared statements
+const user = await User.findOne({ where: { id: userId } });
+```
+
+### 3. Authentication and Authorization Issues
+
+#### ❌ Insecure Authentication Patterns
+```typescript
+// ❌ BAD - Weak password validation
+const isValidPassword = password.length > 4;
+
+// ❌ BAD - Client-side only auth checks
+if (user.role === 'admin') {
+  // Sensitive operation
+}
+
+// ❌ BAD - Hardcoded credentials
+const API_KEY = 'abc123';
+const DATABASE_PASSWORD = 'password123';
+```
+
+#### ✅ Secure Authentication
+```typescript
+// ✅ GOOD - Strong password validation
+const isValidPassword = password.length >= 8 && 
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(password);
+
+// ✅ GOOD - Server-side auth verification
+const hasPermission = await verifyPermissionOnServer(userId, action);
+
+// ✅ GOOD - Environment variables
+const API_KEY = process.env.API_KEY;
+const DATABASE_PASSWORD = process.env.DATABASE_PASSWORD;
+```
+
+### 4. Sensitive Data Exposure
+
+#### ❌ Information Disclosure Patterns
+```typescript
+// ❌ BAD - Logging sensitive data
+console.log('User password:', password);
+console.log('Credit card:', creditCardNumber);
+
+// ❌ BAD - Exposing stack traces in production
+catch (error) {
+  return res.status(500).json({ error: error.stack });
+}
+
+// ❌ BAD - Including sensitive data in client responses
+return { user: { ...userData, password: hashedPassword } };
+```
+
+#### ✅ Secure Data Handling
+```typescript
+// ✅ GOOD - Never log sensitive data
+console.log('Authentication attempt for user:', userId);
+
+// ✅ GOOD - Generic error messages in production
+catch (error) {
+  const isDev = process.env.NODE_ENV === 'development';
+  return res.status(500).json({ 
+    error: isDev ? error.message : 'Internal server error' 
+  });
+}
+
+// ✅ GOOD - Exclude sensitive fields
+const { password, ...safeUserData } = userData;
+return { user: safeUserData };
+```
+
+### 5. Insecure File Operations
+
+#### ❌ Path Traversal Vulnerabilities
+```typescript
+// ❌ BAD - Unrestricted file access
+const filePath = `/uploads/${req.params.filename}`;
+fs.readFile(filePath, callback);
+
+// ❌ BAD - User-controlled file paths
+const userFile = req.body.filepath;
+fs.unlink(userFile, callback);
+```
+
+#### ✅ Secure File Handling
+```typescript
+// ✅ GOOD - Validate and sanitize file paths
+const filename = path.basename(req.params.filename);
+const filePath = path.join('/uploads', filename);
+if (!filePath.startsWith('/uploads/')) {
+  throw new Error('Invalid file path');
+}
+
+// ✅ GOOD - Whitelist allowed file operations
+const allowedPaths = ['/uploads/', '/temp/'];
+const isAllowed = allowedPaths.some(allowed => filePath.startsWith(allowed));
+```
+
+### 6. Insecure HTTP Headers and CORS
+
+#### ❌ Missing Security Headers
+```typescript
+// ❌ BAD - Missing security headers
+app.use((req, res, next) => {
+  next();
+});
+
+// ❌ BAD - Overly permissive CORS
+app.use(cors({ origin: '*' }));
+```
+
+#### ✅ Secure Headers Configuration
+```typescript
+// ✅ GOOD - Security headers
+app.use(helmet({
+  contentSecurityPolicy: true,
+  hsts: true,
+  noSniff: true,
+  xssFilter: true
+}));
+
+// ✅ GOOD - Restrictive CORS
+app.use(cors({ 
+  origin: ['https://yourdomain.com', 'https://app.yourdomain.com'],
+  credentials: true 
+}));
+```
+
+### 7. Client-Side Security Issues
+
+#### ❌ Insecure Local Storage Usage
+```typescript
+// ❌ BAD - Storing sensitive data in localStorage
+localStorage.setItem('authToken', jwtToken);
+localStorage.setItem('userPassword', password);
+
+// ❌ BAD - Using eval() or similar
+eval(userInput);
+new Function(userInput)();
+```
+
+#### ✅ Secure Client-Side Practices
+```typescript
+// ✅ GOOD - Use secure, httpOnly cookies for sensitive data
+// Set via server-side Set-Cookie header with httpOnly flag
+
+// ✅ GOOD - Never execute user input as code
+// Use JSON.parse() for data, avoid eval() completely
+const data = JSON.parse(userInput);
+```
+
+## Automatic Security Checks
+
+The following patterns should trigger **immediate security alerts**:
+
+### High-Risk Pattern Detection
+- `dangerouslySetInnerHTML` without sanitization
+- `eval()`, `new Function()`, `setTimeout(string)`
+- SQL queries with string concatenation
+- Hardcoded passwords, API keys, secrets
+- `console.log()` with potential sensitive data
+- Missing input validation on user data
+- Overly permissive CORS settings
+- Missing authentication checks on sensitive operations
+
+### Security Alert Templates
+
+#### For XSS Vulnerabilities
+```
+🚨 SECURITY ALERT: Potential XSS vulnerability detected
+
+**Issue**: Use of dangerouslySetInnerHTML or unescaped user input
+**Risk Level**: High
+**Location**: [file:line]
+**Recommended Fix**: Sanitize HTML content using DOMPurify or ensure data is properly escaped
+```
+
+#### For Injection Vulnerabilities
+```
+🚨 SECURITY ALERT: Potential injection vulnerability detected
+
+**Issue**: String concatenation in database queries or dynamic code execution
+**Risk Level**: High
+**Location**: [file:line]
+**Recommended Fix**: Use parameterized queries or prepared statements
+```
+
+#### For Sensitive Data Exposure
+```
+🚨 SECURITY ALERT: Potential sensitive data exposure
+
+**Issue**: Logging or returning sensitive information
+**Risk Level**: Medium
+**Location**: [file:line]
+**Recommended Fix**: Remove sensitive data from logs and API responses
+```
+
+## Security Best Practices to Enforce
+
+### Input Validation
+- **Always validate** user input on both client and server side
+- **Use whitelist validation** rather than blacklist
+- **Sanitize** all user input before processing or storage
+
+### Authentication & Authorization
+- **Verify permissions** on the server side for every sensitive operation
+- **Use strong password requirements** and secure password storage
+- **Implement proper session management** with secure cookies
+
+### Data Protection
+- **Never log sensitive data** (passwords, tokens, personal information)
+- **Use HTTPS** for all data transmission
+- **Implement proper error handling** without information disclosure
+
+### Code Security
+- **Avoid dynamic code execution** (eval, new Function, etc.)
+- **Use security linters** and static analysis tools
+- **Keep dependencies updated** and check for known vulnerabilities
+
+## Integration with Development Workflow
+
+### Pre-commit Checks
+- Run security scanning on all modified files
+- Flag any high-risk patterns for manual review
+- Prevent commits with critical security issues
+
+### Code Review Requirements
+- **Mandatory security review** for authentication/authorization code
+- **Double-check** all user input handling
+- **Verify** proper error handling and logging practices
+
+## Environment-Specific Security
+
+### Development Environment
+- Use `.env.local` for development secrets
+- Never commit `.env` files to version control
+- Use different credentials for dev/staging/production
+
+### Production Environment
+- Enable all security headers
+- Use environment variables for all configuration
+- Regularly update and patch dependencies
+- Implement monitoring and alerting for security events
+
+## Benefits
+
+Following this security rule provides:
+
+- **Proactive Vulnerability Detection**: Catch security issues during development
+- **Consistent Security Standards**: Apply uniform security practices across the codebase
+- **Developer Education**: Learn secure coding practices through immediate feedback
+- **Risk Mitigation**: Reduce the likelihood of security breaches
+- **Compliance**: Meet security standards and regulatory requirements
+
+## Integration with FSD Architecture
+
+This rule works across all FSD layers:
+
+- **Shared Layer**: Secure utility functions and API clients
+- **Entities Layer**: Secure data models and validation
+- **Features Layer**: Secure business logic and user interactions
+- **Widgets Layer**: Secure component composition and data handling
+- **Pages Layer**: Secure route handlers and page-level security
+
+**Priority**: Security concerns override other architectural considerations - always address security issues first.
+
+[Cursor Rule] Applying security-checks.mdc — Security vulnerability detection and prevention
