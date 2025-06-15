@@ -8,6 +8,27 @@ alwaysApply: true
 
 This rule mandates the use of the CLI component generator with full arguments for creating all new React components in the project to ensure consistency, proper structure, and adherence to FSD architecture.
 
+## 🚨 MANDATORY WORKFLOW CHECKS
+
+**BEFORE creating ANY component file, ALWAYS:**
+
+1. **STOP** - Do not create .tsx files manually
+2. **CHECK** - Is there a generator for this file type?
+3. **USE** - Run the appropriate CLI generator command
+4. **VERIFY** - Confirm the generator created all required files
+
+### 🚨 RED FLAGS - Stop and use generator:
+- Creating ANY files in `ui/` directories
+- Creating README.md in feature directories  
+- Creating .spec.ts files manually
+- Writing `export default function ComponentName()` from scratch
+
+### ✅ GENERATOR-FIRST CHECKLIST:
+- [ ] Checked if CLI generator exists for this file type
+- [ ] Used `npm run generate:component` with full arguments
+- [ ] Verified all files were created by generator
+- [ ] Only then customized generated content
+
 ## Required Generator Usage
 
 ### Mandatory Generator Command
@@ -26,9 +47,15 @@ npm run generate:component -- UserCard --layer widgets --slice profile --include
 npm run generate:component -- --help
 ```
 
-**❌ Manual component creation is prohibited** - Do not create component files manually.
-**❌ Interactive mode is discouraged** - Always use CLI mode with full arguments to avoid prompts.
-**❌ Partial arguments are prohibited** - Always specify ALL arguments including defaults.
+**❌ Manual component creation is STRICTLY PROHIBITED** - Never create component files manually.
+**❌ Interactive mode is FORBIDDEN** - Always use CLI mode with full arguments to avoid prompts.
+**❌ Partial arguments are FORBIDDEN** - Always specify ALL arguments including defaults.
+
+### 🛑 IMMEDIATE ACTIONS when manual creation is detected:
+1. **STOP work immediately**
+2. **DELETE manually created files**
+3. **Run CLI generator with full arguments**
+4. **ONLY THEN continue with customization**
 
 ## Enforcement Scope
 

@@ -203,14 +203,17 @@ How would you like me to proceed?
 For every task, create a clear step-by-step plan:
 
 #### Simple Tasks (1-3 steps)
-Present the plan directly in the response:
+Present the plan directly in the response with generator checks:
 ```
 **Execution Plan:**
-1. [Step 1 description]
-2. [Step 2 description]  
+1. [Step 1 description] 
+   - Check generators: [List applicable generators for this step]
+2. [Step 2 description]
+   - Generator needed: [Yes/No - specify which one]
 3. [Step 3 description]
+   - Manual file creation: [Only if no generator available]
 
-I'll now proceed with these steps.
+I'll now proceed with these steps using CLI generators where applicable.
 ```
 
 #### Complex Tasks (4+ steps)
@@ -223,11 +226,19 @@ Create a temporary tracking file:
 # Task: [Brief task description]
 
 ## Steps:
-- [ ] Step 1: [Description]
+- [ ] Step 1: [Description] 
+  - Generator check: [CLI generator needed? Which one?]
 - [ ] Step 2: [Description]
+  - Generator check: [CLI generator needed? Which one?]
 - [ ] Step 3: [Description]
+  - Generator check: [CLI generator needed? Which one?]
 - [ ] Step 4: [Description]
+  - Generator check: [CLI generator needed? Which one?]
 ...
+
+## Generator Commands Used:
+- Step X: npm run generate:component -- ComponentName --layer features --slice auth --includeTests true --includeStorybook false
+- Step Y: npm run generate:readme slice-name
 
 ## Progress Notes:
 [Update as you work through steps]
@@ -236,13 +247,33 @@ Create a temporary tracking file:
 [Move completed steps here]
 ```
 
-### Step Execution Process
+### Step Execution Process with Generator Checks
 
 1. **Create or present** the execution plan
-2. **Follow steps sequentially** - complete one before moving to the next
-3. **For complex tasks**: Update the tracking file after each step completion
-4. **Stay focused** on current step, don't jump ahead
-5. **For complex tasks**: Delete the tracking file when task is complete
+2. **For each step involving file creation:**
+   - **FIRST** check if CLI generator exists for the file type
+   - **USE** CLI generator if available (components, README, tests)
+   - **ONLY** proceed with manual creation if no generator exists
+3. **Follow steps sequentially** - complete one before moving to the next
+4. **For complex tasks**: Update the tracking file after each step completion
+5. **Stay focused** on current step, don't jump ahead
+6. **For complex tasks**: Delete the tracking file when task is complete
+
+### 🚨 GENERATOR CHECK REQUIREMENTS
+
+**Before ANY file creation step, ask:**
+- Is this a component (.tsx) file? → Use `npm run generate:component`
+- Is this a README.md in a feature? → Use `npm run generate:readme`
+- Is this a test file? → Check if `npm run generate:test` exists
+- Is this another file type? → Check available generators first
+
+**Generator-First Step Pattern:**
+```
+Step X: Create ComponentName component
+  X.1: Check CLI generator: npm run generate:component --help
+  X.2: Run generator: npm run generate:component -- ComponentName --layer features --slice auth --includeTests true --includeStorybook false
+  X.3: Customize generated content as needed
+```
 
 ### Step Update Pattern
 When updating the tracking file:
