@@ -6,24 +6,24 @@ export default function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  remixContext: EntryContext
+  remixContext: EntryContext,
 ) {
   const html = renderToString(
-    <RemixServer context={remixContext} url={request.url} />
+    <RemixServer context={remixContext} url={request.url} />,
   );
-  
+
   const body = new ReadableStream({
     start(controller) {
       controller.enqueue(new TextEncoder().encode('<!DOCTYPE html>' + html));
       controller.close();
     },
   });
-  
+
   return new Response(body, {
     status: responseStatusCode,
     headers: {
       ...Object.fromEntries(responseHeaders),
       'Content-Type': 'text/html',
-    }
+    },
   });
 }

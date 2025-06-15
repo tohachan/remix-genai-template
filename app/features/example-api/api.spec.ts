@@ -15,12 +15,12 @@ describe('User API', () => {
     });
 
     it('should export hooks for all endpoints', () => {
-      const { 
+      const {
         useGetUsersQuery,
         useGetUserQuery,
         useCreateUserMutation,
         useUpdateUserMutation,
-        useDeleteUserMutation 
+        useDeleteUserMutation,
       } = userApi;
 
       expect(useGetUsersQuery).toBeDefined();
@@ -30,4 +30,4 @@ describe('User API', () => {
       expect(useDeleteUserMutation).toBeDefined();
     });
   });
-}); 
+});

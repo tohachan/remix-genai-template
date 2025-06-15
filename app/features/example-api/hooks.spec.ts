@@ -1,4 +1,10 @@
-import { useUsersList, useUser, useCreateUser, useUpdateUser, useDeleteUser } from './hooks';
+import {
+  useUsersList,
+  useUser,
+  useCreateUser,
+  useUpdateUser,
+  useDeleteUser,
+} from './hooks';
 
 describe('RTK Query Hooks', () => {
   describe('useUsersList', () => {
@@ -35,4 +41,4 @@ describe('RTK Query Hooks', () => {
       expect(typeof useDeleteUser).toBe('function');
     });
   });
-}); 
+});

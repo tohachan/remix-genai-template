@@ -60,16 +60,20 @@ export function useUser(userId: string) {
 
 // Hook for user creation with state management
 export function useCreateUser() {
-  const [createUser, { isLoading, isError, error, isSuccess }] = useCreateUserMutation();
+  const [createUser, { isLoading, isError, error, isSuccess }] =
+    useCreateUserMutation();
 
-  const handleCreateUser = useCallback(async (userData: CreateUserRequest) => {
-    try {
-      const result = await createUser(userData).unwrap();
-      return result;
-    } catch (err) {
-      throw err;
-    }
-  }, [createUser]);
+  const handleCreateUser = useCallback(
+    async(userData: CreateUserRequest) => {
+      try {
+        const result = await createUser(userData).unwrap();
+        return result;
+      } catch (err) {
+        throw err;
+      }
+    },
+    [createUser],
+  );
 
   return {
     createUser: handleCreateUser,
@@ -82,16 +86,20 @@ export function useCreateUser() {
 
 // Hook for user updates with optimistic updates
 export function useUpdateUser() {
-  const [updateUser, { isLoading, isError, error, isSuccess }] = useUpdateUserMutation();
+  const [updateUser, { isLoading, isError, error, isSuccess }] =
+    useUpdateUserMutation();
 
-  const handleUpdateUser = useCallback(async (userData: UpdateUserRequest) => {
-    try {
-      const result = await updateUser(userData).unwrap();
-      return result;
-    } catch (err) {
-      throw err;
-    }
-  }, [updateUser]);
+  const handleUpdateUser = useCallback(
+    async(userData: UpdateUserRequest) => {
+      try {
+        const result = await updateUser(userData).unwrap();
+        return result;
+      } catch (err) {
+        throw err;
+      }
+    },
+    [updateUser],
+  );
 
   return {
     updateUser: handleUpdateUser,
@@ -104,16 +112,20 @@ export function useUpdateUser() {
 
 // Hook for user deletion with confirmation
 export function useDeleteUser() {
-  const [deleteUser, { isLoading, isError, error, isSuccess }] = useDeleteUserMutation();
+  const [deleteUser, { isLoading, isError, error, isSuccess }] =
+    useDeleteUserMutation();
 
-  const handleDeleteUser = useCallback(async (userId: string) => {
-    try {
-      await deleteUser(userId).unwrap();
-      return true;
-    } catch (err) {
-      throw err;
-    }
-  }, [deleteUser]);
+  const handleDeleteUser = useCallback(
+    async(userId: string) => {
+      try {
+        await deleteUser(userId).unwrap();
+        return true;
+      } catch (err) {
+        throw err;
+      }
+    },
+    [deleteUser],
+  );
 
   return {
     deleteUser: handleDeleteUser,
@@ -122,4 +134,4 @@ export function useDeleteUser() {
     error,
     isSuccess,
   };
-} 
+}

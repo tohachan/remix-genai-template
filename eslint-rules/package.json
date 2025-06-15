@@ -1,0 +1,31 @@
+{
+  "name": "eslint-plugin-fsd",
+  "version": "1.0.0",
+  "description": "ESLint plugin for Feature-Sliced Design architecture rules",
+  "main": "index.js",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "fsd",
+    "feature-sliced-design",
+    "architecture",
+    "design-tokens",
+    "layer-boundaries"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=7.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "your-repo-url"
+  },
+  "files": [
+    "index.js",
+    "README.md"
+  ]
+} 

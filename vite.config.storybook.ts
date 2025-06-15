@@ -4,7 +4,7 @@ import path from 'path';
 export default defineConfig({
   resolve: {
     alias: {
-      "~": path.resolve(__dirname, "./app"),
+      '~': path.resolve(__dirname, './app'),
     },
   },
   css: {
@@ -14,4 +14,4 @@ export default defineConfig({
     jsxFactory: 'React.createElement',
     jsxFragment: 'React.Fragment',
   },
-}); 
+});

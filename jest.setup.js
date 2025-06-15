@@ -28,4 +28,4 @@ global.IntersectionObserver = class IntersectionObserver {
   unobserve() {
     return null;
   }
-}; 
+};

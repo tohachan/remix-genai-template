@@ -16,7 +16,7 @@ if (files.length === 0) {
 }
 
 // Run ESLint with --fix on the provided files
-const eslint = spawn('npx', ['eslint', '--fix', ...files], {
+const eslint = spawn('npx', ['eslint', '--fix', '--ext', '.ts,.tsx,.js,.jsx', ...files], {
   stdio: 'inherit',
   cwd: process.cwd(),
 });

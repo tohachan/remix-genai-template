@@ -4,7 +4,10 @@ import { UserList } from '~/features/example-api';
 export const meta: MetaFunction = () => {
   return [
     { title: 'RTK Query Example | Remix Template' },
-    { name: 'description', content: 'Demonstration of RTK Query integration with FSD architecture' },
+    {
+      name: 'description',
+      content: 'Demonstration of RTK Query integration with FSD architecture',
+    },
   ];
 };
 
@@ -17,8 +20,9 @@ export default function RTKExamplePage() {
             RTK Query Example
           </h1>
           <p className="text-gray-600">
-            This page demonstrates RTK Query integration with Feature-Sliced Design architecture.
-            The UserList component shows CRUD operations with automatic caching and real-time updates.
+            This page demonstrates RTK Query integration with Feature-Sliced
+            Design architecture. The UserList component shows CRUD operations
+            with automatic caching and real-time updates.
           </p>
         </header>
 
@@ -28,10 +32,11 @@ export default function RTKExamplePage() {
               User Management Demo
             </h2>
             <p className="text-sm text-gray-600 mb-4">
-              Features: Pagination, Search, Delete operations with optimistic updates
+              Features: Pagination, Search, Delete operations with optimistic
+              updates
             </p>
           </div>
-          
+
           <UserList />
         </section>
 
@@ -45,21 +50,27 @@ export default function RTKExamplePage() {
               <code className="ml-2 text-xs bg-gray-100 px-2 py-1 rounded">
                 app/features/example-api/api.ts
               </code>
-              <p className="text-gray-600 mt-1">RTK Query endpoints with cache tags</p>
+              <p className="text-gray-600 mt-1">
+                RTK Query endpoints with cache tags
+              </p>
             </div>
             <div className="bg-white p-3 rounded border">
               <strong className="text-blue-800">Hooks Layer:</strong>
               <code className="ml-2 text-xs bg-gray-100 px-2 py-1 rounded">
                 app/features/example-api/hooks.ts
               </code>
-              <p className="text-gray-600 mt-1">Business logic using RTK Query hooks</p>
+              <p className="text-gray-600 mt-1">
+                Business logic using RTK Query hooks
+              </p>
             </div>
             <div className="bg-white p-3 rounded border">
               <strong className="text-blue-800">UI Layer:</strong>
               <code className="ml-2 text-xs bg-gray-100 px-2 py-1 rounded">
                 app/features/example-api/ui/UserList.tsx
               </code>
-              <p className="text-gray-600 mt-1">React component using business logic hooks</p>
+              <p className="text-gray-600 mt-1">
+                React component using business logic hooks
+              </p>
             </div>
           </div>
         </section>
@@ -71,19 +82,23 @@ export default function RTKExamplePage() {
           <ul className="space-y-2 text-sm text-gray-700">
             <li className="flex items-center">
               <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-              <strong>Automatic Caching:</strong> Requests are cached and deduplicated
+              <strong>Automatic Caching:</strong> Requests are cached and
+              deduplicated
             </li>
             <li className="flex items-center">
               <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-              <strong>Real-time Updates:</strong> Cache invalidation updates UI automatically
+              <strong>Real-time Updates:</strong> Cache invalidation updates UI
+              automatically
             </li>
             <li className="flex items-center">
               <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-              <strong>Loading States:</strong> Built-in loading and error handling
+              <strong>Loading States:</strong> Built-in loading and error
+              handling
             </li>
             <li className="flex items-center">
               <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-              <strong>TypeScript:</strong> Fully typed API requests and responses
+              <strong>TypeScript:</strong> Fully typed API requests and
+              responses
             </li>
             <li className="flex items-center">
               <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
@@ -94,4 +109,4 @@ export default function RTKExamplePage() {
       </div>
     </div>
   );
-} 
+}

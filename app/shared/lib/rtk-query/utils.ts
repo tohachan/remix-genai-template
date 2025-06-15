@@ -1,4 +1,8 @@
-import { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import {
+  BaseQueryFn,
+  FetchArgs,
+  FetchBaseQueryError,
+} from '@reduxjs/toolkit/query';
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 /**
@@ -8,7 +12,7 @@ export const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
   FetchBaseQueryError
-> = async (args, api, extraOptions) => {
+> = async(args, api, extraOptions) => {
   const baseQuery = fetchBaseQuery({
     baseUrl: '/api',
     prepareHeaders: (headers, { getState }) => {
@@ -27,11 +31,11 @@ export const baseQueryWithReauth: BaseQueryFn<
   if (result.error && result.error.status === 401) {
     // Try to refresh token
     const refreshResult = await baseQuery('/auth/refresh', api, extraOptions);
-    
+
     if (refreshResult.data) {
       // Store the new token
       // api.dispatch(tokenReceived(refreshResult.data));
-      
+
       // Retry the original request with new token
       result = await baseQuery(args, api, extraOptions);
     } else {
@@ -55,10 +59,10 @@ export const transformErrorResponse = (response: any, meta: any, arg: any) => {
   if (response.status === 'FETCH_ERROR') {
     return { message: 'Network error. Please check your connection.' };
   }
-  
+
   if (response.data?.message) {
     return { message: response.data.message };
   }
-  
+
   return { message: 'An unexpected error occurred.' };
-}; 
+};

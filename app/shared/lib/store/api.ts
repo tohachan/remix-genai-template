@@ -14,17 +14,13 @@ export const baseApi = createApi({
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
-      
+
       headers.set('content-type', 'application/json');
       return headers;
     },
   }),
-  tagTypes: [
-    'User',
-    'Auth',
-    'Profile',
-  ] as const,
+  tagTypes: ['User', 'Auth', 'Profile'] as const,
   endpoints: () => ({}),
 });
 
-export type ApiTagTypes = 'User' | 'Auth' | 'Profile'; 
+export type ApiTagTypes = 'User' | 'Auth' | 'Profile';

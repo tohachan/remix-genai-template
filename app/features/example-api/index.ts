@@ -22,8 +22,4 @@ export {
 } from './api';
 
 // Types
-export type {
-  User,
-  CreateUserRequest,
-  UpdateUserRequest,
-} from './api'; 
+export type { User, CreateUserRequest, UpdateUserRequest } from './api';

@@ -12,7 +12,7 @@ export default function CreateUserForm() {
 
   const { createUser, isLoading, isError, error, isSuccess } = useCreateUser();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim()) return;
 
@@ -59,14 +59,17 @@ export default function CreateUserForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Name
           </label>
           <input
             type="text"
             id="name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
             required
             disabled={isLoading}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
@@ -75,14 +78,17 @@ export default function CreateUserForm() {
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Email
           </label>
           <input
             type="email"
             id="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             required
             disabled={isLoading}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
@@ -93,7 +99,9 @@ export default function CreateUserForm() {
         {isError && error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded">
             <p className="text-red-600 text-sm">
-              {error && 'data' in error ? (error.data as any)?.message || 'Failed to create user' : 'Failed to create user'}
+              {error && 'data' in error
+                ? (error.data as any)?.message || 'Failed to create user'
+                : 'Failed to create user'}
             </p>
           </div>
         )}
@@ -128,4 +136,4 @@ export default function CreateUserForm() {
       </form>
     </div>
   );
-} 
+}

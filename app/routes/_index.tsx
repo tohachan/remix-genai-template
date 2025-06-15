@@ -4,7 +4,11 @@ import HomePage from '../pages/home/ui';
 export const meta: MetaFunction = () => {
   return [
     { title: 'Remix + Gen AI Template' },
-    { name: 'description', content: 'A comprehensive starter kit for building scalable Remix applications with Feature-Sliced Design and RTK Query' },
+    {
+      name: 'description',
+      content:
+        'A comprehensive starter kit for building scalable Remix applications with Feature-Sliced Design and RTK Query',
+    },
   ];
 };
 

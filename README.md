@@ -17,7 +17,7 @@ This template combines modern web development tools with architectural best prac
 - 🤖 **Gen AI Optimized** - Structured rules and conventions for reliable AI assistance
 - 📝 **Automated Documentation** - Self-maintaining documentation system
 - 🧪 **Complete Testing Suite** - Jest for unit tests, Playwright for e2e testing
-- 🔧 **Developer Tools** - ESLint, Prettier, TypeScript strict mode
+- 🔧 **Developer Tools** - ESLint, TypeScript strict mode
 - 📋 **Code Generation** - Automated feature and test scaffolding
 
 ## 🏛️ Architecture Overview
@@ -256,8 +256,10 @@ See `app/features/example-api/` for a complete RTK Query implementation with:
 
 ### Code Quality
 
+The project includes automated FSD architecture validation through ESLint rules:
+
 ```bash
-# Lint code
+# Lint code (includes FSD architecture checks)
 npm run lint
 
 # Format code
@@ -265,6 +267,32 @@ npm run format
 
 # Type check
 npm run typecheck
+```
+
+#### FSD ESLint Rules
+
+The project automatically enforces Feature-Sliced Design architecture through custom ESLint rules:
+
+- **Design Tokens** - No hard-coded colors, spacing, or typography values
+- **Layer Boundaries** - Proper import restrictions between FSD layers
+- **Component Responsibility** - 200-line limit and single default export
+- **Testing Requirements** - Tests required for utility functions
+- **API Contracts** - TypeScript interfaces required in API files
+- **Dependency Injection** - No direct service imports in React components
+
+These rules are automatically integrated and work out-of-the-box. **Example violations:**
+```tsx
+// ❌ Wrong - Hard-coded styling
+<div style={{ backgroundColor: '#3b82f6', margin: '16px' }}>
+
+// ✅ Correct - Design tokens
+<div style={{ backgroundColor: theme.colors.primary[500], margin: theme.spacing[4] }}>
+
+// ❌ Wrong - Direct API import in UI
+import { loginUser } from '../api';
+
+// ✅ Correct - Using hooks layer
+import { useAuth } from '../hooks';
 ```
 
 ## 🏗️ Feature-Sliced Design Benefits
@@ -336,8 +364,7 @@ The template includes optimized configurations:
 - **Path mapping** - Clean imports with `~` alias
 
 ### Code Quality
-- **.eslintrc.js** - ESLint with TypeScript and Prettier integration
-- **.prettierrc** - Consistent code formatting
+- **.eslintrc.js** - ESLint with TypeScript integration and formatting rules
 - **jest.config.js** - Unit testing configuration
 - **playwright.config.ts** - E2E testing configuration
 
@@ -375,19 +402,21 @@ npm run generate:readme <name>   # Update slice documentation
 
 ## 🔍 Project Rules
 
-The template enforces architectural consistency through comprehensive rules:
+The template enforces architectural consistency through comprehensive rules, automatically validated by ESLint:
 
-### Architecture Rules
+### Architecture Rules (ESLint Enforced)
 - **Layer Boundaries** - Strict import restrictions between UI, hooks, and API layers
 - **Component Size Limits** - React components limited to 200 lines with single responsibility
 - **FSD Structure** - Proper layer organization and slice boundaries
 - **Design Tokens** - No hard-coded values in styling (colors, spacing, typography)
+- **API Contracts** - TypeScript interfaces required in all API files
+- **Dependency Injection** - No direct service imports in React components
 
 ### Quality Rules  
 - **Testing Requirements** - Mandatory tests for utilities and page components
 - **Documentation Standards** - Structured README format for slices
 - **TypeScript Strict Mode** - Full type safety enforcement
-- **Code Formatting** - ESLint and Prettier consistency
+- **Code Formatting** - ESLint with auto-formatting
 
 ### Feature Development Rules
 Each feature slice must include:
@@ -403,12 +432,17 @@ Each feature slice must include:
 - **Cache Management** - Proper tag configuration for automatic invalidation
 
 ### Validation
-The template automatically validates:
-- Import patterns and layer boundaries
-- Component size and responsibility
+The template automatically validates through ESLint:
+- Import patterns and layer boundaries (real-time in IDE)
+- Component size and responsibility limits
+- Design token usage vs hard-coded values
+- API contract requirements
+- Dependency injection patterns
 - Test coverage for utilities and pages
 - Documentation completeness
 - TypeScript compliance
+
+**All FSD architecture rules are now enforced automatically during development and in CI/CD.**
 
 ## 🤝 Contributing
 

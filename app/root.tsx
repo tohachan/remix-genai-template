@@ -1,12 +1,16 @@
-import type { LinksFunction } from '@remix-run/node'
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
-import { ReduxProvider } from '~/shared/lib/providers/redux-provider'
+import type { LinksFunction } from '@remix-run/node';
+import {
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+} from '@remix-run/react';
+import { ReduxProvider } from '~/shared/lib/providers/redux-provider';
 
-import styles from './tailwind.css?url'
+import styles from './tailwind.css?url';
 
-export const links: LinksFunction = () => [
-  { rel: 'stylesheet', href: styles }
-]
+export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 
 export default function App() {
   return (
@@ -23,5 +27,5 @@ export default function App() {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }

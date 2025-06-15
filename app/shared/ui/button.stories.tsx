@@ -46,4 +46,4 @@ export const WithOnClick: Story = {
     children: 'Click Me',
     onClick: () => alert('Button clicked!'),
   },
-}; 
+};

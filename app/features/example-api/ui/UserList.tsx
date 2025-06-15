@@ -9,14 +9,15 @@ import CreateUserForm from './CreateUserForm';
 export default function UserList() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  
+
   // Use custom hook that wraps RTK Query
-  const { users, isLoading, isError, error, refetch, isEmpty, hasUsers } = useUsersList({
-    page,
-    limit: 10,
-    search,
-  });
-  
+  const { users, isLoading, isError, error, refetch, isEmpty, hasUsers } =
+    useUsersList({
+      page,
+      limit: 10,
+      search,
+    });
+
   const { deleteUser, isLoading: isDeleting } = useDeleteUser();
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,7 +25,7 @@ export default function UserList() {
     setPage(1); // Reset to first page when searching
   };
 
-  const handleDelete = async (userId: string) => {
+  const handleDelete = async(userId: string) => {
     if (confirm('Are you sure you want to delete this user?')) {
       try {
         await deleteUser(userId);
@@ -48,7 +49,9 @@ export default function UserList() {
       <div className="p-4 bg-red-50 border border-red-200 rounded">
         <h3 className="text-red-800 font-medium">Error loading users</h3>
         <p className="text-red-600 text-sm mt-1">
-          {error && 'data' in error ? (error.data as any)?.message : 'Unknown error'}
+          {error && 'data' in error
+            ? (error.data as any)?.message
+            : 'Unknown error'}
         </p>
         <button
           onClick={() => refetch()}
@@ -78,7 +81,7 @@ export default function UserList() {
 
       {/* Users List */}
       <div className="space-y-2">
-        {users.map((user) => (
+        {users.map(user => (
           <div
             key={user.id}
             className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm"
@@ -116,9 +119,7 @@ export default function UserList() {
           >
             Previous
           </button>
-          <span className="px-3 py-1 bg-gray-100 rounded">
-            Page {page}
-          </span>
+          <span className="px-3 py-1 bg-gray-100 rounded">Page {page}</span>
           <button
             onClick={() => setPage(page + 1)}
             disabled={users.length < 10} // Assume no more pages if less than limit
@@ -130,4 +131,4 @@ export default function UserList() {
       </div>
     </div>
   );
-} 
+}

@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+build/
+dist/
+.next/
+out/
+
+# Generated files
+.storybook/
+storybook-static/
+
+# Test outputs
+coverage/
+test-results/
+playwright-report/
+
+# Cache
+.cache/
+.vite/
+.eslintcache
+
+# OS
+.DS_Store
+
+# Package files
+package-lock.json 

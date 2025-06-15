@@ -41,4 +41,4 @@ export interface QueryParams {
   search?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
-} 
+}

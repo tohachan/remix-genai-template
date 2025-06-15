@@ -10,10 +10,13 @@ export const store = configureStore({
   reducer: {
     [baseApi.reducerPath]: baseApi.reducer,
   },
-  middleware: (getDefaultMiddleware) =>
+  middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['api/executeQuery/pending', 'api/executeQuery/fulfilled'],
+        ignoredActions: [
+          'api/executeQuery/pending',
+          'api/executeQuery/fulfilled',
+        ],
       },
     }).concat(baseApi.middleware),
 });
@@ -26,4 +29,4 @@ export type AppDispatch = typeof store.dispatch;
 
 // Re-export API utilities for convenience
 export { baseApi };
-export type { ApiTagTypes } from './api'; 
+export type { ApiTagTypes } from './api';

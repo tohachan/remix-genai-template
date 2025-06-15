@@ -10,8 +10,8 @@ export default function HomePage() {
             Remix + Gen AI Template
           </h1>
           <p className="text-lg text-gray-600">
-            A comprehensive starter kit for building scalable Remix applications using 
-            Feature-Sliced Design architecture with RTK Query integration.
+            A comprehensive starter kit for building scalable Remix applications
+            using Feature-Sliced Design architecture with RTK Query integration.
           </p>
         </header>
 
@@ -21,13 +21,12 @@ export default function HomePage() {
               🔄 RTK Query Demo
             </h2>
             <p className="text-gray-600 mb-4">
-              Explore the RTK Query integration with Feature-Sliced Design architecture. 
-              See CRUD operations, caching, and real-time updates in action.
+              Explore the RTK Query integration with Feature-Sliced Design
+              architecture. See CRUD operations, caching, and real-time updates
+              in action.
             </p>
             <Link to="/rtk-example">
-              <Button className="w-full">
-                View RTK Query Demo
-              </Button>
+              <Button className="w-full">View RTK Query Demo</Button>
             </Link>
           </div>
 
@@ -36,7 +35,8 @@ export default function HomePage() {
               🏗️ Architecture
             </h2>
             <p className="text-gray-600 mb-4">
-              Built with Feature-Sliced Design principles for scalable and maintainable code organization.
+              Built with Feature-Sliced Design principles for scalable and
+              maintainable code organization.
             </p>
             <ul className="text-sm text-gray-600 space-y-1">
               <li>• Clean layer separation</li>
@@ -53,17 +53,22 @@ export default function HomePage() {
           </h3>
           <div className="space-y-2 text-sm">
             <p className="text-blue-800">
-              <strong>Development:</strong> <code className="bg-white px-2 py-1 rounded">npm run dev</code>
+              <strong>Development:</strong>{' '}
+              <code className="bg-white px-2 py-1 rounded">npm run dev</code>
             </p>
             <p className="text-blue-800">
-              <strong>Testing:</strong> <code className="bg-white px-2 py-1 rounded">npm test</code>
+              <strong>Testing:</strong>{' '}
+              <code className="bg-white px-2 py-1 rounded">npm test</code>
             </p>
             <p className="text-blue-800">
-              <strong>Generate Feature:</strong> <code className="bg-white px-2 py-1 rounded">npm run generate:component</code>
+              <strong>Generate Feature:</strong>{' '}
+              <code className="bg-white px-2 py-1 rounded">
+                npm run generate:component
+              </code>
             </p>
           </div>
         </section>
       </div>
     </div>
   );
-} 
+}

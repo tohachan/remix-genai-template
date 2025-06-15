@@ -1,5 +1,9 @@
 import { baseApi } from '~/shared/lib/store/api';
-import type { ApiResponse, PaginatedResponse, QueryParams } from '~/shared/lib/rtk-query/types';
+import type {
+  ApiResponse,
+  PaginatedResponse,
+  QueryParams,
+} from '~/shared/lib/rtk-query/types';
 
 /**
  * Example API endpoints using RTK Query
@@ -27,18 +31,19 @@ export interface UpdateUserRequest {
 
 // Extend the base API with user-specific endpoints
 export const userApi = baseApi.injectEndpoints({
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     // Get all users with pagination
     getUsers: builder.query<User[], QueryParams>({
-      query: (params) => {
+      query: params => {
         const searchParams = new URLSearchParams();
-        
+
         if (params.page) searchParams.append('_page', params.page.toString());
-        if (params.limit) searchParams.append('_limit', params.limit.toString());
+        if (params.limit)
+          searchParams.append('_limit', params.limit.toString());
         if (params.search) searchParams.append('q', params.search);
         if (params.sortBy) searchParams.append('_sort', params.sortBy);
         if (params.sortOrder) searchParams.append('_order', params.sortOrder);
-        
+
         return {
           url: `/users?${searchParams.toString()}`,
         };
@@ -47,25 +52,25 @@ export const userApi = baseApi.injectEndpoints({
         // json-server returns array directly
         return response || [];
       },
-      providesTags: (result) =>
+      providesTags: result =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'User', id } as const)),
-              { type: 'User', id: 'LIST' },
-            ]
+            ...result.map(({ id }) => ({ type: 'User', id } as const)),
+            { type: 'User', id: 'LIST' },
+          ]
           : [{ type: 'User', id: 'LIST' }],
     }),
 
     // Get single user by ID
     getUser: builder.query<ApiResponse<User>, string>({
-      query: (id) => `/users/${id}`,
+      query: id => `/users/${id}`,
       transformResponse: (response: ApiResponse<User>) => response,
       providesTags: (result, error, id) => [{ type: 'User', id }],
     }),
 
     // Create new user
     createUser: builder.mutation<ApiResponse<User>, CreateUserRequest>({
-      query: (data) => ({
+      query: data => ({
         url: '/users',
         method: 'POST',
         body: data,
@@ -88,7 +93,7 @@ export const userApi = baseApi.injectEndpoints({
 
     // Delete user
     deleteUser: builder.mutation<ApiResponse<void>, string>({
-      query: (id) => ({
+      query: id => ({
         url: `/users/${id}`,
         method: 'DELETE',
       }),
@@ -107,4 +112,4 @@ export const {
   useCreateUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
-} = userApi; 
+} = userApi;
