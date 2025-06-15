@@ -1,0 +1,249 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Enforce Accessibility Support
+
+This rule ensures all React components and HTML markup follow accessibility best practices to create inclusive user experiences for people with disabilities.
+
+## Core Requirements
+
+### Semantic HTML Elements
+Use semantic HTML elements that provide inherent accessibility meaning:
+
+```tsx
+// ✅ Good - Semantic elements
+<main>
+  <section>
+    <h1>Page Title</h1>
+    <article>
+      <h2>Article Title</h2>
+      <p>Content...</p>
+    </article>
+  </section>
+</main>
+
+// ❌ Bad - Generic divs
+<div>
+  <div>
+    <div>Page Title</div>
+    <div>
+      <div>Article Title</div>
+      <div>Content...</div>
+    </div>
+  </div>
+</div>
+```
+
+### Required ARIA Labels
+Interactive elements must have accessible names:
+
+```tsx
+// ✅ Good - Proper labeling
+<button aria-label="Close modal">×</button>
+<input aria-label="Search products" type="search" />
+<img src="avatar.jpg" alt="User profile photo" />
+
+// ❌ Bad - Missing labels
+<button>×</button>
+<input type="search" />
+<img src="avatar.jpg" />
+```
+
+### Keyboard Navigation
+All interactive elements must be keyboard accessible:
+
+```tsx
+// ✅ Good - Keyboard support
+<div 
+  role="button"
+  tabIndex={0}
+  onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+  onClick={handleClick}
+>
+  Custom Button
+</div>
+
+// ❌ Bad - Click only
+<div onClick={handleClick}>
+  Custom Button
+</div>
+```
+
+## Form Accessibility
+
+### Input Labels
+All form inputs require proper labels:
+
+```tsx
+// ✅ Good - Associated labels
+<label htmlFor="email">Email Address</label>
+<input id="email" type="email" required />
+
+// ✅ Alternative - aria-label
+<input aria-label="Email Address" type="email" required />
+
+// ❌ Bad - No label association
+<label>Email</label>
+<input type="email" />
+```
+
+### Error Messages
+Form errors must be programmatically associated:
+
+```tsx
+// ✅ Good - Associated error
+<input 
+  id="password"
+  type="password"
+  aria-describedby="password-error"
+  aria-invalid={hasError}
+/>
+{hasError && (
+  <div id="password-error" role="alert">
+    Password must be at least 8 characters
+  </div>
+)}
+```
+
+## Interactive Elements
+
+### Focus Management
+Manage focus for dynamic content:
+
+```tsx
+// ✅ Good - Focus management
+const Modal = ({ isOpen, onClose }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (isOpen) {
+      modalRef.current?.focus();
+    }
+  }, [isOpen]);
+
+  return (
+    <div
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      tabIndex={-1}
+    >
+      {/* Modal content */}
+    </div>
+  );
+};
+```
+
+### Loading States
+Provide accessible loading indicators:
+
+```tsx
+// ✅ Good - Accessible loading
+{isLoading && (
+  <div role="status" aria-live="polite">
+    <span className="sr-only">Loading...</span>
+    <LoadingSpinner />
+  </div>
+)}
+```
+
+## Color and Contrast
+
+### Text Alternatives
+Don't rely solely on color to convey information:
+
+```tsx
+// ✅ Good - Color + text/icon
+<span className="text-red-600">
+  <ExclamationIcon aria-hidden="true" />
+  Required field
+</span>
+
+// ❌ Bad - Color only
+<span className="text-red-600">*</span>
+```
+
+## Required Patterns
+
+### Screen Reader Support
+Hide decorative elements and provide screen reader text:
+
+```tsx
+// ✅ Good - Screen reader considerations
+<button>
+  <HeartIcon aria-hidden="true" />
+  <span className="sr-only">Add to favorites</span>
+</button>
+
+// Hide decorative images
+<img src="decoration.png" alt="" role="presentation" />
+```
+
+### Dynamic Content
+Announce dynamic changes to screen readers:
+
+```tsx
+// ✅ Good - Live regions
+<div aria-live="assertive" aria-atomic="true">
+  {status && <span>{status}</span>}
+</div>
+
+// ✅ Good - Status updates
+<div role="status">
+  {itemsCount} items in cart
+</div>
+```
+
+## Enforcement Guidelines
+
+### Required Checks
+Before implementing any UI component:
+
+1. **Keyboard navigation** - Can all functionality be accessed via keyboard?
+2. **Screen reader support** - Are all elements properly labeled?
+3. **Focus indicators** - Are focus states visible and logical?
+4. **Color independence** - Is information conveyed beyond color alone?
+5. **Text alternatives** - Do images and icons have appropriate alt text?
+
+### Testing Commands
+Use this command to verify accessibility:
+
+```bash
+# Run accessibility linting
+npm run lint:a11y
+```
+
+## Common Violations
+
+Avoid these accessibility issues:
+
+- Missing `alt` attributes on informative images
+- Interactive elements without keyboard support
+- Form inputs without associated labels
+- Low color contrast ratios
+- Missing focus indicators
+- Unlabeled buttons and links
+- Inaccessible modal dialogs
+- Missing ARIA roles for custom components
+
+## Integration with Design System
+
+All shared UI components must include accessibility features by default:
+
+- Proper ARIA roles and properties
+- Keyboard event handlers
+- Focus management
+- Screen reader support
+- High contrast color combinations
+
+## Benefits
+
+Following accessibility practices ensures:
+
+- **Legal compliance** with accessibility standards
+- **Inclusive design** for users with disabilities
+- **Better UX** for all users including keyboard navigation
+- **SEO benefits** through semantic markup
+- **Future-proofing** against accessibility requirements

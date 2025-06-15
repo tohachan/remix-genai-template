@@ -1,9 +1,5 @@
 # Remix + Gen AI Template
 
-> [!WARNING]  
-> **🚧 Work in Progress**  
-> This template is currently under active development. Not all features described in this README are fully implemented yet. Some scripts, generators, and architectural components are still being built. Use with caution in production environments.
-
 A comprehensive starter kit for building scalable Remix applications using **Feature-Sliced Design (FSD)** architecture, optimized for seamless **Gen AI development** workflows.
 
 ## 🚀 What This Template Provides
@@ -17,7 +13,8 @@ This template combines modern web development tools with architectural best prac
 - 🤖 **Gen AI Optimized** - Structured rules and conventions for reliable AI assistance
 - 📝 **Automated Documentation** - Self-maintaining documentation system
 - 🧪 **Complete Testing Suite** - Jest for unit tests, Playwright for e2e testing
-- 🔧 **Developer Tools** - ESLint, TypeScript strict mode
+- 🔧 **Developer Tools** - ESLint, TypeScript strict mode, accessibility linting
+- ♿ **Accessibility First** - Built-in a11y validation and best practices enforcement
 - 📋 **Code Generation** - Automated feature and test scaffolding
 
 ## 🏛️ Architecture Overview
@@ -131,7 +128,7 @@ The project includes shadcn/ui components with design system integration. To add
 npx shadcn-ui@latest add <component>
 ```
 
-All components automatically follow the design token system for consistent theming.
+All components automatically follow the design token system for consistent theming and include accessibility features by default.
 
 ## 🔄 RTK Query Integration
 
@@ -262,6 +259,9 @@ The project includes automated FSD architecture validation through ESLint rules:
 # Lint code (includes FSD architecture checks)
 npm run lint
 
+# Check accessibility compliance
+npm run lint:a11y
+
 # Format code
 npm run format
 
@@ -276,6 +276,7 @@ The project automatically enforces Feature-Sliced Design architecture through cu
 - **Design Tokens** - No hard-coded colors, spacing, or typography values
 - **Layer Boundaries** - Proper import restrictions between FSD layers
 - **Component Responsibility** - 200-line limit and single default export
+- **Accessibility Standards** - ARIA labels, keyboard navigation, semantic HTML enforcement
 - **Testing Requirements** - Tests required for utility functions
 - **API Contracts** - TypeScript interfaces required in API files
 - **Dependency Injection** - No direct service imports in React components
@@ -293,6 +294,12 @@ import { loginUser } from '../api';
 
 // ✅ Correct - Using hooks layer
 import { useAuth } from '../hooks';
+
+// ❌ Wrong - Inaccessible button
+<div onClick={handleClick}>Click me</div>
+
+// ✅ Correct - Accessible button
+<button onClick={handleClick} aria-label="Close modal">×</button>
 ```
 
 ## 🏗️ Feature-Sliced Design Benefits
@@ -365,6 +372,7 @@ The template includes optimized configurations:
 
 ### Code Quality
 - **.eslintrc.js** - ESLint with TypeScript integration and formatting rules
+- **.eslintrc.a11y.js** - Specialized accessibility linting configuration
 - **jest.config.js** - Unit testing configuration
 - **playwright.config.ts** - E2E testing configuration
 
@@ -391,6 +399,7 @@ npm run test:e2e    # Run e2e tests
 
 # Code Quality
 npm run lint        # Lint code
+npm run lint:a11y   # Check accessibility compliance
 npm run format      # Format code
 npm run typecheck   # TypeScript type checking
 
@@ -449,7 +458,7 @@ The template automatically validates through ESLint:
 This template is designed to maintain consistency across teams and AI tools. Please follow the established patterns and run validation scripts before submitting changes:
 
 1. Run tests: `npm test && npm run test:e2e`
-2. Check code quality: `npm run lint && npm run typecheck`
+2. Check code quality: `npm run lint && npm run lint:a11y && npm run typecheck`
 3. Update documentation if needed: `npm run generate:readme <slice>`
 
 For more details, see the [shadcn documentation](https://ui.shadcn.com/) and [Feature-Sliced Design methodology](https://feature-sliced.design/).
