@@ -2,7 +2,7 @@
 
 > [!NOTE]  
 > **🤖 Cursor AI Optimized**  
-> This template is specifically designed and optimized for **Cursor AI** development workflows. The Gen AI features, architectural rules, and automation work seamlessly with Cursor's AI capabilities. For other AI tools, the template will function as a standard Remix + FSD setup.
+> This template is specifically designed and optimized for **Cursor AI** development workflows. The Gen AI features, architectural rules, and automation work seamlessly with Cursor's AI capabilities. **Other AI tools** can also benefit from the comprehensive rule set in `.cursor/rules/` - see the [manual usage guide](#using-cursorrules-with-other-gen-ai-tools) below.
 
 A comprehensive starter kit for building scalable Remix applications using **Feature-Sliced Design (FSD)** architecture, optimized for seamless **Gen AI development** workflows with **Cursor AI**.
 
@@ -15,6 +15,7 @@ This template combines modern web development tools with architectural best prac
 - 🏗️ **Feature-Sliced Design (FSD)** - Scalable architecture methodology
 - 🔄 **RTK Query** - Powerful data fetching and caching with automatic re-validation
 - 🤖 **Cursor AI Optimized** - Structured rules and conventions for reliable Cursor AI assistance
+- 🔧 **Other AI Tools Compatible** - Comprehensive rule set usable with ChatGPT, Claude, GitHub Copilot
 - 📝 **Automated Documentation** - Self-maintaining documentation system
 - 🧪 **Complete Testing Suite** - Jest for unit tests, Playwright for e2e testing
 - 🔧 **Developer Tools** - ESLint, TypeScript strict mode, accessibility linting
@@ -62,7 +63,67 @@ The template is specifically designed for **Cursor AI** and maintains **integrit
 - **Generator Integration** - CLI generators work perfectly with Cursor's workflow
 - **Documentation Automation** - README generation optimized for Cursor AI understanding
 
+### Using .cursor/rules with Other Gen AI Tools
+
+While this template is optimized for Cursor AI, other AI tools can benefit from the comprehensive rule set:
+
+#### Manual Rule Application
+Other Gen AI tools (ChatGPT, Claude, GitHub Copilot, etc.) can use these rules by:
+
+1. **Read the rules directory** - All rules are in `.cursor/rules/` as markdown files
+2. **Reference specific rules** - Copy relevant rule content into your AI conversation
+3. **Apply architecture patterns** - Use the FSD structure and patterns described in the rules
+
+#### Key Rules for Other AI Tools
+
+**Essential rules to reference:**
+```bash
+.cursor/rules/
+├── enforce-project-structure.mdc     # FSD architecture basics
+├── enforce-layer-boundaries.mdc     # Import restrictions between layers  
+├── limit-component-responsibility.mdc # Component size and structure limits
+├── enforce-design-tokens.mdc        # Styling standards
+├── enforce-a11y-support.mdc         # Accessibility requirements
+├── feature-slice-baseline.mdc       # Required files in features
+└── task-approach.mdc               # Development workflow patterns
+```
+
+#### Usage Examples
+
+**For ChatGPT/Claude:**
+```
+Please follow the component responsibility rules from .cursor/rules/limit-component-responsibility.mdc:
+- Components must be under 200 lines
+- Single default export per file
+- Extract large components using container/presentation pattern
+```
+
+**For GitHub Copilot:**
+- Add rule content as comments in your files for context
+- Reference architectural patterns when writing new features
+- Use the FSD structure described in the rules
+
+#### Limitations for Other AI Tools
+
+⚠️ **What works differently:**
+- **No automatic rule application** - Rules must be manually referenced
+- **No real-time validation** - ESLint integration works, but no AI context
+- **No generator integration** - CLI generators work, but no AI assistance
+- **Manual documentation** - README generation works, but requires manual execution
+
+#### Getting Maximum Value
+
+To get the most from these rules with other AI tools:
+
+1. **Start each session** by referencing relevant rules from `.cursor/rules/`
+2. **Copy rule content** into your conversation for context
+3. **Use ESLint validation** - Run `npm run lint` to check compliance
+4. **Follow FSD structure** - Maintain the layer boundaries described in rules
+5. **Generate components** - Use `npm run generate:component` for consistency
+
 ## 🚀 Getting Started
+
+**Using with other AI tools?** → Jump to [.cursor/rules usage guide](#using-cursorrules-with-other-gen-ai-tools)
 
 1. **Install dependencies** (requires Node.js 18+):
    ```bash
