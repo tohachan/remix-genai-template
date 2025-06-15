@@ -1,11 +1,6 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
-  extends: [
-    '@remix-run/eslint-config',
-    '@remix-run/eslint-config/node',
-    '@typescript-eslint/recommended',
-    'prettier'
-  ],
+  extends: ['@remix-run/eslint-config', '@remix-run/eslint-config/node', '@typescript-eslint/recommended', 'prettier', 'plugin:storybook/recommended'],
   plugins: ['@typescript-eslint', 'prettier'],
   parserOptions: {
     ecmaVersion: 2022,
