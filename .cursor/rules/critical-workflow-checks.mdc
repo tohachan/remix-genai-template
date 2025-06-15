@@ -3,129 +3,71 @@ description:
 globs:
 alwaysApply: false
 ---
-# Critical Workflow Checks
+# Critical Workflow Validation
 
-This rule defines mandatory checkpoints in the development workflow to prevent common mistakes and ensure adherence to project standards.
+This rule provides additional validation layers for development practices beyond specific generator rules. It focuses on general workflow compliance and quality assurance.
 
-## 🛑 MANDATORY STOP POINTS
+## 🎯 WORKFLOW VALIDATION SCOPE
 
-Before starting ANY development task, go through this checklist:
+This rule validates adherence to:
+- Generator usage (references `enforce-plop-generator.mdc`)
+- File structure compliance 
+- Quality standards maintenance
+- Development best practices
 
-### 1. Planning Phase Check
-- [ ] **Created execution plan** with step-by-step breakdown?
-- [ ] **Identified all file types** that will be created?
-- [ ] **Checked for available generators** for each file type?
-- [ ] **Listed generator commands** in the execution plan?
+## 📋 POST-STEP VERIFICATION
 
-### 2. File Creation Check
-Before creating ANY file manually:
-- [ ] **Checked if CLI generator exists** for this file type?
-- [ ] **Attempted to use generator first** before manual creation?
-- [ ] **Documented why manual creation** is necessary (if generator unavailable)?
+After each development step completion:
 
-### 3. Component Creation Check
-Before writing `export default function ComponentName()`:
-- [ ] **STOP immediately** - this should be generated
-- [ ] **Run generator command** with full arguments
-- [ ] **Verify generator created** all expected files
-- [ ] **Only then customize** the generated content
-
-## 🚨 CRITICAL ERROR PREVENTION
-
-### Red Flag Patterns - STOP IMMEDIATELY:
-- Starting to write JSX component syntax manually
-- Creating files in `ui/` directories by hand
-- Writing test files without using generators
-- Creating README.md files in features manually
-
-### Recovery Actions:
-1. **PAUSE current work**
-2. **DELETE manually created files**
-3. **RUN appropriate generator**
-4. **CONTINUE with customization**
-
-## 📋 WORKFLOW INTEGRATION
-
-### Pre-Task Checklist:
+### File Creation Verification:
 ```
-Before starting task execution:
-1. ✅ Read all relevant README files
-2. ✅ Create step-by-step execution plan  
-3. ✅ Identify generator needs for each step
-4. ✅ Verify available CLI commands
-5. ✅ ONLY THEN begin implementation
-```
-
-### Step Execution Pattern:
-```
-For each step involving file creation:
-1. ✅ Check: Is there a generator for this?
-2. ✅ Use: Run generator with full arguments
-3. ✅ Verify: All expected files were created
-4. ✅ Customize: Modify generated content as needed
-```
-
-### Post-Step Verification:
-```
-After each step completion:
 1. ✅ Files created using proper method (generator or justified manual)
 2. ✅ All required files present (main, tests, exports)
 3. ✅ No manual creation where generator was available
 4. ✅ Documentation updated if needed
 ```
 
-## 🎯 SPECIFIC GENERATOR TRIGGERS
+### Quality Assurance Verification:
+```
+1. ✅ Code follows project standards
+2. ✅ Tests are included where required
+3. ✅ Documentation is updated
+4. ✅ FSD architecture compliance maintained
+```
 
-### Always Use Generators For:
-- **React Components** (.tsx files) → `npm run generate:component`
-- **Feature README** files → `npm run generate:readme`
-- **Test files** (if generator exists) → `npm run generate:test`
-- **Storybook stories** → Component generator with `--includeStorybook true`
+## 🔍 COMPLIANCE MONITORING
 
-### Manual Creation Only When:
-- No generator exists for the file type
-- Generator is broken or unavailable
-- Explicitly documented why manual creation is necessary
+### Generator Compliance Check:
+- Verify components created via CLI generators (see `enforce-plop-generator.mdc`)
+- Confirm proper file structure and naming
+- Validate test coverage requirements
 
-## 🔄 MISTAKE RECOVERY PROTOCOL
+### Architecture Compliance Check:
+- FSD layer boundaries respected
+- Import rules followed
+- Proper segment usage
 
-If you realize you've created files manually when generators were available:
+## 💡 IMPROVEMENT TRACKING
 
-### Immediate Actions:
-1. **ACKNOWLEDGE the mistake** publicly
-2. **STOP current development** 
-3. **DELETE manually created files**
-4. **RUN appropriate generators**
-5. **MIGRATE content** to generated files
-6. **CONTINUE with development**
+### Regular Self-Assessment Questions:
+- Am I consistently following project standards?
+- Are there recurring issues in my workflow?
+- What improvements can be made to prevent mistakes?
 
-### Learning Actions:
-1. **IDENTIFY why** the mistake happened
-2. **UPDATE workflow** to prevent recurrence
-3. **STRENGTHEN checks** in execution planning
-4. **IMPROVE rule clarity** if needed
+### Quality Metrics:
+- Reduced manual file creation incidents
+- Improved generator adoption rates
+- Better adherence to architectural patterns
+- Faster development cycles with fewer errors
 
-## 💡 CONTINUOUS IMPROVEMENT
+## 🎯 INTEGRATION WITH OTHER RULES
 
-### Regular Self-Assessment:
-- Am I consistently using generators?
-- Am I creating proper execution plans?
-- Am I checking for available tools before manual work?
-- Are there gaps in my workflow that lead to mistakes?
+This rule works as a validation layer for:
+- `enforce-plop-generator.mdc` - Generator usage enforcement
+- `enforce-project-structure.mdc` - FSD compliance
+- `feature-slice-baseline.mdc` - Feature requirements
+- `require-pure-function-tests.mdc` - Testing standards
 
-### Rule Evolution:
-- Update this rule based on recurring mistakes
-- Add new checkpoints as needed
-- Strengthen enforcement mechanisms
-- Improve clarity of instructions
+This rule serves as a quality gate to ensure consistent, high-quality development practices across all project work.
 
-## 🎯 SUCCESS METRICS
-
-You're following this rule correctly when:
-- ✅ All components are created via CLI generators
-- ✅ Execution plans include generator usage
-- ✅ Manual file creation is rare and justified
-- ✅ Workflow mistakes are caught early and corrected
-- ✅ Development speed improves due to consistent patterns
-
-This rule serves as a safety net to ensure consistent, high-quality development practices and prevent workflow mistakes that compromise project standards.
+[Cursor Rule] Applying critical-workflow-checks.mdc — Workflow validation

@@ -1,9 +1,8 @@
 ---
-description: 
-globs: 
+description: "General task approach methodology for systematic request handling"
+globs: []
 alwaysApply: true
 ---
-
 # General Task Approach Rule
 
 This rule defines the systematic approach for handling user requests to ensure clarity, thoroughness, and focused execution.
@@ -261,19 +260,13 @@ Create a temporary tracking file:
 
 ### 🚨 GENERATOR CHECK REQUIREMENTS
 
-**Before ANY file creation step, ask:**
-- Is this a component (.tsx) file? → Use `npm run generate:component`
-- Is this a README.md in a feature? → Use `npm run generate:readme`
-- Is this a test file? → Check if `npm run generate:test` exists
-- Is this another file type? → Check available generators first
+**Before ANY file creation step:**
+- Reference `enforce-plop-generator.mdc` for detailed generator requirements
+- Use CLI generators for all supported file types
+- Only proceed with manual creation if no generator exists
 
-**Generator-First Step Pattern:**
-```
-Step X: Create ComponentName component
-  X.1: Check CLI generator: npm run generate:component --help
-  X.2: Run generator: npm run generate:component -- ComponentName --layer features --slice auth --includeTests true --includeStorybook false
-  X.3: Customize generated content as needed
-```
+**Generator-First Reference:**
+- See `enforce-plop-generator.mdc` for complete generator usage guidelines
 
 ### Step Update Pattern
 When updating the tracking file:
