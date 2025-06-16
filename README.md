@@ -22,6 +22,22 @@ This template combines modern web development tools with architectural best prac
 - ♿ **Accessibility First** - Built-in a11y validation and best practices enforcement
 - 📋 **Code Generation** - Automated feature and test scaffolding
 
+## 🎯 Core Development Principles
+
+The template is built around a systematic approach that ensures predictable, high-quality development outcomes:
+
+![Core Development Principles](./public/assets/main_principles.png)
+
+This workflow diagram illustrates how the template's architecture, rules, and tooling work together to:
+
+- **Ensure Consistency** - Standardized patterns and generator usage prevent architectural drift
+- **Maintain Quality** - Built-in validation and testing requirements catch issues early
+- **Enable AI Collaboration** - Clear structure and rules allow AI tools to work effectively within constraints
+- **Scale Reliably** - FSD architecture grows with your application while maintaining boundaries
+- **Support Documentation** - Automated README generation keeps project knowledge current
+
+Each step in the development flow has built-in checkpoints and validation to maintain code quality and architectural integrity.
+
 ## 🏛️ Architecture Overview
 
 This template implements **Feature-Sliced Design**, providing clear separation of concerns across standardized layers:
