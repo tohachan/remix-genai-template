@@ -1,5 +1,19 @@
 import type { MetaFunction } from '@remix-run/node';
 import { UserList } from '~/features/example-api';
+import { baseApi } from '~/shared/lib/store/api';
+import { useAppSelector } from '~/shared/lib/hooks/redux';
+
+// Test API slice to verify RTK Query setup
+const testApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getTest: builder.query({
+      query: () => '/test',
+      providesTags: ['Project'],
+    }),
+  }),
+});
+
+export const { useGetTestQuery } = testApi;
 
 export const meta: MetaFunction = () => {
   return [
@@ -12,6 +26,11 @@ export const meta: MetaFunction = () => {
 };
 
 export default function RTKExamplePage() {
+  const { data, error, isLoading } = useGetTestQuery(undefined);
+
+  // Test Redux store access
+  const storeState = useAppSelector((state) => state);
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="max-w-4xl mx-auto">
@@ -105,6 +124,40 @@ export default function RTKExamplePage() {
               <strong>Clean Architecture:</strong> Proper separation of concerns
             </li>
           </ul>
+        </section>
+
+        <section className="mt-8 p-6 border rounded-lg">
+          <h2 className="text-xl font-semibold mb-2">RTK Query Setup Test</h2>
+
+          <div className="space-y-4">
+            <div className="p-4 border rounded-lg">
+              <h3 className="text-xl font-semibold mb-2">Store State</h3>
+              <pre className="bg-gray-100 p-2 rounded text-sm overflow-auto">
+                {JSON.stringify(storeState, null, 2)}
+              </pre>
+            </div>
+
+            <div className="p-4 border rounded-lg">
+              <h3 className="text-xl font-semibold mb-2">Test Query</h3>
+              <div>
+                <p><strong>Loading:</strong> {isLoading ? 'Yes' : 'No'}</p>
+                <p><strong>Error:</strong> {error ? JSON.stringify(error) : 'None'}</p>
+                <p><strong>Data:</strong> {data ? JSON.stringify(data) : 'None'}</p>
+              </div>
+            </div>
+
+            <div className="p-4 border rounded-lg">
+              <h3 className="text-xl font-semibold mb-2">RTK Query Setup Status</h3>
+              <div className="space-y-2">
+                <p>✅ Redux store configured</p>
+                <p>✅ RTK Query middleware installed</p>
+                <p>✅ Base API slice created</p>
+                <p>✅ Redux Provider integrated</p>
+                <p>✅ Typed hooks available</p>
+                <p>✅ Project & Task tags configured</p>
+              </div>
+            </div>
+          </div>
         </section>
       </div>
     </div>

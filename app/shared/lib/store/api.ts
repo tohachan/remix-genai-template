@@ -7,7 +7,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:3001',
+    baseUrl: '/api',
     prepareHeaders: (headers, { getState }) => {
       // Add auth token if available
       const token = (getState() as any)?.auth?.token;
@@ -19,8 +19,8 @@ export const baseApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['User', 'Auth', 'Profile'] as const,
+  tagTypes: ['User', 'Auth', 'Profile', 'Project', 'Task'] as const,
   endpoints: () => ({}),
 });
 
-export type ApiTagTypes = 'User' | 'Auth' | 'Profile';
+export type ApiTagTypes = 'User' | 'Auth' | 'Profile' | 'Project' | 'Task';

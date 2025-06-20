@@ -77,6 +77,8 @@ Predefined cache tags in `api.ts`:
 - `User` - User-related data
 - `Auth` - Authentication data  
 - `Profile` - Profile data
+- `Project` - Project management data
+- `Task` - Task management data
 
 Add new tags as needed for your features.
 
