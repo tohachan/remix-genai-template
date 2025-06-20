@@ -1,5 +1,5 @@
 import { Link } from '@remix-run/react';
-import { Button } from '../../../shared/ui/button';
+import { Button } from '~/shared/ui/button';
 
 export default function HomePage() {
   return (
