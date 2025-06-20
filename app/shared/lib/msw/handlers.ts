@@ -85,6 +85,58 @@ const mockTasks: Task[] = [
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-25T00:00:00Z',
   },
+  {
+    id: '4',
+    title: 'Create API Documentation',
+    description: 'Write comprehensive API documentation',
+    status: 'todo',
+    priority: 'medium',
+    assignee: 'Alice Brown',
+    deadline: '2024-03-15T00:00:00Z',
+    projectId: '1',
+    dependencies: [],
+    createdAt: '2024-02-01T00:00:00Z',
+    updatedAt: '2024-02-01T00:00:00Z',
+  },
+  {
+    id: '5',
+    title: 'Implement User Authentication',
+    description: 'Add login and registration functionality',
+    status: 'in-progress',
+    priority: 'high',
+    assignee: 'Charlie Davis',
+    deadline: '2024-02-28T00:00:00Z',
+    projectId: '2',
+    dependencies: ['3'],
+    createdAt: '2024-02-01T00:00:00Z',
+    updatedAt: '2024-02-10T00:00:00Z',
+  },
+  {
+    id: '6',
+    title: 'Design User Interface',
+    description: 'Create mockups and prototypes for mobile app',
+    status: 'in-progress',
+    priority: 'medium',
+    assignee: 'Diana Miller',
+    deadline: '2024-03-01T00:00:00Z',
+    projectId: '2',
+    dependencies: [],
+    createdAt: '2024-02-05T00:00:00Z',
+    updatedAt: '2024-02-15T00:00:00Z',
+  },
+  {
+    id: '7',
+    title: 'Test Website Performance',
+    description: 'Run performance tests and optimize',
+    status: 'todo',
+    priority: 'low',
+    assignee: 'Eve Wilson',
+    deadline: '2024-03-20T00:00:00Z',
+    projectId: '1',
+    dependencies: ['1', '2'],
+    createdAt: '2024-02-10T00:00:00Z',
+    updatedAt: '2024-02-10T00:00:00Z',
+  },
 ];
 
 // Utility functions
@@ -273,5 +325,69 @@ export const taskHandlers = [
   }),
 ];
 
+// Calendar handlers for calendar-specific endpoints
+export const calendarHandlers = [
+  // GET /api/calendar/events
+  http.get('/api/calendar/events', ({ request }) => {
+    const url = new URL(request.url);
+    const projectId = url.searchParams.get('projectId');
+    const startDate = url.searchParams.get('startDate');
+    const endDate = url.searchParams.get('endDate');
+
+    let filteredTasks = mockTasks.filter(task => task.deadline);
+
+    if (projectId) {
+      filteredTasks = filteredTasks.filter(task => task.projectId === projectId);
+    }
+
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      filteredTasks = filteredTasks.filter(task => {
+        if (!task.deadline) return false;
+        const taskDate = new Date(task.deadline);
+        return taskDate >= start && taskDate <= end;
+      });
+    }
+
+    // Transform tasks to calendar events
+    const events = filteredTasks.map(task => ({
+      id: task.id,
+      title: task.title,
+      start: new Date(task.deadline as string),
+      end: new Date(task.deadline as string),
+      resource: task,
+    }));
+
+    return HttpResponse.json({
+      events,
+      total: events.length,
+    });
+  }),
+
+  // PATCH /api/calendar/tasks/:id/deadline
+  http.patch('/api/calendar/tasks/:id/deadline', async({ request, params }) => {
+    const { id } = params;
+    const body = await request.json() as { deadline: string };
+    const taskIndex = mockTasks.findIndex(t => t.id === id);
+
+    if (taskIndex === -1) {
+      return new HttpResponse(null, { status: 404 });
+    }
+
+    const existingTask = mockTasks[taskIndex];
+    if (existingTask) {
+      existingTask.deadline = body.deadline;
+      existingTask.updatedAt = getCurrentTimestamp();
+    }
+
+    return HttpResponse.json({
+      task: existingTask,
+      success: true,
+      message: 'Task deadline updated successfully',
+    });
+  }),
+];
+
 // All handlers combined
-export const handlers = [...projectHandlers, ...taskHandlers];
+export const handlers = [...projectHandlers, ...taskHandlers, ...calendarHandlers];
