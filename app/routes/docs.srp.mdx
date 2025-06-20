@@ -1,0 +1,278 @@
+---
+meta:
+  - title: Single Responsibility Principle - ProjectLearn Manager
+  - name: description
+    content: Learn how the Single Responsibility Principle (SRP) creates maintainable and focused components in React applications.
+---
+
+# Single Responsibility Principle (SRP)
+
+The Single Responsibility Principle states that **a class should have only one reason to change**, meaning it should have only one job or responsibility.
+
+## What is SRP?
+
+In React applications, SRP means that each component should:
+- Have a single, well-defined purpose
+- Be responsible for only one aspect of functionality
+- Have only one reason to change
+
+## Before: Violating SRP
+
+Here's an example of a component that violates SRP by handling multiple responsibilities:
+
+```tsx
+// ❌ BAD: This component has too many responsibilities
+function UserDashboard() {
+  const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Responsibility 1: User data fetching
+  useEffect(() => {
+    fetchUser().then(setUser);
+  }, []);
+
+  // Responsibility 2: Posts data fetching
+  useEffect(() => {
+    fetchUserPosts().then(setPosts);
+  }, []);
+
+  // Responsibility 3: Notifications handling
+  useEffect(() => {
+    fetchNotifications().then(setNotifications);
+  }, []);
+
+  // Responsibility 4: Form validation
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  // Responsibility 5: Data formatting
+  const formatDate = (date) => {
+    return new Intl.DateTimeFormat('en-US').format(new Date(date));
+  };
+
+  return (
+    <div>
+      {/* Complex UI mixing user info, posts, and notifications */}
+      <h1>Welcome, {user?.name}</h1>
+      <div>
+        {posts.map(post => (
+          <div key={post.id}>
+            <h3>{post.title}</h3>
+            <p>{formatDate(post.createdAt)}</p>
+          </div>
+        ))}
+      </div>
+      <div>
+        {notifications.map(notif => (
+          <div key={notif.id}>{notif.message}</div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+**Problems with this approach:**
+- Hard to test individual pieces
+- Changes to one feature affect the entire component
+- Difficult to reuse parts of the functionality
+- Complex component with multiple concerns
+
+## After: Following SRP
+
+Here's how we can refactor this into focused, single-responsibility components:
+
+```tsx
+// ✅ GOOD: User info component with single responsibility
+function UserInfo({ user }) {
+  if (!user) return <div>Loading user...</div>;
+  
+  return (
+    <header>
+      <h1>Welcome, {user.name}</h1>
+      <p>{user.email}</p>
+    </header>
+  );
+}
+
+// ✅ GOOD: Posts list component with single responsibility
+function PostsList({ posts }) {
+  if (!posts.length) return <div>No posts found</div>;
+
+  return (
+    <section>
+      <h2>Your Posts</h2>
+      {posts.map(post => (
+        <PostCard key={post.id} post={post} />
+      ))}
+    </section>
+  );
+}
+
+// ✅ GOOD: Individual post card component
+function PostCard({ post }) {
+  return (
+    <article>
+      <h3>{post.title}</h3>
+      <p>{formatDate(post.createdAt)}</p>
+      <p>{post.excerpt}</p>
+    </article>
+  );
+}
+
+// ✅ GOOD: Notifications component with single responsibility
+function NotificationsList({ notifications }) {
+  if (!notifications.length) return null;
+
+  return (
+    <aside>
+      <h2>Notifications</h2>
+      {notifications.map(notif => (
+        <NotificationItem key={notif.id} notification={notif} />
+      ))}
+    </aside>
+  );
+}
+
+// ✅ GOOD: Container component orchestrating others
+function UserDashboard() {
+  const { user, posts, notifications, isLoading } = useUserDashboard();
+
+  if (isLoading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <UserInfo user={user} />
+      <PostsList posts={posts} />
+      <NotificationsList notifications={notifications} />
+    </div>
+  );
+}
+
+// ✅ GOOD: Custom hook handling data fetching logic
+function useUserDashboard() {
+  const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      fetchUser(),
+      fetchUserPosts(),
+      fetchNotifications()
+    ]).then(([userData, postsData, notificationsData]) => {
+      setUser(userData);
+      setPosts(postsData);
+      setNotifications(notificationsData);
+      setIsLoading(false);
+    });
+  }, []);
+
+  return { user, posts, notifications, isLoading };
+}
+
+// ✅ GOOD: Utility functions with single responsibility
+export const formatDate = (date) => {
+  return new Intl.DateTimeFormat('en-US').format(new Date(date));
+};
+
+export const validateEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+```
+
+## Benefits of Following SRP
+
+### 1. **Easier Testing**
+Each component can be tested in isolation:
+
+```tsx
+describe('UserInfo', () => {
+  it('displays user name and email', () => {
+    const user = { name: 'John Doe', email: 'john@example.com' };
+    render(<UserInfo user={user} />);
+    
+    expect(screen.getByText('Welcome, John Doe')).toBeInTheDocument();
+    expect(screen.getByText('john@example.com')).toBeInTheDocument();
+  });
+});
+```
+
+### 2. **Better Reusability**
+Components can be reused across different parts of the application:
+
+```tsx
+// UserInfo can be used in different contexts
+<UserDashboard>
+  <UserInfo user={currentUser} />
+</UserDashboard>
+
+<UserProfile>
+  <UserInfo user={profileUser} />
+</UserProfile>
+```
+
+### 3. **Simpler Maintenance**
+Changes to one aspect don't affect others:
+- Notification styling changes only affect `NotificationsList`
+- User data structure changes only affect `UserInfo`
+- Post formatting changes only affect `PostCard`
+
+### 4. **Clear Separation of Concerns**
+Each piece has a clear, single purpose that's easy to understand.
+
+## SRP in React Hooks
+
+Custom hooks should also follow SRP:
+
+```tsx
+// ❌ BAD: Hook doing too many things
+function useUserData() {
+  // User management
+  const [user, setUser] = useState(null);
+  
+  // Theme management
+  const [theme, setTheme] = useState('light');
+  
+  // Authentication
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Form validation
+  const validateForm = (data) => { /* validation logic */ };
+  
+  return { user, theme, isAuthenticated, validateForm };
+}
+
+// ✅ GOOD: Separate hooks with single responsibilities
+function useUser() {
+  const [user, setUser] = useState(null);
+  // User-related logic only
+  return { user, setUser };
+}
+
+function useTheme() {
+  const [theme, setTheme] = useState('light');
+  // Theme-related logic only
+  return { theme, setTheme };
+}
+
+function useAuth() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Authentication logic only
+  return { isAuthenticated, setIsAuthenticated };
+}
+```
+
+## Key Takeaways
+
+1. **One Responsibility**: Each component should have a single, clear purpose
+2. **Easier Testing**: Focused components are easier to test in isolation
+3. **Better Reusability**: Single-purpose components can be reused more easily
+4. **Simpler Maintenance**: Changes are localized to specific components
+5. **Clear APIs**: Components with single responsibilities have cleaner interfaces
+
+By following SRP, you create a codebase that's more maintainable, testable, and flexible for future changes. 

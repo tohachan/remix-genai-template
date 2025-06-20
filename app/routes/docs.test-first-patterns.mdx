@@ -1,0 +1,236 @@
+---
+meta:
+  - title: Test-First Patterns - ProjectLearn Manager
+  - name: description
+    content: Learn how to implement test-driven development and testing best practices in React applications.
+---
+
+# Test-First Patterns
+
+Test-first development writes tests before implementation, ensuring better design decisions and comprehensive coverage.
+
+## The Test-First Approach
+
+Instead of writing tests after implementation, we write tests first:
+
+1. **Write the test** - Define expected behavior
+2. **Run the test** - Watch it fail (red)
+3. **Write minimal code** - Make the test pass (green)
+4. **Refactor** - Improve code while keeping tests green
+
+## Example: Task Creation Feature
+
+### 1. Write the Test First
+```tsx
+// app/features/task-management/ui/TaskForm.spec.tsx
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { TaskForm } from './TaskForm';
+
+describe('TaskForm', () => {
+  it('creates a new task when form is submitted', async () => {
+    const mockOnCreate = jest.fn();
+    
+    render(<TaskForm onCreateTask={mockOnCreate} />);
+    
+    // Fill out the form
+    fireEvent.change(screen.getByLabelText(/title/i), {
+      target: { value: 'New Task' }
+    });
+    
+    fireEvent.change(screen.getByLabelText(/description/i), {
+      target: { value: 'Task description' }
+    });
+    
+    // Submit the form
+    fireEvent.click(screen.getByRole('button', { name: /create/i }));
+    
+    // Verify the callback was called with correct data
+    await waitFor(() => {
+      expect(mockOnCreate).toHaveBeenCalledWith({
+        title: 'New Task',
+        description: 'Task description'
+      });
+    });
+  });
+});
+```
+
+### 2. Implement the Component
+```tsx
+// app/features/task-management/ui/TaskForm.tsx
+import { useState } from 'react';
+import { Button } from '~/shared/ui/button';
+import { Input } from '~/shared/ui/input';
+
+interface TaskFormProps {
+  onCreateTask: (task: { title: string; description: string }) => void;
+}
+
+export function TaskForm({ onCreateTask }: TaskFormProps) {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onCreateTask({ title, description });
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <Input
+        aria-label="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <Input
+        aria-label="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <Button type="submit">Create</Button>
+    </form>
+  );
+}
+```
+
+## Testing Patterns in Our Project
+
+### 1. **Component Testing**
+```tsx
+// Test component behavior, not implementation
+describe('TaskCard', () => {
+  it('displays task information', () => {
+    const task = { id: '1', title: 'Test Task', status: 'todo' };
+    render(<TaskCard task={task} />);
+    
+    expect(screen.getByText('Test Task')).toBeInTheDocument();
+    expect(screen.getByText('todo')).toBeInTheDocument();
+  });
+});
+```
+
+### 2. **Hook Testing**
+```tsx
+// Test custom hooks with renderHook
+import { renderHook, act } from '@testing-library/react';
+import { useTasks } from './hooks';
+
+describe('useTasks', () => {
+  it('loads tasks on mount', async () => {
+    const { result } = renderHook(() => useTasks());
+    
+    expect(result.current.isLoading).toBe(true);
+    
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.tasks).toHaveLength(2);
+    });
+  });
+});
+```
+
+### 3. **API Testing**
+```tsx
+// Test API layer with MSW
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+import { taskApi } from './api';
+
+const server = setupServer(
+  rest.get('/api/tasks', (req, res, ctx) => {
+    return res(ctx.json([
+      { id: '1', title: 'Task 1' },
+      { id: '2', title: 'Task 2' }
+    ]));
+  })
+);
+
+describe('taskApi', () => {
+  beforeAll(() => server.listen());
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
+  
+  it('fetches tasks successfully', async () => {
+    const result = await taskApi.endpoints.getTasks.initiate();
+    expect(result.data).toHaveLength(2);
+  });
+});
+```
+
+## Test Organization
+
+Our project follows this testing structure:
+
+```
+app/features/task-management/
+├── ui/
+│   ├── TaskForm.tsx
+│   ├── TaskForm.spec.tsx       # Component tests
+│   ├── TaskList.tsx
+│   └── TaskList.spec.tsx
+├── api.ts
+├── api.spec.ts                 # API tests
+├── hooks.ts
+└── hooks.spec.ts               # Hook tests
+```
+
+## Testing Best Practices
+
+### 1. **Test Behavior, Not Implementation**
+```tsx
+// ❌ BAD: Testing implementation details
+expect(component.state.count).toBe(1);
+
+// ✅ GOOD: Testing user-visible behavior
+expect(screen.getByText('Count: 1')).toBeInTheDocument();
+```
+
+### 2. **Use Meaningful Test Names**
+```tsx
+// ❌ BAD: Vague test name
+it('works correctly', () => {});
+
+// ✅ GOOD: Descriptive test name
+it('displays error message when API call fails', () => {});
+```
+
+### 3. **Arrange-Act-Assert Pattern**
+```tsx
+it('creates task when form is submitted', () => {
+  // Arrange
+  const mockOnCreate = jest.fn();
+  render(<TaskForm onCreateTask={mockOnCreate} />);
+  
+  // Act
+  fireEvent.click(screen.getByText('Create'));
+  
+  // Assert
+  expect(mockOnCreate).toHaveBeenCalled();
+});
+```
+
+## Benefits of Test-First Development
+
+1. **Better Design**: Tests force you to think about API design
+2. **Comprehensive Coverage**: Every feature starts with a test
+3. **Regression Prevention**: Changes are validated automatically
+4. **Documentation**: Tests serve as executable specifications
+5. **Confidence**: Refactoring becomes safe and predictable
+
+## Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run specific test file
+npm test TaskForm.spec.tsx
+```
+
+Test-first development creates more reliable, maintainable code with comprehensive test coverage built-in from the start. 

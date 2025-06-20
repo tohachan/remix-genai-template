@@ -1,0 +1,90 @@
+---
+meta:
+  - title: Auto-Updatable Docs - ProjectLearn Manager
+  - name: description
+    content: Learn how to implement documentation that automatically stays in sync with your codebase changes.
+---
+
+# Auto-Updatable Docs
+
+Auto-updatable documentation automatically stays in sync with your codebase, reducing maintenance overhead and ensuring accuracy.
+
+## The Problem
+
+Manual documentation often becomes:
+- Outdated and inaccurate
+- Time-consuming to maintain
+- Forgotten during development
+- Inconsistent across the team
+
+## Our Documentation Strategy
+
+ProjectLearn Manager implements auto-updatable docs through several mechanisms:
+
+### 1. **Generated Component Documentation**
+```bash
+# CLI command to generate README for feature slices
+npm run generate:readme feature-name
+
+# Example: Update task management docs
+npm run generate:readme task-management
+```
+
+### 2. **Auto-Generated API Documentation**
+```tsx
+// app/features/task-management/api.ts
+/**
+ * @api {get} /tasks Get Tasks
+ * @apiName GetTasks
+ * @apiGroup Tasks
+ * @apiSuccess {Task[]} tasks List of tasks
+ */
+export const taskApi = api.injectEndpoints({
+  endpoints: (builder) => ({
+    getTasks: builder.query<Task[], void>({
+      query: () => '/tasks',
+    }),
+  }),
+});
+```
+
+### 3. **README Templates**
+Each feature automatically gets a README with:
+- Purpose and overview
+- Public API documentation  
+- Dependencies
+- Testing instructions
+- Usage examples
+
+### 4. **Documentation Rules**
+Our cursor rules automatically suggest documentation updates:
+
+```
+📝 Slice files modified. Consider updating documentation:
+
+npm run generate:readme task-management
+
+This will update the README.md with current slice structure and API information.
+```
+
+## Benefits
+
+1. **Always Accurate**: Docs stay in sync with code changes
+2. **Low Maintenance**: Automated generation reduces manual work
+3. **Consistent Format**: All documentation follows the same structure
+4. **Team Adoption**: Easy for all team members to maintain
+
+## Implementation Example
+
+```bash
+# When you modify files in app/features/auth/
+# The system suggests:
+npm run generate:readme auth
+
+# This updates app/features/auth/README.md with:
+# - Current file structure
+# - Exported functions and components
+# - Dependencies and usage
+```
+
+Auto-updatable documentation ensures your project documentation remains a valuable, accurate resource throughout development. 

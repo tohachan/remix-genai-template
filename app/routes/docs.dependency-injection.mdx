@@ -1,0 +1,198 @@
+---
+meta:
+  - title: Dependency Injection - ProjectLearn Manager
+  - name: description
+    content: Learn how to implement dependency injection patterns for loosely coupled and testable React applications.
+---
+
+# Dependency Injection
+
+Dependency Injection (DI) is a design pattern that provides dependencies to a component from the outside rather than creating them internally, promoting loose coupling and easier testing.
+
+## The Problem
+
+Without dependency injection, components create their own dependencies:
+
+```tsx
+// ❌ BAD: Hard dependencies
+function UserProfile() {
+  const api = new ApiClient(); // Hard dependency
+  const logger = new Logger(); // Hard dependency
+  
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    api.getUser().then(user => {
+      setUser(user);
+      logger.log('User loaded', user.id);
+    });
+  }, []);
+  
+  return <div>{user?.name}</div>;
+}
+```
+
+**Problems:**
+- Hard to test (can't mock dependencies)
+- Tightly coupled to specific implementations
+- Difficult to change behavior
+
+## React DI Patterns
+
+### 1. **Props Injection**
+```tsx
+// ✅ GOOD: Dependencies injected via props
+interface UserProfileProps {
+  apiClient: ApiClient;
+  logger: Logger;
+}
+
+function UserProfile({ apiClient, logger }: UserProfileProps) {
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    apiClient.getUser().then(user => {
+      setUser(user);
+      logger.log('User loaded', user.id);
+    });
+  }, [apiClient, logger]);
+  
+  return <div>{user?.name}</div>;
+}
+
+// Usage
+<UserProfile 
+  apiClient={new ApiClient()} 
+  logger={new Logger()} 
+/>
+```
+
+### 2. **Context Injection**
+```tsx
+// ✅ GOOD: Dependencies via Context
+const ServicesContext = createContext<{
+  apiClient: ApiClient;
+  logger: Logger;
+} | null>(null);
+
+function UserProfile() {
+  const services = useContext(ServicesContext);
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    services?.apiClient.getUser().then(user => {
+      setUser(user);
+      services?.logger.log('User loaded', user.id);
+    });
+  }, [services]);
+  
+  return <div>{user?.name}</div>;
+}
+
+// Provider setup
+function App() {
+  const services = {
+    apiClient: new ApiClient(),
+    logger: new Logger()
+  };
+  
+  return (
+    <ServicesContext.Provider value={services}>
+      <UserProfile />
+    </ServicesContext.Provider>
+  );
+}
+```
+
+### 3. **Hook Injection**
+```tsx
+// ✅ GOOD: Custom hooks as dependency injection
+function useServices() {
+  return useContext(ServicesContext);
+}
+
+function UserProfile() {
+  const { apiClient, logger } = useServices();
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    apiClient.getUser().then(user => {
+      setUser(user);
+      logger.log('User loaded', user.id);
+    });
+  }, [apiClient, logger]);
+  
+  return <div>{user?.name}</div>;
+}
+```
+
+## Testing Benefits
+
+With dependency injection, testing becomes much easier:
+
+```tsx
+// Easy to test with mocked dependencies
+describe('UserProfile', () => {
+  it('loads and displays user', async () => {
+    const mockApi = {
+      getUser: jest.fn().mockResolvedValue({ name: 'John' })
+    };
+    const mockLogger = {
+      log: jest.fn()
+    };
+    
+    render(
+      <UserProfile 
+        apiClient={mockApi} 
+        logger={mockLogger} 
+      />
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByText('John')).toBeInTheDocument();
+    });
+    
+    expect(mockApi.getUser).toHaveBeenCalled();
+    expect(mockLogger.log).toHaveBeenCalledWith('User loaded', expect.any(String));
+  });
+});
+```
+
+## Our DI Implementation
+
+ProjectLearn Manager uses a combination of Context and custom hooks:
+
+```tsx
+// app/shared/lib/providers/services-provider.tsx
+const ServicesContext = createContext<Services | null>(null);
+
+interface Services {
+  apiClient: ApiClient;
+  logger: Logger;
+  analytics: Analytics;
+}
+
+export function ServicesProvider({ children }: { children: ReactNode }) {
+  const services: Services = {
+    apiClient: new ApiClient(process.env.API_URL),
+    logger: new Logger(process.env.NODE_ENV),
+    analytics: new Analytics(process.env.ANALYTICS_KEY)
+  };
+  
+  return (
+    <ServicesContext.Provider value={services}>
+      {children}
+    </ServicesContext.Provider>
+  );
+}
+
+export function useServices() {
+  const context = useContext(ServicesContext);
+  if (!context) {
+    throw new Error('useServices must be used within ServicesProvider');
+  }
+  return context;
+}
+```
+
+Dependency injection makes our React applications more testable, flexible, and maintainable by removing hard dependencies and enabling easy substitution of implementations. 

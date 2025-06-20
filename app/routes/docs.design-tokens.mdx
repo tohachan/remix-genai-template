@@ -1,0 +1,55 @@
+---
+meta:
+  - title: Design Tokens - ProjectLearn Manager
+  - name: description
+    content: Learn how to implement and maintain consistent design systems using design tokens in React applications.
+---
+
+# Design Tokens
+
+Design tokens are the visual design atoms of the design system — specifically, they are named entities that store visual design attributes such as color, spacing, typography, and more.
+
+## What are Design Tokens?
+
+Design tokens represent design decisions as data. Instead of hard-coding values like `#3b82f6` or `16px` throughout your application, you reference semantic tokens like `colors.primary.500` or `spacing.4`.
+
+```tsx
+// ❌ BAD: Hard-coded values
+<button style={{
+  backgroundColor: '#3b82f6',
+  padding: '12px 24px',
+  borderRadius: '8px',
+  color: '#ffffff'
+}}>
+  Click me
+</button>
+
+// ✅ GOOD: Using design tokens
+<button style={{
+  backgroundColor: theme.colors.primary[500],
+  padding: `${theme.spacing[3]} ${theme.spacing[6]}`,
+  borderRadius: theme.borderRadius.md,
+  color: theme.colors.white
+}}>
+  Click me
+</button>
+```
+
+## Benefits of Design Tokens
+
+### 1. **Consistency**
+- Ensures visual consistency across the application
+- Prevents drift in design values
+- Makes it easy to maintain brand guidelines
+
+### 2. **Maintainability**
+- Changes to design values are centralized
+- Easy to update themes or rebrand
+- Reduces duplication of style values
+
+### 3. **Developer Experience**
+- Autocomplete and type safety with TypeScript
+- Clear semantic meaning for values
+- Easy to understand design intentions
+
+Design tokens create a scalable foundation for consistent user interfaces while improving collaboration between design and development teams. 
