@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSW Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9; white-space: pre-wrap; }
+        .error { border-color: #ff0000; background: #ffe6e6; }
+        .success { border-color: #00ff00; background: #e6ffe6; }
+    </style>
+</head>
+<body>
+    <h1>MSW API Test</h1>
+    <p>This is a standalone test for MSW functionality.</p>
+    
+    <div>
+        <button onclick="testTasks()">Test GET /api/tasks</button>
+        <button onclick="testProjects()">Test GET /api/projects</button>
+        <button onclick="createTask()">Test POST /api/tasks</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script type="module">
+        import { setupWorker, http, HttpResponse } from 'https://unpkg.com/msw@2.10.2/lib/browser/index.js';
+
+        // Mock handlers
+        const handlers = [
+            http.get('/api/tasks', () => {
+                return HttpResponse.json({
+                    data: [
+                        {
+                            id: '1',
+                            title: 'Test Task',
+                            description: 'Test Description',
+                            status: 'todo',
+                            priority: 'high',
+                            projectId: '1',
+                            dependencies: [],
+                            createdAt: '2024-01-01',
+                            updatedAt: '2024-01-01'
+                        }
+                    ],
+                    total: 1
+                });
+            }),
+
+            http.get('/api/projects', () => {
+                return HttpResponse.json({
+                    data: [
+                        {
+                            id: '1',
+                            title: 'Test Project',
+                            description: 'Test Project Description',
+                            status: 'active',
+                            createdAt: '2024-01-01',
+                            updatedAt: '2024-01-01'
+                        }
+                    ],
+                    total: 1
+                });
+            }),
+
+            http.post('/api/tasks', async ({ request }) => {
+                const body = await request.json();
+                return HttpResponse.json({
+                    data: {
+                        id: Math.random().toString(36).substr(2, 9),
+                        ...body,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    }
+                }, { status: 201 });
+            })
+        ];
+
+        // Setup worker
+        const worker = setupWorker(...handlers);
+
+        // Start MSW
+        await worker.start({
+            onUnhandledRequest: 'warn'
+        });
+
+        console.log('🚀 MSW started for testing');
+
+        // Test functions
+        window.testTasks = async function() {
+            await testApi('GET', '/api/tasks');
+        };
+
+        window.testProjects = async function() {
+            await testApi('GET', '/api/projects');
+        };
+
+        window.createTask = async function() {
+            await testApi('POST', '/api/tasks', {
+                title: 'New Task',
+                description: 'Created via test',
+                status: 'todo',
+                priority: 'medium',
+                projectId: '1',
+                dependencies: []
+            });
+        };
+
+        async function testApi(method, url, body = null) {
+            const results = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result';
+            
+            try {
+                const options = {
+                    method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+
+                const response = await fetch(url, options);
+                const data = await response.json();
+                
+                resultDiv.className += ' success';
+                resultDiv.textContent = `✅ ${method} ${url}\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                resultDiv.className += ' error';
+                resultDiv.textContent = `❌ ${method} ${url}\nError: ${error.message}`;
+            }
+            
+            results.insertBefore(resultDiv, results.firstChild);
+        }
+    </script>
+</body>
+</html> 
