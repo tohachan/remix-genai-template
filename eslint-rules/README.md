@@ -118,19 +118,22 @@ function LoginForm() {
 
 ### 📋 `fsd/enforce-api-contracts`
 
-Requires explicit TypeScript interfaces or schemas in API files of features.
+Requires explicit TypeScript interfaces for request/response contracts in feature API files. API files must contain TypeScript type definitions that document the data structures used in API operations.
 
-**❌ Wrong:**
+**❌ Wrong - Missing explicit contracts:**
 ```typescript
-// features/auth/api.ts - without types
+// features/auth/api.ts - without explicit types
 export const loginUser = async (email, password) => {
   return fetch('/api/login', { /* ... */ });
 };
+
+// Re-exports without contracts
+export { updateTask } from '~/features/task-management/api';
 ```
 
-**✅ Correct:**
+**✅ Correct - With explicit contracts:**
 ```typescript
-// features/auth/api.ts - with types
+// features/auth/api.ts - with explicit TypeScript contracts
 interface LoginRequest {
   email: string;
   password: string;
@@ -145,6 +148,60 @@ export const loginUser = async (request: LoginRequest): Promise<LoginResponse> =
   return fetch('/api/login', { /* ... */ });
 };
 ```
+
+**✅ Correct - Re-exports with explicit contracts:**
+```typescript
+// features/kanban-board/api.ts - proper contracts for re-exports
+import type { Task, TaskStatus } from '~/entities/task';
+
+// Explicit contracts for kanban-specific operations
+interface KanbanBoardRequest {
+  projectId?: string;
+  filters?: {
+    assignee?: string;
+    priority?: string;
+  };
+}
+
+interface KanbanBoardResponse {
+  columns: {
+    todo: Task[];
+    'in-progress': Task[];
+    done: Task[];
+  };
+  totalTasks: number;
+}
+
+interface KanbanStatusUpdateRequest {
+  taskId: string;
+  newStatus: TaskStatus;
+  position?: number;
+}
+
+interface KanbanStatusUpdateResponse {
+  task: Task;
+  success: boolean;
+}
+
+// Re-export with proper typing
+export { getTasks, updateTask } from '~/features/task-management/api';
+
+// Kanban-specific functions with contracts
+export const getKanbanBoard = async (request: KanbanBoardRequest): Promise<KanbanBoardResponse> => {
+  // Implementation
+};
+
+export const updateTaskStatus = async (request: KanbanStatusUpdateRequest): Promise<KanbanStatusUpdateResponse> => {
+  // Implementation
+};
+```
+
+**Rule Requirements:**
+- All feature API files must contain explicit TypeScript interfaces
+- Request/Response types must be clearly defined
+- Re-exports are allowed but must include related contracts
+- Type imports from entities layer are encouraged
+- JSDoc comments on interfaces are recommended
 
 ### 📁 `fsd/feature-slice-baseline`
 
