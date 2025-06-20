@@ -1,10 +1,12 @@
 import React from 'react';
 import { cn } from '~/shared/lib/utils';
 import { theme } from '~/shared/design-system/theme';
+import type { RuleResults } from '~/pages/playground/types';
 
 interface RunRulesButtonProps {
   className?: string;
   onClick?: () => void;
+  onRuleResults?: (results: RuleResults) => void;
   disabled?: boolean;
   loading?: boolean;
 }
@@ -12,9 +14,29 @@ interface RunRulesButtonProps {
 export default function RunRulesButton({
   className,
   onClick,
+  onRuleResults,
   disabled = false,
   loading = false,
 }: RunRulesButtonProps) {
+  const handleClick = async() => {
+    // Call the original onClick if provided
+    onClick?.();
+
+    // Fetch rule results if callback is provided
+    if (onRuleResults) {
+      try {
+        const response = await fetch('/ruleResults.json');
+        if (!response.ok) {
+          throw new Error('Failed to fetch rule results');
+        }
+        const results: RuleResults = await response.json();
+        onRuleResults(results);
+      } catch (error) {
+        console.error('Error fetching rule results:', error);
+        // Could call an onError callback here if needed
+      }
+    }
+  };
   return (
     <button
       className={cn(
@@ -44,7 +66,7 @@ export default function RunRulesButton({
           e.currentTarget.style.backgroundColor = theme.colors.primary[600];
         }
       }}
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled || loading}
       type="button"
     >

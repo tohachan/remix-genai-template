@@ -3,23 +3,51 @@ import { cn } from '~/shared/lib/utils';
 import { theme } from '~/shared/design-system/theme';
 import CodeEditor from '~/shared/ui/CodeEditor';
 import RunRulesButton from '~/shared/ui/RunRulesButton';
+import RuleResultsDisplay from './RuleResultsDisplay';
+import type { RuleResults } from '../types';
 
 interface PlaygroundPageProps {
   className?: string;
 }
 
+interface LineHighlight {
+  line: number;
+  severity: 'error' | 'warning';
+  message?: string;
+}
+
 export default function PlaygroundPage({ className }: PlaygroundPageProps) {
   const [code, setCode] = useState<string>();
   const [isRunning, setIsRunning] = useState(false);
+  const [ruleResults, setRuleResults] = useState<RuleResults | undefined>();
+  const [highlights, setHighlights] = useState<LineHighlight[]>([]);
 
   const handleRunRules = async() => {
     setIsRunning(true);
+    setRuleResults(undefined); // Clear previous results
+  };
 
-    // Simulate rule running
-    setTimeout(() => {
-      setIsRunning(false);
-      console.log('Rules executed on code:', code);
-    }, 2000);
+  const handleRuleResults = (results: RuleResults) => {
+    setRuleResults(results);
+    setIsRunning(false);
+
+    // Convert violations to line highlights
+    const newHighlights: LineHighlight[] = results.violations.map(violation => ({
+      line: violation.line,
+      severity: violation.severity,
+      message: violation.message,
+    }));
+    setHighlights(newHighlights);
+  };
+
+  const handleViolationClick = (violation: any) => {
+    console.log('Violation clicked:', violation);
+    // Highlight just this specific line
+    setHighlights([{
+      line: violation.line,
+      severity: violation.severity,
+      message: violation.message,
+    }]);
   };
 
   const handleCodeChange = (value: string | undefined) => {
@@ -101,6 +129,7 @@ export default function PlaygroundPage({ className }: PlaygroundPageProps) {
                 onChange={handleCodeChange}
                 language="typescript"
                 theme="light"
+                highlights={highlights}
               />
             </div>
           </div>
@@ -129,12 +158,13 @@ export default function PlaygroundPage({ className }: PlaygroundPageProps) {
 
                 <RunRulesButton
                   onClick={handleRunRules}
+                  onRuleResults={handleRuleResults}
                   loading={isRunning}
                   className="w-full"
                 />
               </div>
 
-              {/* Results Placeholder */}
+              {/* Rule Results */}
               <div>
                 <h3
                   className="font-medium"
@@ -147,45 +177,11 @@ export default function PlaygroundPage({ className }: PlaygroundPageProps) {
                   Rule Results
                 </h3>
 
-                <div
-                  className="rounded-md"
-                  style={{
-                    backgroundColor: theme.colors.gray[50],
-                    border: `1px solid ${theme.colors.gray[200]}`,
-                    padding: theme.spacing[4],
-                  }}
-                >
-                  {isRunning ? (
-                    <div className="flex items-center">
-                      <div
-                        className="animate-spin rounded-full border-2 border-current border-t-transparent mr-2"
-                        style={{
-                          width: theme.spacing[4],
-                          height: theme.spacing[4],
-                          color: theme.colors.primary[600],
-                        }}
-                      />
-                      <span
-                        style={{
-                          fontSize: theme.typography.fontSize.sm[0],
-                          color: theme.colors.gray[600],
-                        }}
-                      >
-                        Analyzing code...
-                      </span>
-                    </div>
-                  ) : (
-                    <p
-                      style={{
-                        fontSize: theme.typography.fontSize.sm[0],
-                        color: theme.colors.gray[500],
-                        fontStyle: 'italic',
-                      }}
-                    >
-                      Run rules to see results here
-                    </p>
-                  )}
-                </div>
+                <RuleResultsDisplay
+                  results={ruleResults}
+                  isLoading={isRunning}
+                  onViolationClick={handleViolationClick}
+                />
               </div>
             </div>
           </div>

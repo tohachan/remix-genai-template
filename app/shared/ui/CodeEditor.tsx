@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { cn } from '~/shared/lib/utils';
 import { theme } from '~/shared/design-system/theme';
 
+interface LineHighlight {
+  line: number;
+  severity: 'error' | 'warning';
+  message?: string;
+}
+
 interface CodeEditorProps {
   className?: string;
   value?: string;
@@ -10,6 +16,7 @@ interface CodeEditorProps {
   height?: string;
   theme?: 'light' | 'dark';
   readOnly?: boolean;
+  highlights?: LineHighlight[];
 }
 
 const defaultCode = `import React from 'react';
@@ -39,10 +46,12 @@ export default function CodeEditor({
   height = '400px',
   theme: editorTheme = 'light',
   readOnly = false,
+  highlights = [],
 }: CodeEditorProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const [MonacoEditor, setMonacoEditor] = useState<any>(null);
+  const [editorInstance, setEditorInstance] = useState<any>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -56,9 +65,39 @@ export default function CodeEditor({
     });
   }, []);
 
-  const handleEditorDidMount = () => {
+  const handleEditorDidMount = (editor: any) => {
     setIsLoading(false);
+    setEditorInstance(editor);
   };
+
+  // Apply line highlights when highlights or editor instance changes
+  useEffect(() => {
+    if (!editorInstance || !highlights.length) {
+      return;
+    }
+
+    const decorations = highlights.map((highlight) => ({
+      range: {
+        startLineNumber: highlight.line,
+        startColumn: 1,
+        endLineNumber: highlight.line,
+        endColumn: 1,
+      },
+      options: {
+        isWholeLine: true,
+        className: highlight.severity === 'error' ? 'line-error' : 'line-warning',
+        glyphMarginClassName: highlight.severity === 'error' ? 'glyph-error' : 'glyph-warning',
+        hoverMessage: highlight.message ? { value: highlight.message } : undefined,
+        lineClassName: highlight.severity === 'error' ? 'line-highlight-error' : 'line-highlight-warning',
+      },
+    }));
+
+    const decorationsCollection = editorInstance.createDecorationsCollection(decorations);
+
+    return () => {
+      decorationsCollection.clear();
+    };
+  }, [editorInstance, highlights]);
 
   // Don't render anything until we're on the client
   if (!isMounted) {
@@ -122,32 +161,53 @@ export default function CodeEditor({
       )}
 
       {MonacoEditor && (
-        <MonacoEditor
-          height={height}
-          language={language}
-          value={value}
-          {...(onChange && { onChange })}
-          theme={editorTheme === 'dark' ? 'vs-dark' : 'vs'}
-          onMount={handleEditorDidMount}
-          options={{
-            readOnly,
-            minimap: { enabled: false },
-            fontSize: 14,
-            fontFamily: theme.typography.fontFamily.mono.join(', '),
-            lineNumbers: 'on',
-            scrollBeyondLastLine: false,
-            automaticLayout: true,
-            tabSize: 2,
-            insertSpaces: true,
-            wordWrap: 'on',
-            folding: true,
-            lineDecorationsWidth: 10,
-            lineNumbersMinChars: 3,
-            renderLineHighlight: 'line',
-            selectionHighlight: false,
-            renderWhitespace: 'selection',
-          }}
-        />
+        <>
+          <style>{`
+            .monaco-editor .line-highlight-error {
+              background: rgba(239, 68, 68, 0.1) !important;
+            }
+            .monaco-editor .line-highlight-warning {
+              background: rgba(245, 158, 11, 0.1) !important;
+            }
+            .monaco-editor .glyph-error::before {
+              content: "●";
+              color: #ef4444;
+              font-weight: bold;
+            }
+            .monaco-editor .glyph-warning::before {
+              content: "●";
+              color: #f59e0b;
+              font-weight: bold;
+            }
+          `}</style>
+          <MonacoEditor
+            height={height}
+            language={language}
+            value={value}
+            {...(onChange && { onChange })}
+            theme={editorTheme === 'dark' ? 'vs-dark' : 'vs'}
+            onMount={handleEditorDidMount}
+            options={{
+              readOnly,
+              minimap: { enabled: false },
+              fontSize: 14,
+              fontFamily: theme.typography.fontFamily.mono.join(', '),
+              lineNumbers: 'on',
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+              tabSize: 2,
+              insertSpaces: true,
+              wordWrap: 'on',
+              folding: true,
+              lineDecorationsWidth: 10,
+              lineNumbersMinChars: 3,
+              renderLineHighlight: 'line',
+              selectionHighlight: false,
+              renderWhitespace: 'selection',
+              glyphMargin: true,
+            }}
+          />
+        </>
       )}
     </div>
   );

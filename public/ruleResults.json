@@ -1,0 +1,90 @@
+{
+  "violations": [
+    {
+      "id": "violation-1",
+      "rule": "enforce-design-tokens",
+      "severity": "error",
+      "message": "Replace literal color '#3b82f6' with theme.colors.primary[500]",
+      "file": "Example.tsx",
+      "line": 12,
+      "column": 25,
+      "code": "backgroundColor: '#3b82f6'",
+      "suggestion": "backgroundColor: theme.colors.primary[500]",
+      "description": "Hard-coded color values should use design tokens from the theme system"
+    },
+    {
+      "id": "violation-2", 
+      "rule": "enforce-layer-boundaries",
+      "severity": "error",
+      "message": "UI component should not directly import from API layer",
+      "file": "Example.tsx",
+      "line": 8,
+      "column": 1,
+      "code": "import { loginUser } from '../api'",
+      "suggestion": "const { login } = useAuth() // Use public hook API",
+      "description": "Replace direct API import with public hook API to maintain proper layer separation"
+    },
+    {
+      "id": "violation-3",
+      "rule": "limit-component-responsibility", 
+      "severity": "warning",
+      "message": "Component file exceeds 200 lines (current: 245). Split into smaller components.",
+      "file": "Example.tsx",
+      "line": 1,
+      "column": 1,
+      "code": "export default function LargeComponent() {",
+      "suggestion": "Split into container and presentational components",
+      "description": "Large components should be split to maintain single responsibility principle"
+    },
+    {
+      "id": "violation-4",
+      "rule": "enforce-plop-generator",
+      "severity": "error", 
+      "message": "Manual component creation detected. Use CLI generator instead.",
+      "file": "Example.tsx",
+      "line": 1,
+      "column": 1,
+      "code": "export default function ComponentName() {",
+      "suggestion": "npm run generate:component -- ComponentName --layer shared --includeTests true --includeStorybook false",
+      "description": "All new components must be created using the CLI generator with full arguments"
+    },
+    {
+      "id": "violation-5",
+      "rule": "require-pure-function-tests",
+      "severity": "warning",
+      "message": "Missing test file for utility function",
+      "file": "Example.tsx",
+      "line": 25,
+      "column": 1,
+      "code": "export function calculateTotal(items: Item[]): number {",
+      "suggestion": "Create test file using: npm run generate:test shared/utils/example.ts",
+      "description": "Pure functions in shared utilities must have corresponding test files"
+    },
+    {
+      "id": "violation-6",
+      "rule": "enforce-design-tokens",
+      "severity": "error",
+      "message": "Replace literal spacing '16px' with theme.spacing[4]",
+      "file": "Example.tsx",
+      "line": 35,
+      "column": 15,
+      "code": "margin: '16px'",
+      "suggestion": "margin: theme.spacing[4]",
+      "description": "Hard-coded spacing values should use design tokens from the theme system"
+    }
+  ],
+  "summary": {
+    "totalViolations": 6,
+    "errors": 4,
+    "warnings": 2,
+    "rules": [
+      "enforce-design-tokens",
+      "enforce-layer-boundaries", 
+      "limit-component-responsibility",
+      "enforce-plop-generator",
+      "require-pure-function-tests"
+    ],
+    "executionTime": "0.8s",
+    "timestamp": "2024-01-15T10:30:45.123Z"
+  }
+} 
