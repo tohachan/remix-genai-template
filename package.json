@@ -15,6 +15,7 @@
     "test:e2e": "playwright test",
     "generate:readme": "node tools/generator/readme.js",
     "generate:component": "node tools/generator/component.js",
+    "generate:feature": "node tools/generator/feature.js",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:a11y": "ESLINT_USE_FLAT_CONFIG=false eslint . --ext .tsx,.jsx --config .eslintrc.a11y.js",
     "lint:fix": "ESLINT_USE_FLAT_CONFIG=false eslint . --ext .ts,.tsx,.js,.jsx --fix",

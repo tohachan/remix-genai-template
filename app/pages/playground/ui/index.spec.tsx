@@ -1,22 +1,22 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import RuleResultsDisplay from './index';
+import FeatureGenerator from './index';
 
 
 // Mock external dependencies if needed
 // jest.mock('~/shared/lib/store', () => ({ store: {} }));
 
-describe('RuleResultsDisplay', () => {
+describe('FeatureGenerator', () => {
   it('renders without crashing', () => {
-    render(<RuleResultsDisplay />);
+    render(<FeatureGenerator />);
 
     // TODO: Add assertions based on component's expected output
   });
 
   it('applies custom className when provided', () => {
     const customClass = 'custom-test-class';
-    render(<RuleResultsDisplay className={customClass} />);
+    render(<FeatureGenerator className={customClass} />);
 
     // TODO: Update selector based on actual component structure
     // const element = screen.getByRole('...');

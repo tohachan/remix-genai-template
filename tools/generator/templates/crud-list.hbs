@@ -1,0 +1,180 @@
+import * as React from 'react';
+import { cn } from '~/shared/lib/utils';
+import { Button } from '~/shared/ui/button';
+import { Card } from '~/shared/ui/card';
+import { Input } from '~/shared/ui/input';
+import { Badge } from '~/shared/ui/badge';
+
+interface {{componentName}}Props {
+  className?: string;
+}
+
+interface {{pascalCase slice}}Item {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'active' | 'inactive';
+  createdAt: string;
+}
+
+const {{componentName}} = React.forwardRef<
+  HTMLDivElement,
+  {{componentName}}Props
+>(({ className, ...props }, ref) => {
+  const [items, setItems] = React.useState<{{pascalCase slice}}Item[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [newItemName, setNewItemName] = React.useState('');
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+
+  // Mock CRUD operations - replace with actual API calls
+  const handleCreate = async () => {
+    if (!newItemName.trim()) return;
+    
+    setIsLoading(true);
+    const newItem: {{pascalCase slice}}Item = {
+      id: Date.now().toString(),
+      name: newItemName,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+    };
+    
+    setItems(prev => [...prev, newItem]);
+    setNewItemName('');
+    setIsLoading(false);
+  };
+
+  const handleUpdate = async (id: string, name: string) => {
+    setIsLoading(true);
+    setItems(prev => 
+      prev.map(item => 
+        item.id === id ? { ...item, name } : item
+      )
+    );
+    setEditingId(null);
+    setIsLoading(false);
+  };
+
+  const handleDelete = async (id: string) => {
+    setIsLoading(true);
+    setItems(prev => prev.filter(item => item.id !== id));
+    setIsLoading(false);
+  };
+
+  const handleToggleStatus = async (id: string) => {
+    setIsLoading(true);
+    setItems(prev => 
+      prev.map(item => 
+        item.id === id 
+          ? { ...item, status: item.status === 'active' ? 'inactive' : 'active' }
+          : item
+      )
+    );
+    setIsLoading(false);
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={cn("space-y-6", className)}
+      {...props}
+    >
+      {/* Create Section */}
+      <Card className="p-4">
+        <h3 className="text-lg font-semibold mb-4">Create New {{pascalCase slice}}</h3>
+        <div className="flex gap-2">
+          <Input
+            placeholder="Enter {{camelCase slice}} name..."
+            value={newItemName}
+            onChange={(e) => setNewItemName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+          />
+          <Button 
+            onClick={handleCreate}
+            disabled={isLoading || !newItemName.trim()}
+          >
+            Create
+          </Button>
+        </div>
+      </Card>
+
+      {/* List Section */}
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold">{{pascalCase slice}} List</h3>
+        
+        {items.length === 0 ? (
+          <Card className="p-8 text-center text-muted-foreground">
+            No {{camelCase slice}} items found. Create one above to get started.
+          </Card>
+        ) : (
+          <div className="space-y-2">
+            {items.map((item) => (
+              <Card key={item.id} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {editingId === item.id ? (
+                      <Input
+                        defaultValue={item.name}
+                        onBlur={(e) => handleUpdate(item.id, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleUpdate(item.id, e.currentTarget.value);
+                          }
+                          if (e.key === 'Escape') {
+                            setEditingId(null);
+                          }
+                        }}
+                        autoFocus
+                      />
+                    ) : (
+                      <div 
+                        className="font-medium cursor-pointer hover:text-blue-600"
+                        onClick={() => setEditingId(item.id)}
+                      >
+                        {item.name}
+                      </div>
+                    )}
+                    
+                    <Badge 
+                      variant={item.status === 'active' ? 'default' : 'secondary'}
+                      className="cursor-pointer"
+                      onClick={() => handleToggleStatus(item.id)}
+                    >
+                      {item.status}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditingId(item.id)}
+                      disabled={isLoading}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(item.id)}
+                      disabled={isLoading}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="text-sm text-muted-foreground mt-2">
+                  Created: {new Date(item.createdAt).toLocaleDateString()}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
+
+{{componentName}}.displayName = '{{componentName}}';
+
+export { {{componentName}} }; 
