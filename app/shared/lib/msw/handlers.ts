@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw';
+import type { User, UserRole } from '~/entities/user';
 
 // Project types
 export interface Project {
@@ -139,9 +140,94 @@ const mockTasks: Task[] = [
   },
 ];
 
+// Mock users data
+const mockUsers: User[] = [
+  {
+    id: '1',
+    name: 'Admin User',
+    email: 'admin@example.com',
+    role: 'admin',
+    avatar: 'https://api.dicebear.com/7.x/avatars/svg?seed=admin',
+    isAuthenticated: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: '2',
+    name: 'John Doe',
+    email: 'john@example.com',
+    role: 'member',
+    avatar: 'https://api.dicebear.com/7.x/avatars/svg?seed=john',
+    isAuthenticated: false,
+    createdAt: '2024-01-02T00:00:00Z',
+    updatedAt: '2024-01-02T00:00:00Z',
+  },
+  {
+    id: '3',
+    name: 'Jane Smith',
+    email: 'jane@example.com',
+    role: 'member',
+    avatar: 'https://api.dicebear.com/7.x/avatars/svg?seed=jane',
+    isAuthenticated: false,
+    createdAt: '2024-01-03T00:00:00Z',
+    updatedAt: '2024-01-03T00:00:00Z',
+  },
+];
+
+// Mock session storage
+let currentSession: {
+  userId: string;
+  token: string;
+  refreshToken: string;
+  expiresAt: number;
+} | null = null;
+
 // Utility functions
 const generateId = (): string => Math.random().toString(36).substr(2, 9);
 const getCurrentTimestamp = (): string => new Date().toISOString();
+const generateToken = (): string => `mock_jwt_${Math.random().toString(36).substr(2, 20)}`;
+const generateRefreshToken = (): string => `refresh_${Math.random().toString(36).substr(2, 20)}`;
+
+// JWT Mock Utilities
+const createSession = (user: User) => {
+  const token = generateToken();
+  const refreshToken = generateRefreshToken();
+  const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+
+  currentSession = {
+    userId: user.id,
+    token,
+    refreshToken,
+    expiresAt,
+  };
+
+  return {
+    user: { ...user, isAuthenticated: true },
+    token,
+    refreshToken,
+    expiresIn: 24 * 60 * 60, // 24 hours in seconds
+  };
+};
+
+const validateToken = (authorization: string | null): User | null => {
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    return null;
+  }
+
+  const token = authorization.substring(7);
+
+  if (!currentSession || currentSession.token !== token) {
+    return null;
+  }
+
+  if (Date.now() > currentSession.expiresAt) {
+    currentSession = null;
+    return null;
+  }
+
+  const user = mockUsers.find(u => u.id === currentSession!.userId);
+  return user ? { ...user, isAuthenticated: true } : null;
+};
 
 // Project handlers
 export const projectHandlers = [
@@ -389,5 +475,228 @@ export const calendarHandlers = [
   }),
 ];
 
+// Authentication handlers
+export const authHandlers = [
+  // POST /api/auth/login
+  http.post('/api/auth/login', async({ request }) => {
+    const body = await request.json() as { email: string; password: string };
+
+    const user = mockUsers.find(u => u.email === body.email);
+
+    if (!user) {
+      return HttpResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 },
+      );
+    }
+
+    // For demo purposes, accept any password except 'wrong'
+    if (body.password === 'wrong') {
+      return HttpResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 },
+      );
+    }
+
+    const session = createSession(user);
+
+    return HttpResponse.json(session);
+  }),
+
+  // POST /api/auth/logout
+  http.post('/api/auth/logout', ({ request }) => {
+    const authorization = request.headers.get('authorization');
+    const user = validateToken(authorization);
+
+    if (!user) {
+      return HttpResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 },
+      );
+    }
+
+    currentSession = null;
+
+    return HttpResponse.json({
+      success: true,
+      message: 'Logged out successfully',
+    });
+  }),
+
+  // POST /api/auth/refresh
+  http.post('/api/auth/refresh', async({ request }) => {
+    const body = await request.json() as { refreshToken: string };
+
+    if (!currentSession || currentSession.refreshToken !== body.refreshToken) {
+      return HttpResponse.json(
+        { error: 'Invalid refresh token' },
+        { status: 401 },
+      );
+    }
+
+    const user = mockUsers.find(u => u.id === currentSession!.userId);
+
+    if (!user) {
+      return HttpResponse.json(
+        { error: 'User not found' },
+        { status: 404 },
+      );
+    }
+
+    // Generate new tokens
+    const token = generateToken();
+    const refreshToken = generateRefreshToken();
+    const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+
+    currentSession = {
+      userId: user.id,
+      token,
+      refreshToken,
+      expiresAt,
+    };
+
+    return HttpResponse.json({
+      token,
+      refreshToken,
+      expiresIn: 24 * 60 * 60, // 24 hours in seconds
+    });
+  }),
+
+  // GET /api/auth/me
+  http.get('/api/auth/me', ({ request }) => {
+    const authorization = request.headers.get('authorization');
+    const user = validateToken(authorization);
+
+    if (!user) {
+      return HttpResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 },
+      );
+    }
+
+    return HttpResponse.json({ user });
+  }),
+
+  // POST /api/auth/register
+  http.post('/api/auth/register', async({ request }) => {
+    const body = await request.json() as {
+      name: string;
+      email: string;
+      password: string;
+      role?: UserRole;
+    };
+
+    // Check if user already exists
+    const existingUser = mockUsers.find(u => u.email === body.email);
+    if (existingUser) {
+      return HttpResponse.json(
+        { error: 'User already exists with this email' },
+        { status: 409 },
+      );
+    }
+
+    // Create new user
+    const newUser: User = {
+      id: generateId(),
+      name: body.name,
+      email: body.email,
+      role: body.role || 'member',
+      avatar: `https://api.dicebear.com/7.x/avatars/svg?seed=${body.name}`,
+      isAuthenticated: false,
+      createdAt: getCurrentTimestamp(),
+      updatedAt: getCurrentTimestamp(),
+    };
+
+    mockUsers.push(newUser);
+
+    // Create session for new user
+    const session = createSession(newUser);
+
+    return HttpResponse.json(session, { status: 201 });
+  }),
+
+  // PUT /api/auth/user/:id
+  http.put('/api/auth/user/:id', async({ request, params }) => {
+    const { id } = params;
+    const authorization = request.headers.get('authorization');
+    const currentUser = validateToken(authorization);
+
+    if (!currentUser) {
+      return HttpResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 },
+      );
+    }
+
+    // Users can only update their own profile, or admins can update any
+    if (currentUser.id !== id && currentUser.role !== 'admin') {
+      return HttpResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 },
+      );
+    }
+
+    const body = await request.json() as {
+      name?: string;
+      email?: string;
+      avatar?: string;
+    };
+
+    const userIndex = mockUsers.findIndex(u => u.id === id);
+    if (userIndex === -1) {
+      return HttpResponse.json(
+        { error: 'User not found' },
+        { status: 404 },
+      );
+    }
+
+    const user = mockUsers[userIndex];
+    if (user) {
+      if (body.name !== undefined) user.name = body.name;
+      if (body.email !== undefined) user.email = body.email;
+      if (body.avatar !== undefined) user.avatar = body.avatar;
+      user.updatedAt = getCurrentTimestamp();
+    }
+
+    return HttpResponse.json({
+      user,
+      success: true,
+      message: 'User updated successfully',
+    });
+  }),
+
+  // POST /api/auth/change-password
+  http.post('/api/auth/change-password', async({ request }) => {
+    const authorization = request.headers.get('authorization');
+    const user = validateToken(authorization);
+
+    if (!user) {
+      return HttpResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 },
+      );
+    }
+
+    const body = await request.json() as {
+      currentPassword: string;
+      newPassword: string;
+    };
+
+    // For demo purposes, just validate that currentPassword is not 'wrong'
+    if (body.currentPassword === 'wrong') {
+      return HttpResponse.json(
+        { error: 'Current password is incorrect' },
+        { status: 400 },
+      );
+    }
+
+    // In a real app, you would hash and store the new password
+    return HttpResponse.json({
+      success: true,
+      message: 'Password changed successfully',
+    });
+  }),
+];
+
 // All handlers combined
-export const handlers = [...projectHandlers, ...taskHandlers, ...calendarHandlers];
+export const handlers = [...projectHandlers, ...taskHandlers, ...calendarHandlers, ...authHandlers];
