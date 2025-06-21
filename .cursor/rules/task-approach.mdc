@@ -212,7 +212,9 @@ Present the plan directly in the response with generator checks:
 3. [Step 3 description]
    - Manual file creation: [Only if no generator available]
 4. Final Validation:
-   - Run linter to check all rule compliance
+   - Run linter with auto-fix: npm run lint:fix
+   - Run TypeScript type checking: npm run type-check
+   - Fix any type errors immediately
    - Run tests to verify functionality
    - Verify implementation works as expected
 
@@ -239,8 +241,9 @@ Create a temporary tracking file:
   - Generator check: [CLI generator needed? Which one?]
 ...
 - [ ] Final Step: Validation and Quality Check
-  - Run linter: npm run lint
-  - Fix any violations
+  - Run linter with auto-fix: npm run lint:fix
+  - Run TypeScript type checking: npm run type-check
+  - Fix any type errors immediately
   - Run tests: npm run test
   - Verify functionality
 
@@ -249,7 +252,8 @@ Create a temporary tracking file:
 - Step Y: npm run generate:readme slice-name
 
 ## Validation Commands:
-- npm run lint (check for rule violations)
+- npm run lint:fix (auto-fix linting violations)
+- npm run type-check (check TypeScript types)
 - npm run test (verify functionality)
 - Manual testing of implemented features
 
@@ -305,12 +309,60 @@ This rule works in conjunction with:
 
 **Priority**: When this rule conflicts with other rules, clarify with the user which approach to take.
 
+## Enhanced Validation Workflow
+
+### Required Validation Steps
+
+For every completed task, the following validation sequence is **mandatory**:
+
+1. **Lint with Auto-Fix**: `npm run lint:fix`
+   - Automatically fixes common violations
+   - Reports remaining issues that need manual attention
+   - Ensures FSD architecture compliance
+
+2. **TypeScript Type Checking**: `npm run type-check`
+   - Runs `tsc --noEmit` to validate all types
+   - **Must fix all type errors** before proceeding
+   - Ensures type safety across the codebase
+
+3. **Testing**: `npm run test`
+   - Verifies functionality works as expected
+   - Ensures no regression was introduced
+   - Validates new components and logic
+
+4. **Manual Verification**
+   - Test the implemented feature in browser
+   - Verify all user interactions work correctly
+   - Check responsive design if applicable
+
+### Error Handling Requirements
+
+**For linting errors after auto-fix:**
+- Read error messages carefully
+- Fix violations that couldn't be auto-fixed
+- Do NOT suppress warnings unless absolutely necessary
+- Re-run `npm run lint:fix` until clean
+
+**For TypeScript errors:**
+- Fix ALL type errors - zero tolerance policy
+- Do NOT use `@ts-ignore` or `any` types as shortcuts
+- If complex type issues arise, create proper interfaces
+- Re-run `npm run type-check` until clean
+
+**For test failures:**
+- Investigate and fix the root cause
+- Do NOT skip or comment out failing tests
+- Update tests only if requirements have genuinely changed
+- Ensure all tests pass before completion
+
 ## Benefits
 
 Following this approach ensures:
 - **Clarity**: No assumptions about file references
 - **Thoroughness**: Complete understanding of affected components
 - **Focus**: Strict adherence to requested scope
-- **Quality**: Systematic conflict resolution
+- **Quality**: Systematic conflict resolution and validation
+- **Type Safety**: Zero tolerance for type errors
+- **Code Quality**: Automated enforcement of standards
 - **Trackability**: Clear execution progress for complex tasks
 - **Completeness**: Nothing is forgotten or overlooked

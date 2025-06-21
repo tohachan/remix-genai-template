@@ -92,11 +92,12 @@ For each step involving file creation:
 ### Final Validation Pattern:
 ```
 After completing all implementation steps:
-1. ✅ Run linter: npm run lint
-2. ✅ Fix any violations immediately
-3. ✅ Run tests: npm run test
-4. ✅ Verify all functionality works
-5. ✅ ONLY THEN report completion
+1. ✅ Run linter with auto-fix: npm run lint:fix
+2. ✅ Run TypeScript type checking: npm run type-check
+3. ✅ Fix any type errors immediately
+4. ✅ Run tests: npm run test
+5. ✅ Verify all functionality works
+6. ✅ ONLY THEN report completion
 ```
 
 ### 🚨 GENERATOR CHECK REQUIREMENTS
