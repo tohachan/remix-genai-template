@@ -3,11 +3,48 @@ import HomePage from '../pages/home/ui';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Remix + Gen AI Template' },
+    {
+      title: 'Project Management Platform | Feature-Sliced Design Architecture',
+    },
     {
       name: 'description',
       content:
-        'A comprehensive starter kit for building scalable Remix applications with Feature-Sliced Design and RTK Query',
+        'Comprehensive project management platform with Kanban boards, calendar views, ' +
+        'team collaboration, and analytics. Built with Feature-Sliced Design, TypeScript, ' +
+        'and modern React patterns.',
+    },
+    {
+      name: 'keywords',
+      content: 'project management, kanban board, team collaboration, Feature-Sliced Design, ' +
+        'TypeScript, React, RTK Query, calendar view, analytics dashboard',
+    },
+    {
+      property: 'og:title',
+      content: 'Project Management Platform | Feature-Sliced Design Architecture',
+    },
+    {
+      property: 'og:description',
+      content:
+        'Modern project management platform featuring Kanban boards, calendar views, ' +
+        'team collaboration, and real-time analytics. Learn from production-ready React architecture.',
+    },
+    {
+      property: 'og:type',
+      content: 'website',
+    },
+    {
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    },
+    {
+      name: 'twitter:title',
+      content: 'Project Management Platform | Feature-Sliced Design',
+    },
+    {
+      name: 'twitter:description',
+      content:
+        'Comprehensive project management with modern React architecture. ' +
+        'Kanban, calendar, team collaboration, and analytics.',
     },
   ];
 };
