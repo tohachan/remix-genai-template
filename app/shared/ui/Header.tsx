@@ -216,12 +216,14 @@ function UserMenu({ user }: UserMenuProps) {
         <Button
           variant="outline"
           className="relative flex items-center"
+          data-testid="user-menu"
           style={{
             gap: theme.spacing[2],
           }}
         >
           <Avatar
             className="h-6 w-6"
+            data-testid="user-avatar"
             style={{
               width: theme.spacing[6],
               height: theme.spacing[6],
@@ -253,6 +255,7 @@ function UserMenu({ user }: UserMenuProps) {
           </Avatar>
           <span
             className="hidden sm:block"
+            data-testid="user-name"
             style={{
               fontSize: theme.typography.fontSize.sm[0],
               fontWeight: theme.typography.fontWeight.medium,
