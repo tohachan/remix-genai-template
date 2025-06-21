@@ -6,12 +6,12 @@ The Kanban-Board features provides kanban-board-related functionality with empty
 ## How to Run
 1. Import the features components:
    ```tsx
-   import { default as KanbanBoard } from '~/features/kanban-board';
+   import { default } from '~/features/kanban-board';
    ```
 
 2. Use in your routes or components:
    ```tsx
-   <default as KanbanBoard />
+   <default />
    ```
 
 ## How to Test
@@ -32,10 +32,12 @@ npm test
 {
   "purpose": "Kanban-Board features with API backend interactions React hooks UI components for kanban-board-related functionality",
   "publicApi": [
-    "default as KanbanBoard - UI component",
+    "default - UI component",
+    "default as KanbanBoardPage - Main page component",
     "default as KanbanColumn - UI component",
     "KanbanTaskCard - UI component",
-    "useKanbanBoard, useDragEnd, useKanbanFilters - React hook for kanban-board functionality"
+    "KanbanFilters - UI component",
+    "KanbanBulkActions - UI component"
   ],
   "dependencies": [
     "React",
@@ -57,7 +59,9 @@ app/features/kanban-board/
 ├── hooks.ts            # React hooks
 ├── hooks.spec.ts       # Hook tests
 ├── ui/                    # UI components
-│   ├── KanbanColumn.tsx     # Main component
+│   ├── KanbanBulkActions.tsx     # Main component
+│   ├── KanbanColumn.tsx     # UI component
+│   ├── KanbanFilters.tsx     # UI component
 │   ├── KanbanTaskCard.tsx     # UI component
 │   ├── kanban-board.page.tsx     # UI component
 │   └── *.spec.ts       # Component tests

@@ -1,5 +1,5 @@
 import type { MetaFunction } from '@remix-run/node';
-import { KanbanBoard } from '~/features/kanban-board';
+import KanbanBoard from '~/features/kanban-board/ui/kanban-board.page';
 
 export const meta: MetaFunction = () => {
   return [

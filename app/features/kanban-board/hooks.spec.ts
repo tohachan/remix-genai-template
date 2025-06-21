@@ -65,7 +65,7 @@ describe('useKanbanFilters', () => {
   it('should return filter functions', () => {
     const { result } = renderHook(() => useKanbanFilters());
 
-    expect(typeof result.current.filterTasksBySearch).toBe('function');
-    expect(typeof result.current.filterTasksByPriority).toBe('function');
+    expect(typeof result.current.setSearchTerm).toBe('function');
+    expect(typeof result.current.setSelectedPriority).toBe('function');
   });
 });
