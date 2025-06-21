@@ -5,6 +5,7 @@
 
 export type {
   Task,
+  TaskWithRelations,
   CreateTaskRequest,
   UpdateTaskRequest,
   TasksResponse,

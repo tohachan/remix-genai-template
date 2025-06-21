@@ -67,6 +67,8 @@ const mockEvents = [
       deadline: '2024-06-25',
       projectId: 'project-1',
       dependencies: [],
+      createdBy: 'user1',
+      tags: [],
       createdAt: '2024-06-20T10:00:00Z',
       updatedAt: '2024-06-20T10:00:00Z',
     },

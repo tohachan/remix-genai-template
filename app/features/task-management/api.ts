@@ -79,7 +79,7 @@ export const taskApi = baseApi.injectEndpoints({
           if (filters.projectId) params.set('projectId', filters.projectId);
           if (filters.status) params.set('status', filters.status);
           if (filters.priority) params.set('priority', filters.priority);
-          if (filters.assignee) params.set('assignee', filters.assignee);
+          if (filters.assigneeId) params.set('assigneeId', filters.assigneeId);
         }
 
         const queryString = params.toString();

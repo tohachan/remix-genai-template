@@ -155,14 +155,14 @@ const KanbanTaskCard = React.forwardRef<HTMLDivElement, KanbanTaskCardProps>(
               {task.priority}
             </span>
 
-            {task.assignee && (
+            {task.assigneeId && (
               <div className="flex items-center gap-1">
                 {/* Avatar placeholder - in a real app this would show user avatar */}
                 <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                  {task.assignee.charAt(0).toUpperCase()}
+                  {task.assigneeId.charAt(0).toUpperCase()}
                 </div>
                 <span className="text-gray-500 max-w-16 truncate">
-                  {task.assignee}
+                  {task.assigneeId}
                 </span>
               </div>
             )}

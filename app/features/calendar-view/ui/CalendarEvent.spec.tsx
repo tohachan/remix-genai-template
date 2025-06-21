@@ -8,7 +8,9 @@ const mockTask: Task = {
   description: 'Sample description',
   status: 'todo',
   priority: 'high',
-  assignee: 'john.doe',
+  assigneeId: 'john.doe',
+  createdBy: 'user1',
+  tags: [],
   deadline: '2024-06-25',
   projectId: 'project-1',
   dependencies: [],
@@ -28,7 +30,7 @@ describe('CalendarEvent', () => {
   });
 
   it('does not render assignee when not provided', () => {
-    const { assignee, ...taskWithoutAssignee } = mockTask;
+    const { assigneeId, ...taskWithoutAssignee } = mockTask;
     render(<CalendarEvent task={taskWithoutAssignee} />);
     expect(screen.queryByText('@')).not.toBeInTheDocument();
   });

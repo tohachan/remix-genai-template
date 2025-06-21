@@ -257,9 +257,11 @@ export const taskApi = api.injectEndpoints({
             status: 'done',
             priority: 'high',
             deadline: '2025-01-10',
-            assignee: 'Development Team',
+            assigneeId: 'dev-team-1',
             projectId: 'proj-docs',
             dependencies: [],
+            createdBy: 'admin',
+            tags: ['documentation', 'fsd'],
             createdAt: '2025-01-08',
             updatedAt: '2025-01-10',
           }}

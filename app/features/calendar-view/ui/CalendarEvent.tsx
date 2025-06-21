@@ -35,8 +35,8 @@ const CalendarEvent = React.forwardRef<
       {...props}
     >
       <div className="font-semibold truncate">{task.title}</div>
-      {task.assignee && (
-        <div className="text-gray-600 truncate">@{task.assignee}</div>
+      {task.assigneeId && (
+        <div className="text-gray-600 truncate">@{task.assigneeId}</div>
       )}
     </div>
   );

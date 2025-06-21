@@ -55,8 +55,8 @@ const TaskCard = React.forwardRef<HTMLDivElement, TaskCardProps>(
 
         <div className="flex justify-between items-center text-sm text-gray-500">
           <div className="flex flex-col gap-1">
-            {task.assignee && (
-              <span><strong>Assignee:</strong> {task.assignee}</span>
+            {task.assigneeId && (
+              <span><strong>Assignee:</strong> {task.assigneeId}</span>
             )}
             {task.deadline && (
               <span><strong>Deadline:</strong> {new Date(task.deadline).toLocaleDateString()}</span>

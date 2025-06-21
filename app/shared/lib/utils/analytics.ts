@@ -109,7 +109,7 @@ export const calculateTeamWorkload = (
   teamMembers: User[],
 ): WorkloadDataPoint[] => {
   return teamMembers.map(member => {
-    const memberTasks = tasks.filter(task => task.assignee === member.id);
+    const memberTasks = tasks.filter(task => task.assigneeId === member.id);
 
     const assigned = memberTasks.length;
     const completed = memberTasks.filter(task => task.status === 'done').length;

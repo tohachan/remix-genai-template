@@ -1,5 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import type { User, UserRole } from '~/entities/user';
+import type { Task } from '~/entities/task';
+import type { Project } from '~/entities/project';
 import type {
   Team,
   TeamMember,
@@ -13,31 +15,6 @@ import type {
   TeamWithMembers,
 } from '~/entities/team';
 
-// Project types
-export interface Project {
-  id: string;
-  title: string;
-  description: string;
-  status: 'active' | 'completed' | 'paused';
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Task types
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: 'todo' | 'in-progress' | 'done';
-  priority: 'low' | 'medium' | 'high';
-  assignee?: string;
-  deadline?: string;
-  projectId: string;
-  dependencies: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
 // Mock data storage
 const mockProjects: Project[] = [
   {
@@ -45,6 +22,15 @@ const mockProjects: Project[] = [
     title: 'Website Redesign',
     description: 'Complete redesign of the company website',
     status: 'active',
+    priority: 'high',
+    startDate: '2024-01-01',
+    endDate: '2024-06-01',
+    progress: 0.65,
+    ownerId: '1',
+    teamId: '1',
+    createdBy: '1',
+    isArchived: false,
+    tags: ['redesign', 'frontend'],
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
@@ -53,6 +39,15 @@ const mockProjects: Project[] = [
     title: 'Mobile App Development',
     description: 'Develop a new mobile application',
     status: 'active',
+    priority: 'high',
+    startDate: '2024-01-02',
+    endDate: '2024-08-01',
+    progress: 0.25,
+    ownerId: '1',
+    teamId: '2',
+    createdBy: '1',
+    isArchived: false,
+    tags: ['mobile', 'development'],
     createdAt: '2024-01-02T00:00:00Z',
     updatedAt: '2024-01-02T00:00:00Z',
   },
@@ -65,10 +60,12 @@ const mockTasks: Task[] = [
     description: 'Create wireframes and designs for the homepage',
     status: 'in-progress',
     priority: 'high',
-    assignee: 'John Doe',
+    assigneeId: '2',
+    createdBy: '1',
     deadline: '2024-02-15T00:00:00Z',
     projectId: '1',
     dependencies: [],
+    tags: ['design', 'frontend'],
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-05T00:00:00Z',
   },
@@ -78,10 +75,12 @@ const mockTasks: Task[] = [
     description: 'Build responsive navigation component',
     status: 'todo',
     priority: 'medium',
-    assignee: 'Jane Smith',
+    assigneeId: '3',
+    createdBy: '1',
     deadline: '2024-02-20T00:00:00Z',
     projectId: '1',
     dependencies: ['1'],
+    tags: ['frontend', 'components'],
     createdAt: '2024-01-02T00:00:00Z',
     updatedAt: '2024-01-02T00:00:00Z',
   },
@@ -91,10 +90,13 @@ const mockTasks: Task[] = [
     description: 'Configure React Native development environment',
     status: 'done',
     priority: 'high',
-    assignee: 'Bob Johnson',
+    assigneeId: '4',
+    createdBy: '1',
     deadline: '2024-01-30T00:00:00Z',
     projectId: '2',
     dependencies: [],
+    tags: ['setup', 'environment'],
+    completedAt: '2024-01-25T00:00:00Z',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-25T00:00:00Z',
   },
@@ -104,10 +106,12 @@ const mockTasks: Task[] = [
     description: 'Write comprehensive API documentation',
     status: 'todo',
     priority: 'medium',
-    assignee: 'Alice Brown',
+    assigneeId: '5',
+    createdBy: '1',
     deadline: '2024-03-15T00:00:00Z',
     projectId: '1',
     dependencies: [],
+    tags: ['documentation', 'api'],
     createdAt: '2024-02-01T00:00:00Z',
     updatedAt: '2024-02-01T00:00:00Z',
   },
@@ -117,10 +121,12 @@ const mockTasks: Task[] = [
     description: 'Add login and registration functionality',
     status: 'in-progress',
     priority: 'high',
-    assignee: 'Charlie Davis',
+    assigneeId: '2',
+    createdBy: '1',
     deadline: '2024-02-28T00:00:00Z',
     projectId: '2',
     dependencies: ['3'],
+    tags: ['auth', 'security'],
     createdAt: '2024-02-01T00:00:00Z',
     updatedAt: '2024-02-10T00:00:00Z',
   },
@@ -130,10 +136,12 @@ const mockTasks: Task[] = [
     description: 'Create mockups and prototypes for mobile app',
     status: 'in-progress',
     priority: 'medium',
-    assignee: 'Diana Miller',
+    assigneeId: '3',
+    createdBy: '1',
     deadline: '2024-03-01T00:00:00Z',
     projectId: '2',
     dependencies: [],
+    tags: ['design', 'ui'],
     createdAt: '2024-02-05T00:00:00Z',
     updatedAt: '2024-02-15T00:00:00Z',
   },
@@ -143,10 +151,12 @@ const mockTasks: Task[] = [
     description: 'Run performance tests and optimize',
     status: 'todo',
     priority: 'low',
-    assignee: 'Eve Wilson',
+    assigneeId: '4',
+    createdBy: '1',
     deadline: '2024-03-20T00:00:00Z',
     projectId: '1',
     dependencies: ['1', '2'],
+    tags: ['testing', 'performance'],
     createdAt: '2024-02-10T00:00:00Z',
     updatedAt: '2024-02-10T00:00:00Z',
   },
@@ -421,6 +431,15 @@ export const projectHandlers = [
       title: body.title,
       description: body.description,
       status: body.status,
+      priority: 'medium',
+      startDate: new Date().toISOString().split('T')[0]!,
+      endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!, // 90 days from now
+      progress: 0,
+      ownerId: '1', // Default to admin user for now
+      teamId: '1', // Default to first team
+      createdBy: '1',
+      isArchived: false,
+      tags: [],
       createdAt: getCurrentTimestamp(),
       updatedAt: getCurrentTimestamp(),
     };
@@ -506,12 +525,15 @@ export const taskHandlers = [
       status: body.status,
       priority: body.priority,
       projectId: body.projectId,
-      dependencies: body.dependencies,
+      dependencies: body.dependencies || [],
+      createdBy: '1', // Default to admin user for now
+      tags: body.tags || [],
       createdAt: getCurrentTimestamp(),
       updatedAt: getCurrentTimestamp(),
       // Only include optional properties if they have values
-      ...(body.assignee && { assignee: body.assignee }),
+      ...(body.assigneeId && { assigneeId: body.assigneeId }),
       ...(body.deadline && { deadline: body.deadline }),
+      ...(body.status === 'done' && body.completedAt && { completedAt: body.completedAt }),
     };
 
     mockTasks.push(newTask);
@@ -538,11 +560,11 @@ export const taskHandlers = [
       if (body.projectId !== undefined) existingTask.projectId = body.projectId;
       if (body.dependencies !== undefined) existingTask.dependencies = body.dependencies;
       // Handle optional properties properly
-      if (body.assignee !== undefined) {
-        if (body.assignee) {
-          existingTask.assignee = body.assignee;
+      if (body.assigneeId !== undefined) {
+        if (body.assigneeId) {
+          existingTask.assigneeId = body.assigneeId;
         } else {
-          delete existingTask.assignee;
+          delete existingTask.assigneeId;
         }
       }
       if (body.deadline !== undefined) {

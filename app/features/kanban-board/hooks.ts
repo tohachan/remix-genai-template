@@ -180,7 +180,7 @@ export const useKanbanFilters = (initialProjectId?: string) => {
       filtered = filtered.filter(task =>
         task.title.toLowerCase().includes(lowerSearchTerm) ||
         task.description.toLowerCase().includes(lowerSearchTerm) ||
-        task.assignee?.toLowerCase().includes(lowerSearchTerm),
+        task.assigneeId?.toLowerCase().includes(lowerSearchTerm),
       );
     }
 
@@ -191,7 +191,7 @@ export const useKanbanFilters = (initialProjectId?: string) => {
 
     // Assignee filter
     if (selectedAssignee !== 'all') {
-      filtered = filtered.filter(task => task.assignee === selectedAssignee);
+      filtered = filtered.filter(task => task.assigneeId === selectedAssignee);
     }
 
     return filtered;
@@ -200,7 +200,7 @@ export const useKanbanFilters = (initialProjectId?: string) => {
   // Get unique assignees for filter dropdown
   const uniqueAssignees = useMemo(() => {
     const assignees = tasks
-      .map(task => task.assignee)
+      .map(task => task.assigneeId)
       .filter((assignee): assignee is string => Boolean(assignee));
     return Array.from(new Set(assignees));
   }, [tasks]);
