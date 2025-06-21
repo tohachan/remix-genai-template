@@ -10,7 +10,8 @@ export const baseApi = createApi({
     baseUrl: '/api',
     prepareHeaders: (headers, { getState }) => {
       // Add auth token if available
-      const token = (getState() as any)?.auth?.token;
+      // First try to get from localStorage (where it's actually stored)
+      const token = localStorage.getItem('auth_token') || (getState() as any)?.auth?.token;
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
@@ -19,8 +20,8 @@ export const baseApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['User', 'Auth', 'Profile', 'Project', 'Task'] as const,
+  tagTypes: ['User', 'Auth', 'Profile', 'Project', 'Task', 'Team', 'TeamMember', 'TeamInvitation'] as const,
   endpoints: () => ({}),
 });
 
-export type ApiTagTypes = 'User' | 'Auth' | 'Profile' | 'Project' | 'Task';
+export type ApiTagTypes = 'User' | 'Auth' | 'Profile' | 'Project' | 'Task' | 'Team' | 'TeamMember' | 'TeamInvitation';
