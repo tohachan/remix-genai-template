@@ -20,8 +20,8 @@ export const baseApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['User', 'Auth', 'Profile', 'Project', 'Task', 'Team', 'TeamMember', 'TeamInvitation'] as const,
+  tagTypes: ['User', 'Auth', 'Profile', 'Project', 'Task', 'Team', 'TeamMember', 'TeamInvitation', 'Analytics'] as const,
   endpoints: () => ({}),
 });
 
-export type ApiTagTypes = 'User' | 'Auth' | 'Profile' | 'Project' | 'Task' | 'Team' | 'TeamMember' | 'TeamInvitation';
+export type ApiTagTypes = 'User' | 'Auth' | 'Profile' | 'Project' | 'Task' | 'Team' | 'TeamMember' | 'TeamInvitation' | 'Analytics';
