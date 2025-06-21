@@ -18,6 +18,9 @@ module.exports = {
       },
     ],
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(@remix-run|@web3-storage|@testing-library)/)',
+  ],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^~/(.*)$': '<rootDir>/app/$1',
