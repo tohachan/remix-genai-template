@@ -33,6 +33,7 @@ export const useAuth = (): AuthHookReturn => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // RTK Query mutations and queries
   const [loginMutation, { isLoading: isLoginLoading }] = useLoginMutation();
@@ -60,6 +61,7 @@ export const useAuth = (): AuthHookReturn => {
         localStorage.removeItem('auth_user');
       }
     }
+    setIsInitialized(true);
   }, []);
 
   // Update user when current user data changes
@@ -108,6 +110,9 @@ export const useAuth = (): AuthHookReturn => {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_refresh_token');
       localStorage.removeItem('auth_user');
+
+      // Redirect to login page
+      window.location.href = '/login';
     }
   }, [logoutMutation, token]);
 
@@ -135,8 +140,8 @@ export const useAuth = (): AuthHookReturn => {
     setError(null);
   }, []);
 
-  const isLoading = isLoginLoading || isLogoutLoading || isRegisterLoading;
-  const isAuthenticated = !!user && !!token;
+  const isLoading = isLoginLoading || isLogoutLoading || isRegisterLoading || !isInitialized;
+  const isAuthenticated = isInitialized && !!user && !!token;
 
   return {
     user,

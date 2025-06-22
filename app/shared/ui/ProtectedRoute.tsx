@@ -4,10 +4,11 @@
  */
 
 import * as React from 'react';
-import { Navigate, useLocation } from '@remix-run/react';
+import { Navigate, useLocation, useNavigate } from '@remix-run/react';
 import { useAuth, useUserRole } from '~/features/authentication/hooks';
 import type { UserRole } from '~/entities/user';
 import { cn } from '~/shared/lib/utils';
+import { useEffect } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -19,6 +20,8 @@ interface ProtectedRouteProps {
   showLoader?: boolean;
   /** Custom className for the wrapper */
   className?: string;
+  /** Allow unauthenticated access */
+  allowUnauthenticated?: boolean;
 }
 
 /**
@@ -32,11 +35,22 @@ const ProtectedRoute = React.forwardRef<HTMLDivElement, ProtectedRouteProps>(
     redirectTo = '/login',
     showLoader = true,
     className,
+    allowUnauthenticated = false,
     ...props
   }, ref) => {
     const { isAuthenticated, isLoading, user } = useAuth();
     const { isAdmin, isMember, role } = useUserRole();
     const location = useLocation();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+      if (!allowUnauthenticated && !isLoading && !isAuthenticated) {
+        // Preserve the current path as redirect parameter
+        const searchParams = new URLSearchParams();
+        searchParams.set('redirect', location.pathname + location.search);
+        navigate(`${redirectTo}?${searchParams.toString()}`, { replace: true });
+      }
+    }, [isAuthenticated, isLoading, allowUnauthenticated, redirectTo, location, navigate]);
 
     // Show loading state while checking authentication
     if (isLoading && showLoader) {
@@ -57,14 +71,9 @@ const ProtectedRoute = React.forwardRef<HTMLDivElement, ProtectedRouteProps>(
       );
     }
 
-    // Redirect to login if not authenticated
-    if (!isAuthenticated || !user) {
-      return (
-        <Navigate
-          to={`${redirectTo}?redirect=${encodeURIComponent(location.pathname)}`}
-          replace
-        />
-      );
+    // Redirect to login if not authenticated (but not during loading)
+    if (!isLoading && (!isAuthenticated || !user)) {
+      return null; // Will redirect via useEffect
     }
 
     // Check role-based access if required role is specified

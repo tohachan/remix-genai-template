@@ -8,10 +8,24 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './dropdown-menu';
-import { Avatar } from './avatar';
+
+// Teams-style avatar colors based on name hash
+const avatarColors = [
+  '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+  '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+  '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5',
+];
+
+function getAvatarColor(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const colorIndex = Math.abs(hash) % avatarColors.length;
+  return avatarColors[colorIndex] as string;
+}
 
 interface HeaderProps {
   className?: string;
@@ -121,19 +135,8 @@ export default function Header({ className }: HeaderProps) {
 
           {/* Right side actions */}
           <div className="flex items-center" style={{ gap: theme.spacing[4] }}>
-            {/* User Menu or Auth Buttons */}
-            {user ? (
-              <UserMenu user={user} />
-            ) : (
-              <div className="flex items-center" style={{ gap: theme.spacing[2] }}>
-                <Button variant="outline" asChild>
-                  <Link to="/login">Sign In</Link>
-                </Button>
-                <Button asChild className="hidden sm:inline-flex">
-                  <Link to="/register">Get Started</Link>
-                </Button>
-              </div>
-            )}
+            {/* User Menu - only show if authenticated */}
+            {user && <UserMenu user={user} />}
 
             {/* Mobile menu button */}
             <Button
@@ -221,12 +224,16 @@ function UserMenu({ user }: UserMenuProps) {
             gap: theme.spacing[2],
           }}
         >
-          <Avatar
-            className="h-6 w-6"
+          <div
+            className="flex items-center justify-center rounded-full border-2 border-white shadow-sm"
             data-testid="user-avatar"
             style={{
-              width: theme.spacing[6],
-              height: theme.spacing[6],
+              width: theme.spacing[8],
+              height: theme.spacing[8],
+              backgroundColor: getAvatarColor(user.name || 'User'),
+              fontSize: theme.typography.fontSize.sm[0],
+              fontWeight: theme.typography.fontWeight.semibold,
+              color: theme.colors.white,
             }}
           >
             {user.avatar ? (
@@ -236,23 +243,16 @@ function UserMenu({ user }: UserMenuProps) {
                 className="h-full w-full rounded-full object-cover"
               />
             ) : (
-              <span
-                className="flex items-center justify-center h-full w-full rounded-full"
-                style={{
-                  backgroundColor: theme.colors.primary[500],
-                  color: theme.colors.white,
-                  fontSize: theme.typography.fontSize.xs[0],
-                  fontWeight: theme.typography.fontWeight.medium,
-                }}
-              >
+              <span>
                 {user.name
                   .split(' ')
                   .map(n => n[0])
                   .join('')
+                  .slice(0, 2)
                   .toUpperCase()}
               </span>
             )}
-          </Avatar>
+          </div>
           <span
             className="hidden sm:block"
             data-testid="user-name"
@@ -267,84 +267,6 @@ function UserMenu({ user }: UserMenuProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem>
-          <Link to="/profile" className="flex items-center w-full">
-            <svg
-              className="mr-2 h-4 w-4"
-              style={{
-                marginRight: theme.spacing[2],
-                width: theme.spacing[4],
-                height: theme.spacing[4],
-              }}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
-            Profile
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Link to="/settings" className="flex items-center w-full">
-            <svg
-              className="mr-2 h-4 w-4"
-              style={{
-                marginRight: theme.spacing[2],
-                width: theme.spacing[4],
-                height: theme.spacing[4],
-              }}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-            Settings
-          </Link>
-        </DropdownMenuItem>
-        {user.role === 'admin' && (
-          <DropdownMenuItem>
-            <Link to="/admin" className="flex items-center w-full">
-              <svg
-                className="mr-2 h-4 w-4"
-                style={{
-                  marginRight: theme.spacing[2],
-                  width: theme.spacing[4],
-                  height: theme.spacing[4],
-                }}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                />
-              </svg>
-              Admin Panel
-            </Link>
-          </DropdownMenuItem>
-        )}
-        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
           <svg
             className="mr-2 h-4 w-4"

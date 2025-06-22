@@ -83,13 +83,6 @@ export const mainNavigation: NavigationItem[] = [
     icon: 'play',
     description: 'Interactive playground',
   },
-  {
-    id: 'login',
-    label: 'Login',
-    href: '/login',
-    icon: 'log-in',
-    description: 'User authentication',
-  },
 ];
 
 // Legacy navigation sections - kept for backward compatibility if needed

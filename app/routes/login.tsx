@@ -21,16 +21,16 @@ export default function LoginRoute() {
   const [searchParams] = useSearchParams();
   const { isAuthenticated } = useAuth();
 
-  // Redirect to home or the requested page if already authenticated
+  // Redirect to projects or the requested page if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const redirectTo = searchParams.get('redirect') || '/';
+      const redirectTo = searchParams.get('redirect') || '/projects';
       navigate(redirectTo, { replace: true });
     }
   }, [isAuthenticated, navigate, searchParams]);
 
   const handleLoginSuccess = () => {
-    const redirectTo = searchParams.get('redirect') || '/';
+    const redirectTo = searchParams.get('redirect') || '/projects';
     navigate(redirectTo, { replace: true });
   };
 
