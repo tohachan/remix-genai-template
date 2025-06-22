@@ -7,6 +7,7 @@ import {
   ScrollRestoration,
 } from '@remix-run/react';
 import { ReduxProvider } from '~/shared/lib/providers/redux-provider';
+import AppLayout from '~/shared/ui/AppLayout';
 
 import styles from './tailwind.css?url';
 
@@ -21,7 +22,9 @@ export default function App() {
       </head>
       <body className="min-h-full bg-background font-sans antialiased">
         <ReduxProvider>
-          <Outlet />
+          <AppLayout>
+            <Outlet />
+          </AppLayout>
         </ReduxProvider>
         <ScrollRestoration />
         <Scripts />

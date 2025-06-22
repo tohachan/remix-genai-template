@@ -1,27 +1,27 @@
 import type { MetaFunction } from '@remix-run/node';
-import KanbanBoard from '~/features/kanban-board/ui/kanban-board.page';
+import { ProjectList } from '~/features/project-management/ui/ProjectList';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Kanban Board - Task Management' },
-    { name: 'description', content: 'Drag and drop kanban board for task management' },
+    { title: 'Projects - Project Management' },
+    { name: 'description', content: 'Manage your projects and track progress' },
   ];
 };
 
-export default function KanbanPage() {
+export default function ProjectsPage() {
   return (
     <div className="container mx-auto">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Kanban Board
+          Projects
         </h1>
         <p className="text-gray-600">
-          Organize your tasks with drag and drop functionality
+          Manage your projects and track progress
         </p>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border p-6">
-        <KanbanBoard />
+        <ProjectList />
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 import type { MetaFunction } from '@remix-run/node';
 import AnalyticsPage from '~/features/analytics/ui/analytics.page';
-import AppLayout from '~/shared/ui/AppLayout';
 
 export const meta: MetaFunction = () => {
   return [
@@ -13,9 +12,5 @@ export const meta: MetaFunction = () => {
 };
 
 export default function Analytics() {
-  return (
-    <AppLayout>
-      <AnalyticsPage />
-    </AppLayout>
-  );
+  return <AnalyticsPage />;
 }

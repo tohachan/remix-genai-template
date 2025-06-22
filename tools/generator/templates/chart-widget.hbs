@@ -74,13 +74,18 @@ const {{componentName}} = React.forwardRef<
             <span className="text-muted-foreground">{item.value}</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3">
-            <div
-              className="h-3 rounded-full transition-all duration-500"
-              style={{
-                width: `${(item.value / maxValue) * 100}%`,
+            {(() => {
+              const barStyle = {
+                width: ((item.value / maxValue) * 100) + '%',
                 backgroundColor: item.color,
-              }}
-            />
+              };
+              return (
+                <div
+                  className="h-3 rounded-full transition-all duration-500"
+                  style={barStyle}
+                />
+              );
+            })()}
           </div>
         </div>
       ))}
@@ -106,9 +111,9 @@ const {{componentName}} = React.forwardRef<
               const y2 = 50 + 45 * Math.sin(((currentAngle + angle) * Math.PI) / 180);
               
               const pathData = [
-                `M 50 50`,
-                `L ${x1} ${y1}`,
-                `A 45 45 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+                'M 50 50',
+                'L ' + x1 + ' ' + y1,
+                'A 45 45 0 ' + largeArcFlag + ' 1 ' + x2 + ' ' + y2,
                 'Z'
               ].join(' ');
               
@@ -130,14 +135,19 @@ const {{componentName}} = React.forwardRef<
           {/* Legend */}
           <div className="absolute -right-24 top-0 space-y-2">
             {data.map((item, index) => (
-              <div key={index} className="flex items-center gap-2 text-sm">
-                <div
-                  className="w-3 h-3 rounded"
-                  style={{ backgroundColor: item.color }}
-                />
-                <span>{item.label}</span>
-                <span className="text-muted-foreground">({item.value})</span>
-              </div>
+              {(() => {
+                const dotStyle = { backgroundColor: item.color };
+                return (
+                  <div key={index} className="flex items-center gap-2 text-sm">
+                    <div
+                      className="w-3 h-3 rounded"
+                      style={dotStyle}
+                    />
+                    <span>{item.label}</span>
+                    <span className="text-muted-foreground">({item.value})</span>
+                  </div>
+                );
+              })()}
             ))}
           </div>
         </div>

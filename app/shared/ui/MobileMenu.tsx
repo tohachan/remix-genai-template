@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Link } from '@remix-run/react';
 import { theme } from '~/shared/design-system/theme';
-import type { NavigationItem, NavigationSection } from '~/shared/config/navigation';
+import type { NavigationItem } from '~/shared/config/navigation';
 import { useNavigationState } from '~/shared/lib/hooks/navigation';
-import { navigationSections, hasAccess } from '~/shared/config/navigation';
+import { mainNavigation, hasAccess } from '~/shared/config/navigation';
 import { Button } from './button';
 
 interface MobileMenuProps {
@@ -140,30 +140,22 @@ export default function MobileMenu({ className }: MobileMenuProps) {
             </div>
           )}
 
-          {/* Navigation Sections */}
+          {/* Navigation Items */}
           <div
             className="flex-1 overflow-y-auto"
             style={{
               padding: theme.spacing[4],
             }}
           >
-            <nav className="space-y-6">
-              {navigationSections.map((section) => {
-                const visibleItems = section.items.filter(item => hasAccess(item, user));
-
-                if (visibleItems.length === 0) {
-                  return null;
-                }
-
-                return (
-                  <MobileMenuSection
-                    key={section.id}
-                    section={{ ...section, items: visibleItems }}
-                    isItemActive={isItemActive}
-                    onItemClick={closeMobileMenu}
-                  />
-                );
-              })}
+            <nav className="space-y-1">
+              {mainNavigation.filter(item => hasAccess(item, user)).map((item) => (
+                <MobileMenuItem
+                  key={item.id}
+                  item={item}
+                  isActive={isItemActive(item)}
+                  onClick={closeMobileMenu}
+                />
+              ))}
             </nav>
           </div>
 
@@ -289,41 +281,7 @@ function MobileUserSection({ user, onClose }: MobileUserSectionProps) {
   );
 }
 
-interface MobileMenuSectionProps {
-  section: NavigationSection;
-  isItemActive: (item: NavigationItem) => boolean;
-  onItemClick: () => void;
-}
 
-function MobileMenuSection({ section, isItemActive, onItemClick }: MobileMenuSectionProps) {
-  return (
-    <div>
-      <h3
-        className="mb-3 text-xs font-medium uppercase tracking-wide"
-        style={{
-          marginBottom: theme.spacing[3],
-          fontSize: theme.typography.fontSize.xs[0],
-          fontWeight: theme.typography.fontWeight.medium,
-          color: theme.colors.gray[500],
-          letterSpacing: '0.05em',
-        }}
-      >
-        {section.label}
-      </h3>
-
-      <div className="space-y-1">
-        {section.items.map((item) => (
-          <MobileMenuItem
-            key={item.id}
-            item={item}
-            isActive={isItemActive(item)}
-            onClick={onItemClick}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 interface MobileMenuItemProps {
   item: NavigationItem;

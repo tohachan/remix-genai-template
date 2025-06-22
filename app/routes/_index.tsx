@@ -1,6 +1,5 @@
 import type { MetaFunction } from '@remix-run/node';
 import HomePage from '../pages/home/ui';
-import AppLayout from '~/shared/ui/AppLayout';
 
 export const meta: MetaFunction = () => {
   return [
@@ -51,9 +50,5 @@ export const meta: MetaFunction = () => {
 };
 
 export default function IndexRoute() {
-  return (
-    <AppLayout showBreadcrumbs={false}>
-      <HomePage />
-    </AppLayout>
-  );
+  return <HomePage />;
 }

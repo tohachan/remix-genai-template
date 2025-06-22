@@ -33,8 +33,6 @@ export const mainNavigation: NavigationItem[] = [
     href: '/projects',
     icon: 'folder',
     description: 'Manage your projects',
-    requiresAuth: true,
-    allowedRoles: ['admin', 'member'],
   },
   {
     id: 'tasks',
@@ -42,17 +40,13 @@ export const mainNavigation: NavigationItem[] = [
     href: '/tasks',
     icon: 'check-circle',
     description: 'Task management and tracking',
-    requiresAuth: true,
-    allowedRoles: ['admin', 'member'],
   },
   {
     id: 'kanban',
-    label: 'Kanban Board',
+    label: 'Kanban',
     href: '/kanban',
     icon: 'columns',
     description: 'Visual task management',
-    requiresAuth: true,
-    allowedRoles: ['admin', 'member'],
   },
   {
     id: 'calendar',
@@ -60,8 +54,6 @@ export const mainNavigation: NavigationItem[] = [
     href: '/calendar',
     icon: 'calendar',
     description: 'Schedule and deadlines',
-    requiresAuth: true,
-    allowedRoles: ['admin', 'member'],
   },
   {
     id: 'teams',
@@ -69,8 +61,6 @@ export const mainNavigation: NavigationItem[] = [
     href: '/teams',
     icon: 'users',
     description: 'Team management and collaboration',
-    requiresAuth: true,
-    allowedRoles: ['admin'],
   },
   {
     id: 'analytics',
@@ -78,109 +68,36 @@ export const mainNavigation: NavigationItem[] = [
     href: '/analytics',
     icon: 'bar-chart',
     description: 'Performance insights and reports',
-    requiresAuth: true,
-    allowedRoles: ['admin', 'member'],
   },
-];
-
-export const docsNavigation: NavigationItem[] = [
   {
-    id: 'docs-overview',
-    label: 'Documentation',
+    id: 'docs',
+    label: 'Docs',
     href: '/docs',
     icon: 'book',
-    description: 'Architecture and development guides',
+    description: 'Documentation and guides',
   },
-  {
-    id: 'srp',
-    label: 'Single Responsibility',
-    href: '/docs/srp',
-    icon: 'target',
-    description: 'Single Responsibility Principle',
-  },
-  {
-    id: 'fsd',
-    label: 'Feature-Sliced Design',
-    href: '/docs/fsd',
-    icon: 'layers',
-    description: 'FSD Architecture methodology',
-  },
-  {
-    id: 'design-tokens',
-    label: 'Design Tokens',
-    href: '/docs/design-tokens',
-    icon: 'palette',
-    description: 'Design system and tokens',
-  },
-  {
-    id: 'layered-separation',
-    label: 'Layered Separation',
-    href: '/docs/layered-separation',
-    icon: 'stack',
-    description: 'Architecture layer boundaries',
-  },
-  {
-    id: 'dependency-injection',
-    label: 'Dependency Injection',
-    href: '/docs/dependency-injection',
-    icon: 'link',
-    description: 'Dependency management patterns',
-  },
-  {
-    id: 'auto-updatable-docs',
-    label: 'Auto-Updatable Docs',
-    href: '/docs/auto-updatable-docs',
-    icon: 'refresh-cw',
-    description: 'Dynamic documentation system',
-  },
-  {
-    id: 'test-first-patterns',
-    label: 'Test-First Patterns',
-    href: '/docs/test-first-patterns',
-    icon: 'shield',
-    description: 'Testing methodologies',
-  },
-];
-
-export const playgroundNavigation: NavigationItem[] = [
   {
     id: 'playground',
     label: 'Playground',
     href: '/playground',
     icon: 'play',
-    description: 'Interactive code playground',
+    description: 'Interactive playground',
   },
   {
-    id: 'api-test',
-    label: 'API Testing',
-    href: '/api-test',
-    icon: 'terminal',
-    description: 'API endpoint testing',
-  },
-  {
-    id: 'rtk-example',
-    label: 'RTK Query Demo',
-    href: '/rtk-example',
-    icon: 'database',
-    description: 'RTK Query examples',
+    id: 'login',
+    label: 'Login',
+    href: '/login',
+    icon: 'log-in',
+    description: 'User authentication',
   },
 ];
 
+// Legacy navigation sections - kept for backward compatibility if needed
 export const navigationSections: NavigationSection[] = [
   {
     id: 'main',
-    label: 'Main Features',
+    label: 'Main Navigation',
     items: mainNavigation,
-  },
-  {
-    id: 'docs',
-    label: 'Documentation',
-    items: docsNavigation,
-  },
-  {
-    id: 'playground',
-    label: 'Development Tools',
-    items: playgroundNavigation,
   },
 ];
 
