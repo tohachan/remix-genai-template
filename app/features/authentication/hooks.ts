@@ -13,6 +13,34 @@ import {
   useGetCurrentUserQuery,
 } from './api';
 
+// Helper function for safe localStorage access
+const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      // Handle localStorage errors silently
+    }
+  },
+  removeItem: (key: string): void => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // Handle localStorage errors silently
+    }
+  },
+};
+
 // Auth state management (simple state for demo - in production would use Redux slice)
 interface AuthHookReturn {
   user: User | null;
@@ -48,8 +76,8 @@ export const useAuth = (): AuthHookReturn => {
 
   // Initialize auth state from localStorage on mount
   useEffect(() => {
-    const storedToken = localStorage.getItem('auth_token');
-    const storedUser = localStorage.getItem('auth_user');
+    const storedToken = safeLocalStorage.getItem('auth_token');
+    const storedUser = safeLocalStorage.getItem('auth_user');
 
     if (storedToken && storedUser) {
       try {
@@ -57,8 +85,8 @@ export const useAuth = (): AuthHookReturn => {
         setUser(JSON.parse(storedUser));
       } catch {
         // Clear invalid stored data
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
+        safeLocalStorage.removeItem('auth_token');
+        safeLocalStorage.removeItem('auth_user');
       }
     }
     setIsInitialized(true);
@@ -68,7 +96,7 @@ export const useAuth = (): AuthHookReturn => {
   useEffect(() => {
     if (currentUserData?.user) {
       setUser(currentUserData.user);
-      localStorage.setItem('auth_user', JSON.stringify(currentUserData.user));
+      safeLocalStorage.setItem('auth_user', JSON.stringify(currentUserData.user));
     }
   }, [currentUserData]);
 
@@ -81,9 +109,9 @@ export const useAuth = (): AuthHookReturn => {
       setToken(result.token);
 
       // Store in localStorage for persistence
-      localStorage.setItem('auth_token', result.token);
-      localStorage.setItem('auth_refresh_token', result.refreshToken);
-      localStorage.setItem('auth_user', JSON.stringify(result.user));
+      safeLocalStorage.setItem('auth_token', result.token);
+      safeLocalStorage.setItem('auth_refresh_token', result.refreshToken);
+      safeLocalStorage.setItem('auth_user', JSON.stringify(result.user));
 
     } catch (err: unknown) {
       const errorMessage = (err as any)?.data?.error || 'Login failed. Please try again.';
@@ -107,12 +135,14 @@ export const useAuth = (): AuthHookReturn => {
       // Clear local state and storage
       setUser(null);
       setToken(null);
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_refresh_token');
-      localStorage.removeItem('auth_user');
+      safeLocalStorage.removeItem('auth_token');
+      safeLocalStorage.removeItem('auth_refresh_token');
+      safeLocalStorage.removeItem('auth_user');
 
-      // Redirect to login page
-      window.location.href = '/login';
+      // Redirect to login page (client-side only)
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
     }
   }, [logoutMutation, token]);
 
@@ -125,9 +155,9 @@ export const useAuth = (): AuthHookReturn => {
       setToken(result.token);
 
       // Store in localStorage for persistence
-      localStorage.setItem('auth_token', result.token);
-      localStorage.setItem('auth_refresh_token', result.refreshToken);
-      localStorage.setItem('auth_user', JSON.stringify(result.user));
+      safeLocalStorage.setItem('auth_token', result.token);
+      safeLocalStorage.setItem('auth_refresh_token', result.refreshToken);
+      safeLocalStorage.setItem('auth_user', JSON.stringify(result.user));
 
     } catch (err: unknown) {
       const errorMessage = (err as any)?.data?.error || 'Registration failed. Please try again.';
@@ -141,10 +171,11 @@ export const useAuth = (): AuthHookReturn => {
   }, []);
 
   const isLoading = isLoginLoading || isLogoutLoading || isRegisterLoading || !isInitialized;
-  const isAuthenticated = isInitialized && !!user && !!token;
+  // Ensure SSR-safe authentication state
+  const isAuthenticated = typeof window !== 'undefined' && isInitialized && !!user && !!token;
 
   return {
-    user,
+    user: typeof window !== 'undefined' ? user : null,
     isAuthenticated,
     isLoading,
     error,

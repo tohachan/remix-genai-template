@@ -22,6 +22,9 @@ export default function MobileMenu({ className }: MobileMenuProps) {
   const menuRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
+    // Only run on client side to prevent hydration issues
+    if (typeof document === 'undefined') return;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         closeMobileMenu();
@@ -41,6 +44,9 @@ export default function MobileMenu({ className }: MobileMenuProps) {
 
   // Close menu on escape key
   React.useEffect(() => {
+    // Only run on client side to prevent hydration issues
+    if (typeof document === 'undefined') return;
+
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         closeMobileMenu();

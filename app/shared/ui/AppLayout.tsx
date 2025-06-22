@@ -5,6 +5,7 @@ import { useNavigationState } from '~/shared/lib/hooks/navigation';
 import Header from './Header';
 import MobileMenu from './MobileMenu';
 import Breadcrumbs from './Breadcrumbs';
+import { BrowserOnly } from '.';
 
 interface AppLayoutProps {
   children?: React.ReactNode;
@@ -23,8 +24,11 @@ export default function AppLayout({
   // Hide breadcrumbs on home page
   const shouldShowBreadcrumbs = showBreadcrumbs && location.pathname !== '/';
 
-  // Prevent body scroll when mobile menu is open
+  // Prevent body scroll when mobile menu is open (client-side only)
   React.useEffect(() => {
+    // Only run on client side to prevent hydration issues
+    if (typeof document === 'undefined') return;
+
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -42,22 +46,26 @@ export default function AppLayout({
       <Header />
 
       {/* Mobile Menu - only on mobile */}
-      {isMobileMenuOpen && <MobileMenu />}
+      <BrowserOnly fallback={null}>
+        {isMobileMenuOpen && <MobileMenu />}
+      </BrowserOnly>
 
       {/* Main Content Area - full width without sidebar */}
       <main className="flex flex-col min-h-[calc(100vh-64px)]">
         {/* Breadcrumbs */}
-        {shouldShowBreadcrumbs && (
-          <div
-            className="bg-white border-b"
-            style={{
-              padding: `${theme.spacing[3]} ${theme.spacing[6]}`,
-              borderColor: theme.colors.gray[200],
-            }}
-          >
-            <Breadcrumbs />
-          </div>
-        )}
+        <BrowserOnly fallback={null}>
+          {shouldShowBreadcrumbs && (
+            <div
+              className="bg-white border-b"
+              style={{
+                padding: `${theme.spacing[3]} ${theme.spacing[6]}`,
+                borderColor: theme.colors.gray[200],
+              }}
+            >
+              <Breadcrumbs />
+            </div>
+          )}
+        </BrowserOnly>
 
         {/* Page Content */}
         <div

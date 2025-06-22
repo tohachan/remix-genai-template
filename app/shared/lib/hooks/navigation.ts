@@ -22,7 +22,7 @@ export const useNavigationState = () => {
   const { user } = useAuth();
 
   const [state, setState] = useState<NavigationState>({
-    isSidebarOpen: true,
+    isSidebarOpen: false, // SSR-safe: start closed
     isMobileMenuOpen: false,
     activeSection: null,
     activeItem: null,
@@ -137,6 +137,9 @@ export const useResponsiveNavigation = () => {
   const [isTablet, setIsTablet] = useState(false);
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
     const checkScreenSize = () => {
       const width = window.innerWidth;
       setIsMobile(width < 768); // md breakpoint
