@@ -1,6 +1,7 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { WorkloadDataPoint } from '~/shared/lib/utils/analytics';
+import { theme } from '~/shared/design-system/theme';
 
 interface TeamWorkloadChartProps {
   data: WorkloadDataPoint[];
@@ -25,43 +26,43 @@ export default function TeamWorkloadChart({
             bottom: 5,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <CartesianGrid strokeDasharray="3 3" stroke={theme.colors.gray[200]} />
           <XAxis
             dataKey="name"
-            stroke="#6b7280"
+            stroke={theme.colors.gray[500]}
             fontSize={12}
             angle={-45}
             textAnchor="end"
             height={60}
           />
           <YAxis
-            stroke="#6b7280"
+            stroke={theme.colors.gray[500]}
             fontSize={12}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+              backgroundColor: theme.colors.white,
+              border: `1px solid ${theme.colors.gray[200]}`,
+              borderRadius: theme.borderRadius.lg,
+              boxShadow: theme.shadows.md,
             }}
           />
           <Legend />
           <Bar
             dataKey="assigned"
-            fill="#3b82f6"
+            fill={theme.colors.primary[500]}
             name="Total Assigned"
             radius={[2, 2, 0, 0]}
           />
           <Bar
             dataKey="completed"
-            fill="#10b981"
+            fill={theme.colors.success[500]}
             name="Completed"
             radius={[2, 2, 0, 0]}
           />
           <Bar
             dataKey="inProgress"
-            fill="#f59e0b"
+            fill={theme.colors.warning[500]}
             name="In Progress"
             radius={[2, 2, 0, 0]}
           />

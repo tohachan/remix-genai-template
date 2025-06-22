@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw';
+import { theme } from '~/shared/design-system/theme';
 import type { User, UserRole } from '~/entities/user';
 import type { Task } from '~/entities/task';
 import type { Project } from '~/entities/project';
@@ -222,7 +223,7 @@ const mockTeams: Team[] = [
     id: '1',
     name: 'Design Team',
     description: 'Frontend design and UX team',
-    color: '#3B82F6',
+    color: theme.colors.primary[500],
     avatar: 'https://api.dicebear.com/7.x/shapes/svg?seed=design',
     isActive: true,
     createdAt: '2024-01-01T00:00:00Z',
@@ -234,7 +235,7 @@ const mockTeams: Team[] = [
     id: '2',
     name: 'Development Team',
     description: 'Backend and frontend development team',
-    color: '#10B981',
+    color: theme.colors.success[500],
     avatar: 'https://api.dicebear.com/7.x/shapes/svg?seed=dev',
     isActive: true,
     createdAt: '2024-01-02T00:00:00Z',

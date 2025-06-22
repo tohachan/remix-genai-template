@@ -1,6 +1,7 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { BurndownDataPoint } from '~/shared/lib/utils/analytics';
+import { theme } from '~/shared/design-system/theme';
 
 interface BurndownChartProps {
   data: BurndownDataPoint[];
@@ -25,49 +26,55 @@ export default function BurndownChart({
             bottom: 5,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <CartesianGrid strokeDasharray="3 3" stroke={theme.colors.gray[200]} />
           <XAxis
             dataKey="date"
-            stroke="#6b7280"
+            stroke={theme.colors.gray[500]}
             fontSize={12}
           />
           <YAxis
-            stroke="#6b7280"
+            stroke={theme.colors.gray[500]}
             fontSize={12}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+              backgroundColor: theme.colors.white,
+              border: `1px solid ${theme.colors.gray[200]}`,
+              borderRadius: theme.borderRadius.lg,
+              boxShadow: theme.shadows.md,
             }}
           />
           <Legend />
+
+          {/* Ideal line */}
           <Line
             type="monotone"
             dataKey="ideal"
-            stroke="#9ca3af"
-            strokeWidth={2}
+            stroke={theme.colors.gray[400]}
             strokeDasharray="5 5"
             name="Ideal Burndown"
+            strokeWidth={2}
             dot={false}
           />
+
+          {/* Actual line */}
           <Line
             type="monotone"
-            dataKey="remaining"
-            stroke="#3b82f6"
-            strokeWidth={2}
-            name="Actual Remaining"
-            dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+            dataKey="actual"
+            stroke={theme.colors.primary[500]}
+            strokeWidth={3}
+            dot={{ fill: theme.colors.primary[500], strokeWidth: 2, r: 4 }}
+            name="Actual Burndown"
           />
+
+          {/* Completed line */}
           <Line
             type="monotone"
             dataKey="completed"
-            stroke="#10b981"
+            stroke={theme.colors.success[500]}
             strokeWidth={2}
+            dot={{ fill: theme.colors.success[500], strokeWidth: 2, r: 4 }}
             name="Completed Tasks"
-            dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
           />
         </LineChart>
       </ResponsiveContainer>

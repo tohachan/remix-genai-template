@@ -52,6 +52,31 @@ export const theme = {
       700: '#b91c1c',
     },
 
+    // Extended colors for teams and UI variety
+    purple: {
+      500: '#8b5cf6',
+      600: '#7c3aed',
+      700: '#6d28d9',
+    },
+
+    cyan: {
+      500: '#06b6d4',
+      600: '#0891b2',
+      700: '#0e7490',
+    },
+
+    lime: {
+      500: '#84cc16',
+      600: '#65a30d',
+      700: '#4d7c0f',
+    },
+
+    orange: {
+      500: '#f97316',
+      600: '#ea580c',
+      700: '#c2410c',
+    },
+
     // Common colors
     white: '#ffffff',
     black: '#000000',

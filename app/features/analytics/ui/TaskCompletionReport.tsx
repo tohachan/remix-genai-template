@@ -1,6 +1,7 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import type { CompletionStats } from '~/shared/lib/utils/analytics';
+import { theme } from '~/shared/design-system/theme';
 
 interface TaskCompletionReportProps {
   stats: CompletionStats;
@@ -9,10 +10,10 @@ interface TaskCompletionReportProps {
 }
 
 const COLORS = {
-  completed: '#10b981',
-  inProgress: '#f59e0b',
-  todo: '#6b7280',
-  overdue: '#ef4444',
+  completed: theme.colors.success[500],
+  inProgress: theme.colors.warning[500],
+  todo: theme.colors.gray[500],
+  overdue: theme.colors.error[500],
 };
 
 export default function TaskCompletionReport({
@@ -90,7 +91,7 @@ export default function TaskCompletionReport({
                   labelLine={false}
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
-                  fill="#8884d8"
+                  fill={theme.colors.primary[500]}
                   dataKey="value"
                 >
                   {pieData.map((entry, index) => (
@@ -99,10 +100,10 @@ export default function TaskCompletionReport({
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    backgroundColor: theme.colors.white,
+                    border: `1px solid ${theme.colors.gray[200]}`,
+                    borderRadius: theme.borderRadius.lg,
+                    boxShadow: theme.shadows.md,
                   }}
                 />
                 <Legend />

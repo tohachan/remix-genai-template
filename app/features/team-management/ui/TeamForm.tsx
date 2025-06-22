@@ -6,6 +6,7 @@ import { Input } from '~/shared/ui/input';
 import { Label } from '~/shared/ui/label';
 import { Textarea } from '~/shared/ui/textarea';
 import { Card } from '~/shared/ui/card';
+import { theme } from '~/shared/design-system/theme';
 
 interface TeamFormProps {
   team?: Team;
@@ -14,14 +15,14 @@ interface TeamFormProps {
 }
 
 const TEAM_COLORS = [
-  '#3B82F6', // Blue
-  '#10B981', // Green
-  '#F59E0B', // Yellow
-  '#EF4444', // Red
-  '#8B5CF6', // Purple
-  '#06B6D4', // Cyan
-  '#84CC16', // Lime
-  '#F97316', // Orange
+  theme.colors.primary[500], // Blue
+  theme.colors.success[500], // Green
+  theme.colors.warning[500], // Yellow
+  theme.colors.error[500], // Red
+  theme.colors.purple[500], // Purple
+  theme.colors.cyan[500], // Cyan
+  theme.colors.lime[500], // Lime
+  theme.colors.orange[500], // Orange
 ];
 
 export const TeamForm: React.FC<TeamFormProps> = ({
@@ -32,7 +33,7 @@ export const TeamForm: React.FC<TeamFormProps> = ({
   const [formData, setFormData] = useState<CreateTeamData>({
     name: '',
     description: '',
-    color: TEAM_COLORS[0] || '#3b82f6',
+    color: TEAM_COLORS[0] || theme.colors.primary[500],
     avatar: '',
   });
 
@@ -150,7 +151,7 @@ export const TeamForm: React.FC<TeamFormProps> = ({
       setFormData({
         name: '',
         description: '',
-        color: TEAM_COLORS[0] || '#3b82f6',
+        color: TEAM_COLORS[0] || theme.colors.primary[500],
         avatar: '',
       });
     }

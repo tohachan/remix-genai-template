@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { theme } from '~/shared/design-system/theme';
 import RuleResultsDisplay from './RuleResultsDisplay';
 
 const mockResults = {
@@ -12,7 +13,7 @@ const mockResults = {
       file: 'Example.tsx',
       line: 12,
       column: 25,
-      code: 'backgroundColor: \'#3b82f6\'',
+      code: `backgroundColor: '${theme.colors.primary[500]}'`,
       suggestion: 'backgroundColor: theme.colors.primary[500]',
       description: 'Hard-coded color values should use design tokens',
     },
@@ -84,7 +85,7 @@ describe('RuleResultsDisplay', () => {
     render(<RuleResultsDisplay results={mockResults} />);
 
     // Check code snippets
-    expect(screen.getByText('- backgroundColor: \'#3b82f6\'')).toBeInTheDocument();
+    expect(screen.getByText(`- backgroundColor: '${theme.colors.primary[500]}'`)).toBeInTheDocument();
     expect(screen.getByText('+ backgroundColor: theme.colors.primary[500]')).toBeInTheDocument();
   });
 

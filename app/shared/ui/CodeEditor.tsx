@@ -171,12 +171,12 @@ export default function CodeEditor({
             }
             .monaco-editor .glyph-error::before {
               content: "●";
-              color: #ef4444;
+              color: ${theme.colors.error[500]};
               font-weight: bold;
             }
             .monaco-editor .glyph-warning::before {
               content: "●";
-              color: #f59e0b;
+              color: ${theme.colors.warning[500]};
               font-weight: bold;
             }
           `}</style>

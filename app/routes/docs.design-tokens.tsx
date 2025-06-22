@@ -1,6 +1,7 @@
 import type { MetaFunction } from '@remix-run/node';
 import { ComponentDemo } from '~/shared/ui/ComponentDemo';
 import { DemoButton } from '~/shared/ui/DemoButton';
+import { theme } from '~/shared/design-system/theme';
 
 export const meta: MetaFunction = () => {
   return [
@@ -18,15 +19,15 @@ export default function DesignTokensPage() {
 
       <h2>What are Design Tokens?</h2>
 
-      <p>Design tokens represent design decisions as data. Instead of hard-coding values like <code>#3b82f6</code> or <code>16px</code> throughout your application, you reference semantic tokens like <code>colors.primary.500</code> or <code>spacing.4</code>.</p>
+      <p>Design tokens represent design decisions as data. Instead of hard-coding values like <code>{theme.colors.primary[500]}</code> or <code>{theme.spacing[4]}</code> throughout your application, you reference semantic tokens like <code>colors.primary.500</code> or <code>spacing.4</code>.</p>
 
       <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
         <code>{`// ❌ BAD: Hard-coded values
 <button style={{
-  backgroundColor: '#3b82f6',
-  padding: '12px 24px',
-  borderRadius: '8px',
-  color: '#ffffff'
+  backgroundColor: '${theme.colors.primary[500]}',
+  padding: '${theme.spacing[3]} ${theme.spacing[6]}',
+  borderRadius: '${theme.borderRadius.md}',
+  color: '${theme.colors.white}'
 }}>
   Click me
 </button>
