@@ -1,0 +1,365 @@
+# === enforce-design-tokens.yaml ===
+id: enforce-design-tokens
+description: "Prevents the use of hard-coded color values, numeric spacing values, and other design literals in JSX inline styles, CSS files, styled-components, emotion, and other CSS-in-JS libraries. All styling values must reference design tokens from ~/shared/config/theme.ts"
+globs:
+  - "**/*.tsx"
+  - "**/*.ts"
+  - "**/*.css"
+  - "**/*.scss"
+  - "**/*.less"
+always_apply: true
+
+# Prohibited patterns
+prohibited_patterns:
+  hard_coded_colors:
+    description: "Avoid these patterns everywhere:"
+    patterns:
+      - "Hex colors: `#ffffff`, `#000000`, `#3b82f6`"
+      - "RGB/RGBA values: `rgb(255, 255, 255)`, `rgba(0, 0, 0, 0.5)`"
+      - "HSL/HSLA values: `hsl(200, 100%, 50%)`, `hsla(200, 100%, 50%, 0.8)`"
+      - "Named colors: `red`, `blue`, `green` (except semantic ones like `transparent`)"
+
+  hard_coded_spacing_values:
+    description: "Avoid these patterns everywhere:"
+    patterns:
+      - "Pixel values: `margin: 16px`, `padding: 8px`"
+      - "Rem values: `margin: 1rem`, `padding: 0.5rem`"
+      - "Em values: `margin: 1em`, `padding: 0.25em`"
+      - "Percentage spacing: `margin: 5%`, `padding: 10%`"
+
+  hard_coded_typography_values:
+    description: "Avoid these patterns everywhere:"
+    patterns:
+      - "Font sizes: `font-size: 16px`, `fontSize: '1.5rem'`"
+      - "Font weights: `font-weight: 600`, `fontWeight: 'bold'`"
+      - "Line heights: `line-height: 1.2`, `lineHeight: '1.5'`"
+
+  hard_coded_design_property_values:
+    description: "Avoid these patterns everywhere:"
+    patterns:
+      - "Border radius: `border-radius: 4px`, `borderRadius: '8px'`"
+      - "Box shadows: `box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1)`"
+      - "Z-index values: `z-index: 999`, `zIndex: 10`"
+
+# Context-specific violations
+context_specific_violations:
+  inline_styles_jsx:
+    bad_example: |
+      // ❌ Bad - Inline style literals
+      <div style={{ 
+        backgroundColor: '#f8f9fa',
+        margin: '16px',
+        color: '#333',
+        fontSize: '1.125rem',
+        borderRadius: '8px'
+      }}>
+
+  css_in_js_styled_components_emotion:
+    bad_examples:
+      styled_components: |
+        // ❌ Bad - CSS-in-JS literals
+        const Button = styled.button`
+          background-color: #3b82f6;
+          padding: 12px 24px;
+          border-radius: 6px;
+          font-size: 16px;
+        `;
+      emotion_css_prop: |
+        // ❌ Bad - Emotion css prop
+        <div css={{
+          backgroundColor: '#f8f9fa',
+          margin: '16px',
+          borderRadius: '8px'
+        }} />
+
+  css_classes:
+    bad_example: |
+      /* ❌ Bad - CSS class literals */
+      .card {
+        background-color: #ffffff;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+        font-size: 1rem;
+      }
+
+# Required replacements
+required_replacements:
+  colors:
+    description: "Use design system colors:"
+    examples:
+      background_color: |
+        // Instead of: backgroundColor: '#3b82f6'
+        backgroundColor: theme.colors.primary[500]
+      text_color: |
+        // Instead of: color: '#ffffff'  
+        color: theme.colors.white
+      border_color: |
+        // Instead of: borderColor: 'rgba(0, 0, 0, 0.1)'
+        borderColor: theme.colors.gray[200]
+
+  spacing:
+    description: "Use design system spacing:"
+    examples:
+      margin: |
+        // Instead of: margin: '16px'
+        margin: theme.spacing[4]
+      padding: |
+        // Instead of: padding: '0.5rem'  
+        padding: theme.spacing[2]
+      gap: |
+        // Instead of: gap: '24px'
+        gap: theme.spacing[6]
+
+  typography:
+    description: "Use design system typography:"
+    examples:
+      font_size: |
+        // Instead of: fontSize: '1.125rem'
+        fontSize: theme.typography.fontSize.lg[0]
+      font_weight: |
+        // Instead of: fontWeight: '600'
+        fontWeight: theme.typography.fontWeight.semibold
+      line_height: |
+        // Instead of: lineHeight: '1.5'
+        lineHeight: theme.typography.fontSize.lg[1].lineHeight
+
+  other_design_properties:
+    description: "Use design system tokens:"
+    examples:
+      border_radius: |
+        // Instead of: borderRadius: '8px'
+        borderRadius: theme.borderRadius.lg
+      box_shadow: |
+        // Instead of: boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+        boxShadow: theme.shadows.md
+      z_index: |
+        // Instead of: zIndex: 50
+        zIndex: theme.zIndex[50]
+
+# Implementation examples
+implementation_examples:
+  inline_styles_corrected: |
+    // ✅ Good - Using theme tokens
+    <div style={{ 
+      backgroundColor: theme.colors.gray[50],
+      margin: theme.spacing[4],
+      color: theme.colors.gray[700],
+      fontSize: theme.typography.fontSize.lg[0],
+      borderRadius: theme.borderRadius.lg
+    }}>
+
+  styled_components_corrected: |
+    // ✅ Good - Using theme tokens
+    const Button = styled.button`
+      background-color: ${theme.colors.primary[500]};
+      padding: ${theme.spacing[3]} ${theme.spacing[6]};
+      border-radius: ${theme.borderRadius.md};
+      font-size: ${theme.typography.fontSize.base[0]};
+    `;
+
+  emotion_css_function_corrected: |
+    import { css } from '@emotion/react';
+    import { theme } from '~/shared/config/theme';
+
+    // ✅ Good - Using theme tokens
+    const buttonStyles = css`
+      background-color: ${theme.colors.primary[500]};
+      padding: ${theme.spacing[3]} ${theme.spacing[6]};
+      border-radius: ${theme.borderRadius.md};
+    `;
+
+  css_classes_corrected: |
+    /* ✅ Good - Use CSS custom properties set by theme */
+    .card {
+      background-color: var(--color-white);
+      padding: var(--spacing-6);
+      border: 1px solid var(--color-gray-200);
+      font-size: var(--font-size-base);
+    }
+
+# Required theme import
+required_theme_import:
+  description: "When using design tokens, you **must** import the theme:"
+  examples:
+    basic_import: "import { theme } from '~/shared/config/theme';"
+    with_helpers: "import { theme, getColor, getSpacing } from '~/shared/config/theme';"
+
+# Targeted CSS-in-JS patterns
+targeted_css_in_js_patterns:
+  description: "This rule specifically detects and flags:"
+  styled_components:
+    - "`styled.div```, `styled.button```, `styled(Component)```"
+    - "Template literals with CSS properties"
+    - "`css`` helper from styled-components or emotion"
+
+  other_css_in_js_libraries:
+    - "`css()` function calls from emotion"
+    - "`sx` prop objects in MUI/Chakra-like libraries"
+    - "`css` prop objects in emotion"
+    - "Inline `style` prop objects in JSX"
+
+  mui_sx_prop_example:
+    bad: |
+      // ❌ Bad
+      <Box sx={{
+        bgcolor: '#ffffff',
+        p: 3,
+        borderRadius: '8px'
+      }} />
+    good: |
+      // ✅ Good
+      <Box sx={{
+        bgcolor: theme.colors.white,
+        p: theme.spacing[6],
+        borderRadius: theme.borderRadius.lg
+      }} />
+
+# Pattern detection
+pattern_detection:
+  description: "This rule looks for literal values in these contexts:"
+  contexts:
+    - "**JSX inline styles** - `style` prop objects"
+    - "**Template literal CSS** inside styled-components"
+    - "**Object-style CSS** in css() functions or css props"
+    - "**CSS class files** - .css, .scss, .less files"
+    - "**Literal values** in these CSS properties:"
+
+  css_properties:
+    color_properties: "`color`, `background-color`, `border-color`, etc."
+    spacing_properties: "`margin`, `padding`, `gap`, `top`, `left`, etc."
+    typography: "`font-size`, `font-weight`, `line-height`"
+    visual_properties: "`border-radius`, `box-shadow`, `z-index`"
+
+# Acceptable exceptions
+acceptable_exceptions:
+  description: "These values are **allowed** and don't trigger the rule:"
+  allowed_values:
+    - "`transparent` color value"
+    - "`0` values: `margin: 0`, `padding: 0`"
+    - "`100%`, `100vh`, `100vw` for full dimensions"
+    - "`auto` values: `margin: auto`"
+    - "CSS custom properties: `var(--color-primary)`, `var(--spacing-4)`"
+    - "`calc()` expressions using theme tokens: `calc(${theme.spacing[4]} + 1px)`"
+
+# Error messages
+error_messages:
+  description: "When violations are detected, provide specific guidance:"
+  message_types:
+    colors: "Replace literal color `#3b82f6` with `theme.colors.primary[500]`"
+    spacing: "Replace literal spacing `16px` with `theme.spacing[4]`"
+    typography: "Replace literal font-size `1.5rem` with `theme.typography.fontSize.xl[0]`"
+    border_radius: "Replace literal border-radius `8px` with `theme.borderRadius.lg`"
+    general: "Use design system token from ~/shared/config/theme.ts instead of literal value"
+
+# FSD architecture integration
+fsd_architecture_integration:
+  description: "This rule works with Feature-Sliced Design by:"
+  benefits:
+    - "Enforcing consistent theme usage across all FSD layers"
+    - "Supporting the shared layer's role in providing common utilities"
+    - "Ensuring design tokens are properly abstracted from business logic"
+    - "Maintaining clean separation between design system and feature implementation"
+
+# What patterns this rule flags as problematic
+anti_patterns:
+  - "Hard-coded hex colors (#ffffff, #000000, #3b82f6)"
+  - "Hard-coded RGB/RGBA values (rgb(255, 255, 255), rgba(0, 0, 0, 0.5))"
+  - "Hard-coded HSL/HSLA values (hsl(200, 100%, 50%))"
+  - "[0-9]+px (pixel values for spacing/typography)"
+  - "[0-9.]+rem (rem values for spacing/typography)"
+  - "[0-9.]+em (em values for spacing/typography)"
+  - "font-size: [0-9] (literal font sizes)"
+  - "font-weight: [0-9] (literal font weights)"
+  - "border-radius: [0-9] (literal border radius)"
+  - "box-shadow: .* (literal box shadows)"
+  - "z-index: [0-9] (literal z-index values)"
+  - "margin: [0-9] (literal margin values)"
+  - "padding: [0-9] (literal padding values)"
+
+# Correct approach according to this rule
+correct_pattern: |
+  **Theme Token Usage:**
+  Always use design tokens from ~/shared/config/theme.ts:
+  ```tsx
+  import { theme } from '~/shared/config/theme';
+
+  // Colors
+  backgroundColor: theme.colors.primary[500]
+  color: theme.colors.white
+  borderColor: theme.colors.gray[200]
+
+  // Spacing
+  margin: theme.spacing[4]
+  padding: theme.spacing[2]
+  gap: theme.spacing[6]
+
+  // Typography
+  fontSize: theme.typography.fontSize.lg[0]
+  fontWeight: theme.typography.fontWeight.semibold
+  lineHeight: theme.typography.fontSize.lg[1].lineHeight
+
+  // Other properties
+  borderRadius: theme.borderRadius.lg
+  boxShadow: theme.shadows.md
+  zIndex: theme.zIndex[50]
+  ```
+
+  **CSS Custom Properties:**
+  For CSS files, use CSS custom properties:
+  ```css
+  .card {
+    background-color: var(--color-white);
+    padding: var(--spacing-6);
+    border: 1px solid var(--color-gray-200);
+    font-size: var(--font-size-base);
+  }
+  ```
+
+# Patterns that trigger this rule
+flagged_patterns:
+  - "#[0-9a-fA-F]{3,6} (hex colors)"
+  - "rgb\\(.*\\) and rgba\\(.*\\) (RGB/RGBA values)"
+  - "hsl\\(.*\\) and hsla\\(.*\\) (HSL/HSLA values)"
+  - "[0-9]+px (pixel values for spacing/typography)"
+  - "[0-9.]+rem (rem values for spacing/typography)"
+  - "[0-9.]+em (em values for spacing/typography)"
+  - "font-size: [0-9] (literal font sizes)"
+  - "font-weight: [0-9] (literal font weights)"
+  - "border-radius: [0-9] (literal border radius)"
+  - "box-shadow: .* (literal box shadows)"
+  - "z-index: [0-9] (literal z-index values)"
+  - "margin: [0-9] (literal margin values)"
+  - "padding: [0-9] (literal padding values)"
+
+# Solutions this rule suggests
+suggested_solutions:
+  - "Replace all hard-coded colors with theme.colors.* tokens"
+  - "Replace all hard-coded spacing with theme.spacing[*] tokens"
+  - "Replace all hard-coded typography with theme.typography.* tokens"
+  - "Replace all hard-coded design properties with theme.* tokens"
+  - "Import theme from ~/shared/config/theme.ts"
+  - "Use CSS custom properties for CSS files"
+  - "Use calc() expressions with theme tokens when needed"
+  - "Keep only semantic values like transparent, 0, auto, 100%"
+
+# Cases where this rule doesn't apply
+exceptions:
+  - "Values like 'transparent', '0', 'auto'"
+  - "Full dimension values like '100%', '100vh', '100vw'"
+  - "CSS custom properties like 'var(--color-primary)'"
+  - "calc() expressions using theme tokens"
+  - "Third-party library specific values that cannot use tokens"
+  - "Legacy code during migration phase (temporarily)"
+  - "Browser-specific values that have no token equivalent"
+
+# Benefits of following this rule
+benefits:
+  - "**Consistency**: All components use the same design language"
+  - "**Maintainability**: Design changes can be made in one place (theme.ts)"
+  - "**Accessibility**: Colors are chosen with proper contrast ratios"
+  - "**Design System Adoption**: Enforces usage of the centralized design system"
+  - "**Theme Support**: Easy to implement dark mode and other theme variants"
+  - "**Type Safety**: Leverages TypeScript for theme token validation"
+  - "**Developer Experience**: Clear guidance on proper token usage"
+  - "**Brand Consistency**: Ensures consistent visual identity across the application"
+  - "**Performance**: Optimized theme values and consistent CSS generation" 

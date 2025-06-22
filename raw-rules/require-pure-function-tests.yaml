@@ -1,0 +1,260 @@
+# === require-pure-function-tests.yaml ===
+id: require-pure-function-tests
+description: "Ensures that utility files in shared/utils/ directories that export pure functions have corresponding test files with at least one test case"
+globs:
+  - "**/shared/utils/**/*.ts"
+  - "**/shared/utils/**/*.js"
+always_apply: true
+
+# Rule requirements
+rule_requirements:
+  target_files:
+    - "Files in `**/shared/utils/**/*.ts` and `**/shared/utils/**/*.js`"
+    - "Files that export functions (detected by `export function` or `export const functionName = `)"
+    - "Excludes files that only export types, constants, or classes"
+
+  test_file_requirements:
+    description: "For each utility file `shared/utils/example.ts` that exports functions:"
+    required_items:
+      - "**Required**: Corresponding test file `shared/utils/example.spec.ts`"
+      - "**Required**: At least one test case using testing framework (Jest, Vitest, etc.)"
+      - "**Required**: Tests should verify function behavior and edge cases"
+
+# Detection patterns
+detection_patterns:
+  pure_function_exports:
+    description: "This rule detects these export patterns:"
+    function_declarations: |
+      // Function declarations
+      export function calculateTotal(items: Item[]): number { }
+      export function formatCurrency(amount: number): string { }
+    arrow_function_constants: |
+      // Arrow function constants
+      export const parseDate = (dateString: string): Date => { }
+      export const validateEmail = (email: string): boolean => { }
+    function_expressions: |
+      // Function expressions
+      export const utils = {
+        debounce: (fn: Function, delay: number) => { },
+        throttle: (fn: Function, limit: number) => { }
+      };
+
+  test_file_patterns:
+    description: "Expected test file structure:"
+    example: |
+      // shared/utils/math.spec.ts
+      import { calculateTotal, formatCurrency } from './math';
+
+      describe('Math Utilities', () => {
+        describe('calculateTotal', () => {
+          it('should calculate total correctly', () => {
+            expect(calculateTotal([{ price: 10 }, { price: 20 }])).toBe(30);
+          });
+        });
+
+        describe('formatCurrency', () => {
+          it('should format currency with proper symbols', () => {
+            expect(formatCurrency(1000)).toBe('$1,000.00');
+          });
+        });
+      });
+
+# Enforcement actions
+enforcement_actions:
+  missing_test_file:
+    error_message: |
+      Missing test file for shared/utils/[filename].ts
+      Create test file using: npm run generate:test shared/utils/[filename].ts
+
+  empty_test_file:
+    error_message: |
+      Test file shared/utils/[filename].spec.ts exists but contains no test cases
+      Add at least one test case for each exported function
+
+  suggested_command:
+    description: "For missing test files, always suggest:"
+    command: "npm run generate:test shared/utils/[filename].ts"
+
+# File naming convention
+file_naming_convention:
+  utility_file: "shared/utils/stringUtils.ts"
+  test_file: "shared/utils/stringUtils.spec.ts"
+  alternative: "shared/utils/stringUtils.test.ts (also acceptable)"
+
+# Examples
+examples:
+  correct_structure:
+    description: "✅ Correct Structure"
+    structure: |
+      app/shared/utils/
+      ├── dateUtils.ts          # Exports date functions
+      ├── dateUtils.spec.ts     # Contains tests for date functions
+      ├── stringUtils.ts        # Exports string functions  
+      ├── stringUtils.spec.ts   # Contains tests for string functions
+      └── constants.ts          # No functions, only constants (no test required)
+
+  missing_tests:
+    description: "❌ Missing Tests"
+    structure: |
+      app/shared/utils/
+      ├── mathUtils.ts          # Exports functions but no test file
+      ├── formatters.ts         # Exports functions but no test file
+      └── validators.ts         # Exports functions but no test file
+    required_actions:
+      - "Create `mathUtils.spec.ts` using `npm run generate:test shared/utils/mathUtils.ts`"
+      - "Create `formatters.spec.ts` using `npm run generate:test shared/utils/formatters.ts`"
+      - "Create `validators.spec.ts` using `npm run generate:test shared/utils/validators.ts`"
+
+# Excluded files
+excluded_files:
+  description: "This rule does **not** apply to:"
+  type_only_files:
+    description: "Type-only Files"
+    example: |
+      // No test required
+      export type UserRole = 'admin' | 'user';
+      export interface ApiResponse<T> { data: T; status: number; }
+
+  constant_only_files:
+    description: "Constant-only Files"
+    example: |
+      // No test required
+      export const API_ENDPOINTS = { users: '/api/users' };
+      export const DEFAULT_CONFIG = { timeout: 5000 };
+
+  class_only_files:
+    description: "Class-only Files"
+    example: |
+      // Different testing approach, not covered by this rule
+      export class DataProcessor { }
+      export class ApiClient { }
+
+# Integration with testing framework
+integration_with_testing_framework:
+  jest_configuration:
+    description: "Ensure test files can be discovered:"
+    config: |
+      {
+        "testMatch": [
+          "**/__tests__/**/*.(ts|js)",
+          "**/*.(test|spec).(ts|js)"
+        ]
+      }
+
+  test_script:
+    description: "The `npm run generate:test` command should:"
+    requirements:
+      - "Create a new `.spec.ts` file next to the utility file"
+      - "Import all exported functions from the utility file"
+      - "Generate basic test stubs for each function"
+      - "Include proper TypeScript types and Jest/Vitest imports"
+
+# FSD architecture compliance
+fsd_architecture_compliance:
+  description: "This rule supports Feature-Sliced Design by:"
+  benefits:
+    - "Enforcing quality standards in the `shared` layer"
+    - "Ensuring reliable utilities across all features"
+    - "Maintaining clean separation of concerns"
+    - "Supporting the baseline architecture requirements"
+
+# What patterns this rule flags as problematic
+anti_patterns:
+  - "Utility files in shared/utils/ that export functions without test files"
+  - "Test files that exist but contain no test cases"
+  - "Pure functions without behavior verification"
+  - "Utility functions without edge case testing"
+  - "Missing test coverage for exported function utilities"
+  - "Untested shared utilities used across features"
+  - "Function exports without corresponding spec files"
+
+# Correct approach according to this rule
+correct_pattern: |
+  **Complete Test Coverage for Utilities:**
+  ```typescript
+  // shared/utils/math.ts
+  export function calculateTotal(items: Item[]): number {
+    return items.reduce((sum, item) => sum + item.price, 0);
+  }
+
+  export function formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  }
+
+  // shared/utils/math.spec.ts
+  import { calculateTotal, formatCurrency } from './math';
+
+  describe('Math Utilities', () => {
+    describe('calculateTotal', () => {
+      it('should calculate total correctly', () => {
+        expect(calculateTotal([{ price: 10 }, { price: 20 }])).toBe(30);
+      });
+
+      it('should handle empty array', () => {
+        expect(calculateTotal([])).toBe(0);
+      });
+    });
+
+    describe('formatCurrency', () => {
+      it('should format currency with proper symbols', () => {
+        expect(formatCurrency(1000)).toBe('$1,000.00');
+      });
+
+      it('should handle decimal values', () => {
+        expect(formatCurrency(123.45)).toBe('$123.45');
+      });
+    });
+  });
+  ```
+
+  **File Structure:**
+  ```
+  shared/utils/
+  ├── utility.ts      # Exports functions
+  ├── utility.spec.ts # Tests for functions
+  └── constants.ts    # Only constants (no test needed)
+  ```
+
+# Patterns that trigger this rule
+flagged_patterns:
+  - "export function.*\\(.*\\)" # Function declarations
+  - "export const.*=.*=>.*" # Arrow function constants
+  - "export const.*=.*function.*" # Function expressions
+  - "Files in **/shared/utils/**/*.ts without corresponding .spec.ts"
+  - "Files in **/shared/utils/**/*.js without corresponding .spec.js"
+  - "Test files with no actual test cases"
+
+# Solutions this rule suggests
+suggested_solutions:
+  - "Create corresponding test files for utility functions"
+  - "Use npm run generate:test to scaffold test files"
+  - "Add test cases for each exported function"
+  - "Verify function behavior and edge cases in tests"
+  - "Include proper TypeScript types in test files"
+  - "Use Jest/Vitest testing frameworks"
+  - "Test pure function inputs and outputs"
+  - "Cover error cases and boundary conditions"
+
+# Cases where this rule doesn't apply
+exceptions:
+  - "Files that only export types or interfaces"
+  - "Files that only export constants"
+  - "Files that only export classes (different testing approach)"
+  - "Configuration files without functions"
+  - "Type definition files"
+  - "Files with only re-exports from other modules"
+  - "Legacy utility files during migration (temporary)"
+
+# Benefits of following this rule
+benefits:
+  - "**Code Quality**: All utility functions are tested"
+  - "**Reliability**: Utility functions work as expected"
+  - "**Refactoring Safety**: Changes to utilities are validated by tests"
+  - "**Documentation**: Tests serve as usage examples"
+  - "**Regression Prevention**: Bugs in utilities are caught early"
+  - "**Shared Layer Quality**: Ensures reliable utilities across all features"
+  - "**FSD Compliance**: Maintains quality standards in shared layer"
+  - "**Team Confidence**: Developers can trust shared utilities" 

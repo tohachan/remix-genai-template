@@ -1,0 +1,305 @@
+# === enforce-a11y-support.yaml ===
+id: enforce-a11y-support
+description: "Ensures all React components and HTML markup follow accessibility best practices to create inclusive user experiences for people with disabilities"
+globs:
+  - "**/*.tsx"
+  - "**/*.jsx"
+always_apply: false
+
+# Core requirements
+core_requirements:
+  semantic_html_elements:
+    description: "Use semantic HTML elements that provide inherent accessibility meaning:"
+    good_example: |
+      // ✅ Good - Semantic elements
+      <main>
+        <section>
+          <h1>Page Title</h1>
+          <article>
+            <h2>Article Title</h2>
+            <p>Content...</p>
+          </article>
+        </section>
+      </main>
+    bad_example: |
+      // ❌ Bad - Generic divs
+      <div>
+        <div>
+          <div>Page Title</div>
+          <div>
+            <div>Article Title</div>
+            <div>Content...</div>
+          </div>
+        </div>
+      </div>
+
+  required_aria_labels:
+    description: "Interactive elements must have accessible names:"
+    good_example: |
+      // ✅ Good - Proper labeling
+      <button aria-label="Close modal">×</button>
+      <input aria-label="Search products" type="search" />
+      <img src="avatar.jpg" alt="User profile photo" />
+    bad_example: |
+      // ❌ Bad - Missing labels
+      <button>×</button>
+      <input type="search" />
+      <img src="avatar.jpg" />
+
+  keyboard_navigation:
+    description: "All interactive elements must be keyboard accessible:"
+    good_example: |
+      // ✅ Good - Keyboard support
+      <div 
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+        onClick={handleClick}
+      >
+        Custom Button
+      </div>
+    bad_example: |
+      // ❌ Bad - Click only
+      <div onClick={handleClick}>
+        Custom Button
+      </div>
+
+# Form accessibility
+form_accessibility:
+  input_labels:
+    description: "All form inputs require proper labels:"
+    good_examples: |
+      // ✅ Good - Associated labels
+      <label htmlFor="email">Email Address</label>
+      <input id="email" type="email" required />
+
+      // ✅ Alternative - aria-label
+      <input aria-label="Email Address" type="email" required />
+    bad_example: |
+      // ❌ Bad - No label association
+      <label>Email</label>
+      <input type="email" />
+
+  error_messages:
+    description: "Form errors must be programmatically associated:"
+    example: |
+      // ✅ Good - Associated error
+      <input 
+        id="password"
+        type="password"
+        aria-describedby="password-error"
+        aria-invalid={hasError}
+      />
+      {hasError && (
+        <div id="password-error" role="alert">
+          Password must be at least 8 characters
+        </div>
+      )}
+
+# Interactive elements
+interactive_elements:
+  focus_management:
+    description: "Manage focus for dynamic content:"
+    example: |
+      // ✅ Good - Focus management
+      const Modal = ({ isOpen, onClose }) => {
+        const modalRef = useRef<HTMLDivElement>(null);
+        
+        useEffect(() => {
+          if (isOpen) {
+            modalRef.current?.focus();
+          }
+        }, [isOpen]);
+
+        return (
+          <div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            tabIndex={-1}
+          >
+            {/* Modal content */}
+          </div>
+        );
+      };
+
+  loading_states:
+    description: "Provide accessible loading indicators:"
+    example: |
+      // ✅ Good - Accessible loading
+      {isLoading && (
+        <div role="status" aria-live="polite">
+          <span className="sr-only">Loading...</span>
+          <LoadingSpinner />
+        </div>
+      )}
+
+# Color and contrast
+color_and_contrast:
+  text_alternatives:
+    description: "Don't rely solely on color to convey information:"
+    good_example: |
+      // ✅ Good - Color + text/icon
+      <span className="text-red-600">
+        <ExclamationIcon aria-hidden="true" />
+        Required field
+      </span>
+    bad_example: |
+      // ❌ Bad - Color only
+      <span className="text-red-600">*</span>
+
+# Required patterns
+required_patterns:
+  screen_reader_support:
+    description: "Hide decorative elements and provide screen reader text:"
+    examples: |
+      // ✅ Good - Screen reader considerations
+      <button>
+        <HeartIcon aria-hidden="true" />
+        <span className="sr-only">Add to favorites</span>
+      </button>
+
+      // Hide decorative images
+      <img src="decoration.png" alt="" role="presentation" />
+
+  dynamic_content:
+    description: "Announce dynamic changes to screen readers:"
+    examples: |
+      // ✅ Good - Live regions
+      <div aria-live="assertive" aria-atomic="true">
+        {status && <span>{status}</span>}
+      </div>
+
+      // ✅ Good - Status updates
+      <div role="status">
+        {itemsCount} items in cart
+      </div>
+
+# Enforcement guidelines
+enforcement_guidelines:
+  required_checks:
+    description: "Before implementing any UI component:"
+    checks:
+      - "**Keyboard navigation** - Can all functionality be accessed via keyboard?"
+      - "**Screen reader support** - Are all elements properly labeled?"
+      - "**Color contrast** - Does text meet WCAG contrast requirements?"
+      - "**Focus indicators** - Are focus states visible and clear?"
+      - "**Error handling** - Are form errors properly announced?"
+      - "**Loading states** - Are async operations communicated accessibly?"
+
+# What patterns this rule flags as problematic
+anti_patterns:
+  - "Generic divs instead of semantic elements"
+  - "Interactive elements without accessible names"
+  - "Click-only interactions without keyboard support"
+  - "Form inputs without proper labels"
+  - "Missing error message associations"
+  - "Relying solely on color to convey information"
+  - "Missing alt attributes on informative images"
+  - "Low color contrast ratios"
+  - "Missing focus indicators"
+  - "Unlabeled buttons and links"
+  - "Decorative elements not hidden from screen readers"
+  - "Dynamic content without live regions"
+  - "Custom interactive elements without proper roles"
+
+# Correct approach according to this rule
+correct_pattern: |
+  **Semantic HTML and proper accessibility:**
+  ```tsx
+  // Semantic elements
+  <main>
+    <section>
+      <h1>Page Title</h1>
+      <article>
+        <h2>Article Title</h2>
+        <p>Content...</p>
+      </article>
+    </section>
+  </main>
+  
+  // Proper labeling
+  <button aria-label="Close modal">×</button>
+  <input aria-label="Search products" type="search" />
+  <img src="avatar.jpg" alt="User profile photo" />
+  
+  // Keyboard support
+  <div 
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+    onClick={handleClick}
+  >
+    Custom Button
+  </div>
+  
+  // Form accessibility
+  <label htmlFor="email">Email Address</label>
+  <input id="email" type="email" required />
+  ```
+
+  **Error handling and dynamic content:**
+  ```tsx
+  // Associated error messages
+  <input 
+    id="password"
+    type="password"
+    aria-describedby="password-error"
+    aria-invalid={hasError}
+  />
+  {hasError && (
+    <div id="password-error" role="alert">
+      Password must be at least 8 characters
+    </div>
+  )}
+
+  // Live regions for dynamic content
+  <div aria-live="polite" role="status">
+    {status && <span>{status}</span>}
+  </div>
+  ```
+
+# Patterns that trigger this rule
+flagged_patterns:
+  - "missing alt attributes"
+  - "onClick without onKeyDown"
+  - "div.*role=\"button\".*tabIndex"
+  - "input without label"
+  - "aria-label"
+  - "aria-describedby"
+  - "missing semantic elements"
+  - "color-only information"
+  - "missing focus management"
+  - "unlabeled interactive elements"
+
+# Solutions this rule suggests
+suggested_solutions:
+  - "Use semantic HTML elements with inherent accessibility"
+  - "Add aria-label for interactive elements without visible text"
+  - "Ensure keyboard navigation for all interactive elements"
+  - "Associate labels with form inputs using htmlFor/id"
+  - "Use aria-describedby for error messages and help text"
+  - "Provide text alternatives for color-only information"
+  - "Implement proper focus management for dynamic content"
+  - "Add live regions for dynamic content announcements"
+  - "Use appropriate ARIA roles for custom components"
+  - "Ensure sufficient color contrast ratios"
+
+# Cases where this rule doesn't apply
+exceptions:
+  - "Decorative images with empty alt attributes"
+  - "Hidden elements with aria-hidden"
+  - "Screen reader only text with sr-only class"
+  - "Third-party components with built-in accessibility"
+  - "Legacy components during accessibility migration"
+
+# Benefits of following this rule
+benefits:
+  - "**Legal compliance** with accessibility standards (WCAG, ADA)"
+  - "**Inclusive design** for users with disabilities"
+  - "**Better UX** for all users including keyboard navigation"
+  - "**SEO benefits** through semantic markup"
+  - "**Future-proofing** against accessibility requirements"
+  - "**Broader audience** reach and user satisfaction"
+  - "**Quality assurance** through systematic accessibility testing"
+  - "**Brand reputation** through inclusive design practices" 

@@ -1,0 +1,155 @@
+# === enforce-cursor-rule-format.yaml ===
+id: enforce-cursor-rule-format
+description: "Enforce proper format and structure for Cursor rule files to maintain consistency and prevent conflicts"
+globs:
+  - ".cursor/rules/*.mdc"
+always_apply: true
+
+# File location requirements
+file_location_requirements:
+  description: "Store **all** project rules under `.cursor/rules/`. **Do not** use the deprecated `.cursorrules` file."
+  naming_convention: "Name each rule file `<rule-name>.mdc`. The filename (minus `.mdc`) **must** exactly match the rule identifier."
+
+# Metadata requirements
+metadata_requirements:
+  description: "Each `.mdc` file **must** include metadata front matter with **exactly** these keys in this order:"
+  required_keys:
+    - name: "description"
+      type: "string describing the rule's purpose"
+      order: 1
+    - name: "globs"
+      type: "array of file-pattern strings; `[]` if none"
+      order: 2
+    - name: "alwaysApply"
+      type: "boolean; `true` for always-applied rules"
+      order: 3
+  restrictions:
+    - "Do **not** add any other top-level keys in the metadata block"
+
+# Rule application logging
+rule_application_logging:
+  description: "Whenever Cursor applies any rule, it **must** emit a log line:"
+  format: "[Cursor Rule] Applying <filename> – <ruleName>"
+  always_apply_note: "Because `alwaysApply: true`, this rule will be included in **every** context—especially whenever you prompt to create, update, or generate rules—guaranteeing consistency."
+
+# Rule content structure requirements
+rule_content_structure_requirements:
+  description: "Each rule within a file must have clear and consistent structure with well-defined sections and formatting"
+  requirements:
+    - "**Each rule within a file must have clear and consistent structure** with well-defined sections and formatting"
+    - "**Rules must not duplicate or repeat** - similar functionality should be consolidated into a single, comprehensive rule"
+    - "**Rules must not contradict each other** - conflicting requirements should be resolved before implementation"
+    - "**Rules must be concise and focused** - eliminate unnecessary content, verbose explanations, or redundant information"
+    - "**Each rule must be clearly separated** from others using appropriate markdown formatting (headers, lists, etc.)"
+    - "**Each rule must solve exactly one specific problem** - avoid combining multiple unrelated requirements in a single rule"
+
+# Conflict detection and resolution
+conflict_detection_and_resolution:
+  description: "**Before adding or updating any rule**, check for:"
+  checks_required:
+    - "Existing rules with similar functionality"
+    - "Potential conflicts with established rules"
+    - "Redundant or overlapping requirements"
+  
+  when_conflicts_found:
+    description: "**If conflicts or similar rules are found**, immediately report to the user:"
+    actions:
+      - "List the conflicting/similar rules"
+      - "Explain the specific conflicts or overlaps"
+      - "Propose resolution strategies (merge, modify, or replace)"
+  
+  resolution_requirement: "**Do not proceed** with rule creation/updates until conflicts are resolved"
+
+# What patterns this rule flags as problematic
+anti_patterns:
+  - "Using deprecated .cursorrules file"
+  - "Missing metadata front matter"
+  - "Incorrect metadata keys or order"
+  - "Duplicate or conflicting rules"
+  - "Verbose or redundant content"
+  - "Rules that solve multiple unrelated problems"
+  - "Inconsistent markdown formatting"
+  - "Missing rule separation"
+  - "Overlapping functionality between rules"
+
+# Correct approach according to this rule
+correct_pattern: |
+  **Required rule file structure:**
+  ```
+  - Store all rules under .cursor/rules/
+  - Name files as <rule-name>.mdc
+  - Include metadata front matter with exactly these keys in order:
+    1. description (string)
+    2. globs (array)  
+    3. alwaysApply (boolean)
+  - Each rule must solve exactly one specific problem
+  - Rules must not duplicate or contradict each other
+  - Use clear, consistent markdown formatting
+  ```
+
+  **Metadata front matter example:**
+  ```yaml
+  ---
+  description: "Brief description of what this rule does"
+  globs: ["**/*.tsx", "**/*.jsx"]
+  alwaysApply: false
+  ---
+  ```
+
+  **Content structure:**
+  ```markdown
+  # Rule Title
+
+  Clear description of the rule's purpose.
+
+  ## Requirements
+  - Specific requirement 1
+  - Specific requirement 2
+
+  ## Examples
+  ✅ Good examples
+  ❌ Bad examples
+
+  ## Benefits
+  - Benefit 1
+  - Benefit 2
+  ```
+
+# Patterns that trigger this rule
+flagged_patterns:
+  - ".cursorrules file usage"
+  - "missing front matter"
+  - "incorrect metadata structure"
+  - "duplicate functionality"
+  - "conflicting requirements"
+  - "verbose explanations"
+  - "multiple unrelated problems in one rule"
+  - "inconsistent formatting"
+
+# Solutions this rule suggests
+suggested_solutions:
+  - "Move rules from .cursorrules to .cursor/rules/ directory"
+  - "Add proper metadata front matter"
+  - "Consolidate similar functionality into single rule"
+  - "Resolve conflicts before implementation"
+  - "Eliminate verbose explanations and redundant information"
+  - "Split rules that solve multiple problems"
+  - "Use consistent markdown formatting"
+  - "Clearly separate different rules"
+
+# Cases where this rule doesn't apply
+exceptions:
+  - "Rules with additional metadata beyond required keys (if needed)"
+  - "Complex rules requiring multiple sections"
+  - "Rules that extend or reference other rules appropriately"
+
+# Benefits of following this rule
+benefits:
+  - "**Consistency**: Standardized rule format across project"
+  - "**Clarity**: Well-defined sections and formatting"
+  - "**Maintainability**: Easy to update and manage rules"
+  - "**Conflict Prevention**: Systematic detection and resolution"
+  - "**Focus**: Each rule solves exactly one problem"
+  - "**Quality**: Elimination of redundant and verbose content"
+  - "**Integration**: Proper logging and application tracking"
+  - "**Standards**: Enforcement of metadata requirements" 

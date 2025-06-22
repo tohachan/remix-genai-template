@@ -1,0 +1,177 @@
+# === critical-workflow-checks.yaml ===
+id: critical-workflow-checks
+description: "Provides additional validation layers for development practices beyond specific generator rules, focusing on general workflow compliance and quality assurance"
+globs: []
+always_apply: true
+
+# Workflow validation scope
+workflow_validation_scope:
+  description: "This rule validates adherence to:"
+  areas:
+    - "Generator usage (references `enforce-plop-generator.mdc`)"
+    - "File structure compliance"
+    - "Quality standards maintenance"
+    - "Development best practices"
+
+# Post-step verification
+post_step_verification:
+  description: "After each development step completion:"
+  
+  file_creation_verification:
+    description: "File Creation Verification:"
+    checklist:
+      - "✅ Files created using proper method (generator or justified manual)"
+      - "✅ All required files present (main, tests, exports)"
+      - "✅ No manual creation where generator was available"
+      - "✅ Documentation updated if needed"
+
+  quality_assurance_verification:
+    description: "Quality Assurance Verification:"
+    checklist:
+      - "✅ Code follows project standards"
+      - "✅ Tests are included where required"
+      - "✅ Documentation is updated"
+      - "✅ FSD architecture compliance maintained"
+
+# Compliance monitoring
+compliance_monitoring:
+  generator_compliance_check:
+    description: "Generator Compliance Check:"
+    items:
+      - "Verify components created via CLI generators (see `enforce-plop-generator.mdc`)"
+      - "Confirm proper file structure and naming"
+      - "Validate test coverage requirements"
+
+  architecture_compliance_check:
+    description: "Architecture Compliance Check:"
+    items:
+      - "FSD layer boundaries respected"
+      - "Import rules followed"
+      - "Proper segment usage"
+
+# Improvement tracking
+improvement_tracking:
+  regular_self_assessment_questions:
+    description: "Regular Self-Assessment Questions:"
+    questions:
+      - "Am I consistently following project standards?"
+      - "Are there recurring issues in my workflow?"
+      - "What improvements can be made to prevent mistakes?"
+
+  quality_metrics:
+    description: "Quality Metrics:"
+    metrics:
+      - "Reduced manual file creation incidents"
+      - "Improved generator adoption rates"
+      - "Better adherence to architectural patterns"
+      - "Faster development cycles with fewer errors"
+
+# Integration with other rules
+integration_with_other_rules:
+  description: "This rule works as a validation layer for:"
+  related_rules:
+    - "`enforce-plop-generator.mdc` - Generator usage enforcement"
+    - "`enforce-project-structure.mdc` - FSD compliance"
+    - "`feature-slice-baseline.mdc` - Feature requirements"
+    - "`require-pure-function-tests.mdc` - Testing standards"
+  
+  purpose: "This rule serves as a quality gate to ensure consistent, high-quality development practices across all project work."
+
+# What patterns this rule flags as problematic
+anti_patterns:
+  - "Manual file creation where generators are available"
+  - "Skipping file creation verification steps"
+  - "Missing documentation updates"
+  - "Inconsistent adherence to project standards"
+  - "Files created without proper method verification"
+  - "Missing required test files"
+  - "Architecture violations in development workflow"
+  - "Quality standards not maintained during development"
+  - "Generator usage not followed when available"
+
+# Correct approach according to this rule
+correct_pattern: |
+  **Post-Step Verification Process:**
+  ```
+  File Creation Verification:
+  1. ✅ Files created using proper method (generator or justified manual)
+  2. ✅ All required files present (main, tests, exports)
+  3. ✅ No manual creation where generator was available
+  4. ✅ Documentation updated if needed
+  
+  Quality Assurance Verification:
+  1. ✅ Code follows project standards
+  2. ✅ Tests are included where required
+  3. ✅ Documentation is updated
+  4. ✅ FSD architecture compliance maintained
+  ```
+
+  **Compliance Monitoring:**
+  ```
+  Generator Compliance:
+  - Verify components created via CLI generators
+  - Confirm proper file structure and naming
+  - Validate test coverage requirements
+
+  Architecture Compliance:
+  - FSD layer boundaries respected
+  - Import rules followed
+  - Proper segment usage
+  ```
+
+  **Continuous Improvement:**
+  ```
+  Self-Assessment Questions:
+  - Am I consistently following project standards?
+  - Are there recurring issues in my workflow?
+  - What improvements can be made to prevent mistakes?
+
+  Quality Metrics Tracking:
+  - Reduced manual file creation incidents
+  - Improved generator adoption rates
+  - Better adherence to architectural patterns
+  - Faster development cycles with fewer errors
+  ```
+
+# Patterns that trigger this rule
+flagged_patterns:
+  - "manual component creation"
+  - "missing test files"
+  - "missing documentation updates"
+  - "architecture violations"
+  - "generator not used when available"
+  - "incomplete file structure"
+  - "standards not followed"
+  - "quality checks skipped"
+
+# Solutions this rule suggests
+suggested_solutions:
+  - "Verify components created via CLI generators"
+  - "Confirm proper file structure and naming"
+  - "Validate test coverage requirements"
+  - "Check FSD layer boundaries"
+  - "Ensure import rules are followed"
+  - "Validate proper segment usage"
+  - "Complete post-step verification checklist"
+  - "Monitor and improve quality metrics"
+  - "Conduct regular self-assessment"
+
+# Cases where this rule doesn't apply
+exceptions:
+  - "Generator unavailable for specific file type"
+  - "Legacy code with different patterns"
+  - "Temporary development files"
+  - "Third-party integrations with different standards"
+  - "Experimental features during research phase"
+  - "Emergency fixes with planned follow-up"
+
+# Benefits of following this rule
+benefits:
+  - "**Quality Assurance**: Consistent development practices"
+  - "**Error Prevention**: Early detection of workflow mistakes"
+  - "**Standards Compliance**: Adherence to project requirements"
+  - "**Continuous Improvement**: Regular self-assessment and improvement tracking"
+  - "**Team Coordination**: Uniform workflow across team members"
+  - "**Process Optimization**: Identification and elimination of inefficiencies"
+  - "**Quality Gates**: Systematic validation before proceeding"
+  - "**Best Practices**: Reinforcement of established development patterns" 

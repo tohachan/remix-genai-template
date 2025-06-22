@@ -1,0 +1,170 @@
+# === feature-slice-baseline.yaml ===
+id: feature-slice-baseline
+description: "Enforces that each feature slice under app/features/ contains the required baseline files and directories"
+globs:
+  - "app/features/**/*"
+always_apply: true
+
+# Required structure
+required_structure:
+  description: "Each feature slice directory `app/features/<feature>/` **must** contain:"
+  required_files:
+    api_file: "`api.ts` — Backend interactions and data fetching logic"
+    api_test: "`api.spec.ts` — Unit tests for API functions (next to api.ts)"
+    hooks_file: "`hooks.ts` — React hooks specific to this feature"
+    hooks_test: "`hooks.spec.ts` — Unit tests for hooks (next to hooks.ts)"
+    ui_directory: "`ui/` — UI components directory"
+    page_component: "`ui/<feature>.page.tsx` — Main page component (where `<feature>` matches the directory name)"
+    page_test: "`ui/<feature>.page.spec.ts` — Integration tests for page component (next to page.tsx)"
+    readme: "`README.md` — Feature documentation"
+
+# Enforcement rules
+enforcement_rules:
+  description: "When working in any feature slice directory (`app/features/<feature>/`):"
+  rules:
+    - "**Check for missing baseline files** before making changes"
+    - "**If any required files are missing**, immediately prompt:"
+    - "```"
+    - "Create missing file <path> with template from scripts/templates/feature_README.md."
+    - "```"
+    - "**Do not proceed** with feature development until baseline structure is complete"
+
+# Examples
+examples:
+  correct_feature_structure:
+    description: "✅ Correct Feature Structure:"
+    structure: |
+      app/features/auth/
+      ├── api.ts
+      ├── api.spec.ts
+      ├── hooks.ts  
+      ├── hooks.spec.ts
+      ├── ui/
+      │   ├── LoginForm.tsx
+      │   ├── SignupForm.tsx
+      │   ├── auth.page.tsx
+      │   └── auth.page.spec.ts
+      └── README.md
+
+  missing_required_files:
+    description: "❌ Missing Required Files:"
+    structure: |
+      app/features/profile/
+      ├── hooks.ts
+      ├── ui/
+      │   ├── ProfileCard.tsx
+      │   └── profile.page.tsx
+      # Missing: api.ts, api.spec.ts, hooks.spec.ts, ui/profile.page.spec.ts, README.md
+    
+    required_prompts:
+      description: "In the incorrect example above, the rule should prompt:"
+      prompts:
+        - "Create missing file app/features/profile/api.ts with template from scripts/templates/feature_README.md."
+        - "Create missing file app/features/profile/api.spec.ts with template from scripts/templates/feature_README.md."
+        - "Create missing file app/features/profile/hooks.spec.ts with template from scripts/templates/feature_README.md."
+        - "Create missing file app/features/profile/ui/profile.page.spec.ts with template from scripts/templates/feature_README.md."
+        - "Create missing file app/features/profile/README.md with template from scripts/templates/feature_README.md."
+
+# Feature name matching
+feature_name_matching:
+  description: "Feature Name Matching Rules:"
+  rules:
+    - "The `ui/<feature>.page.tsx` and related test files must use the exact directory name"
+    - "For feature directory `app/features/user-profile/`, the files should be:"
+  examples:
+    page_component: "`ui/user-profile.page.tsx`"
+    page_test: "`ui/user-profile.page.spec.ts`"
+    api_test: "`api.spec.ts`"
+    hooks_test: "`hooks.spec.ts`"
+
+# Integration with FSD
+integration_with_fsd:
+  description: "This rule works in conjunction with Feature-Sliced Design principles:"
+  principles:
+    - "Each feature represents a complete product feature"
+    - "All baseline files ensure consistent development patterns"
+    - "The `ui/` directory can contain multiple components following FSD segment conventions"
+
+# What patterns this rule flags as problematic
+anti_patterns:
+  - "Feature slices missing required baseline files"
+  - "Feature directories without api.ts file"
+  - "Feature directories without hooks.ts file"
+  - "Missing test files for API functions"
+  - "Missing test files for hooks"
+  - "Feature directories without ui/ directory"
+  - "Missing main page component in ui/ directory"
+  - "Missing integration tests for page components"
+  - "Feature directories without README.md documentation"
+  - "Incomplete feature slice structure"
+
+# Correct approach according to this rule
+correct_pattern: |
+  **Complete Feature Slice Structure:**
+  ```
+  app/features/<feature-name>/
+  ├── api.ts                    # Backend interactions
+  ├── api.spec.ts              # API unit tests
+  ├── hooks.ts                 # React hooks
+  ├── hooks.spec.ts            # Hooks unit tests
+  ├── ui/                      # UI components directory
+  │   ├── <feature-name>.page.tsx    # Main page component
+  │   ├── <feature-name>.page.spec.ts # Page integration tests
+  │   └── [other-components].tsx      # Additional UI components
+  └── README.md                # Feature documentation
+  ```
+
+  **File Naming Convention:**
+  - Page component: `ui/<feature-name>.page.tsx`
+  - Page tests: `ui/<feature-name>.page.spec.ts`
+  - API tests: `api.spec.ts`
+  - Hooks tests: `hooks.spec.ts`
+
+  **Required Content:**
+  - `api.ts`: Backend interactions and data fetching logic
+  - `hooks.ts`: React hooks specific to this feature
+  - `ui/<feature>.page.tsx`: Main page component matching directory name
+  - `README.md`: Feature documentation and API information
+
+# Patterns that trigger this rule
+flagged_patterns:
+  - "Feature directories in app/features/ missing api.ts"
+  - "Feature directories in app/features/ missing hooks.ts"
+  - "Feature directories in app/features/ missing ui/ directory"
+  - "Feature directories in app/features/ missing README.md"
+  - "Missing .spec.ts files for api.ts"
+  - "Missing .spec.ts files for hooks.ts"
+  - "Missing .page.tsx file in ui/ directory"
+  - "Missing .page.spec.ts file for page component"
+  - "Incomplete baseline structure in feature slices"
+
+# Solutions this rule suggests
+suggested_solutions:
+  - "Create missing api.ts file with backend interaction template"
+  - "Create missing hooks.ts file with React hooks template"
+  - "Create missing ui/ directory for components"
+  - "Create missing README.md with feature documentation template"
+  - "Add api.spec.ts with unit tests for API functions"
+  - "Add hooks.spec.ts with unit tests for hooks"
+  - "Add <feature>.page.tsx as main page component"
+  - "Add <feature>.page.spec.ts with integration tests"
+  - "Use templates from scripts/templates/feature_README.md"
+
+# Cases where this rule doesn't apply
+exceptions:
+  - "Feature slices that are work-in-progress (temporary)"
+  - "Legacy features during migration (temporary)"
+  - "Features that don't require all baseline files (rare cases)"
+  - "Experimental features in development (temporary)"
+  - "Third-party feature integrations with different structure"
+
+# Benefits of following this rule
+benefits:
+  - "**Consistency**: All features follow identical baseline structure"
+  - "**Completeness**: Ensures features have all necessary components"
+  - "**Documentation**: Every feature has README documentation"
+  - "**Testing**: Enforces test coverage for API and hooks"
+  - "**Maintainability**: Predictable structure across features"
+  - "**Team Onboarding**: New developers know exactly what to expect"
+  - "**Quality Assurance**: Prevents incomplete feature implementations"
+  - "**FSD Compliance**: Supports Feature-Sliced Design methodology" 

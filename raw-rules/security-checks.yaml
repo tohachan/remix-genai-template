@@ -1,0 +1,385 @@
+# === security-checks.yaml ===
+id: security-checks
+description: "Enforces secure coding practices by detecting common security vulnerabilities and requiring immediate notification to users when potential security issues are found"
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.js"
+  - "**/*.jsx"
+always_apply: true
+
+# Critical requirement - always alert users
+critical_requirement:
+  description: "When ANY security vulnerability is detected, **immediately alert the user** using this format:"
+  alert_format: |
+    🚨 SECURITY ALERT: [Brief description of the issue]
+
+    **Issue**: [Detailed explanation of the security problem]
+    **Risk Level**: [High/Medium/Low]
+    **Location**: [File path and line number if applicable]
+    **Recommended Fix**: [Specific remediation steps]
+
+    Please address this security issue before proceeding with development.
+
+# Common security vulnerabilities to detect and flag
+security_vulnerabilities:
+  cross_site_scripting_xss:
+    description: "Cross-Site Scripting (XSS) Vulnerabilities"
+    dangerous_patterns:
+      unescaped_html: |
+        // ❌ BAD - Dangerous innerHTML usage
+        <div dangerouslySetInnerHTML={{__html: userInput}} />
+      direct_dom_manipulation: |
+        // ❌ BAD - Direct DOM manipulation with user input
+        element.innerHTML = userInput;
+        document.write(userInput);
+    secure_alternatives:
+      sanitized_html: |
+        // ✅ GOOD - Sanitized HTML
+        import DOMPurify from 'dompurify';
+        <div dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(userInput)}} />
+      safe_text_content: |
+        // ✅ GOOD - Use textContent for text
+        element.textContent = userInput;
+
+  injection_vulnerabilities:
+    description: "Injection Vulnerabilities"
+    sql_injection_patterns:
+      string_concatenation: |
+        // ❌ BAD - String concatenation in queries
+        const query = `SELECT * FROM users WHERE id = ${userId}`;
+      template_literals: |
+        // ❌ BAD - Template literals with user input
+        const query = `SELECT * FROM users WHERE name = '${userName}'`;
+    secure_database_queries:
+      parameterized_queries: |
+        // ✅ GOOD - Parameterized queries
+        const query = 'SELECT * FROM users WHERE id = ?';
+        db.query(query, [userId]);
+      orm_prepared_statements: |
+        // ✅ GOOD - ORM with prepared statements
+        const user = await User.findOne({ where: { id: userId } });
+
+  authentication_authorization_issues:
+    description: "Authentication and Authorization Issues"
+    insecure_patterns:
+      weak_password_validation: |
+        // ❌ BAD - Weak password validation
+        const isValidPassword = password.length > 4;
+      client_side_auth: |
+        // ❌ BAD - Client-side only auth checks
+        if (user.role === 'admin') {
+          // Sensitive operation
+        }
+      hardcoded_credentials: |
+        // ❌ BAD - Hardcoded credentials
+        const API_KEY = 'abc123';
+        const DATABASE_PASSWORD = 'password123';
+    secure_authentication:
+      strong_password_validation: |
+        // ✅ GOOD - Strong password validation
+        const isValidPassword = password.length >= 8 && 
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(password);
+      server_side_verification: |
+        // ✅ GOOD - Server-side auth verification
+        const hasPermission = await verifyPermissionOnServer(userId, action);
+      environment_variables: |
+        // ✅ GOOD - Environment variables
+        const API_KEY = process.env.API_KEY;
+        const DATABASE_PASSWORD = process.env.DATABASE_PASSWORD;
+
+  sensitive_data_exposure:
+    description: "Sensitive Data Exposure"
+    information_disclosure_patterns:
+      logging_sensitive_data: |
+        // ❌ BAD - Logging sensitive data
+        console.log('User password:', password);
+        console.log('Credit card:', creditCardNumber);
+      exposing_stack_traces: |
+        // ❌ BAD - Exposing stack traces in production
+        catch (error) {
+          return res.status(500).json({ error: error.stack });
+        }
+      sensitive_data_in_responses: |
+        // ❌ BAD - Including sensitive data in client responses
+        return { user: { ...userData, password: hashedPassword } };
+    secure_data_handling:
+      safe_logging: |
+        // ✅ GOOD - Never log sensitive data
+        console.log('Authentication attempt for user:', userId);
+      generic_error_messages: |
+        // ✅ GOOD - Generic error messages in production
+        catch (error) {
+          const isDev = process.env.NODE_ENV === 'development';
+          return res.status(500).json({ 
+            error: isDev ? error.message : 'Internal server error' 
+          });
+        }
+      exclude_sensitive_fields: |
+        // ✅ GOOD - Exclude sensitive fields
+        const { password, ...safeUserData } = userData;
+        return { user: safeUserData };
+
+  insecure_file_operations:
+    description: "Insecure File Operations"
+    path_traversal_vulnerabilities:
+      unrestricted_file_access: |
+        // ❌ BAD - Unrestricted file access
+        const filePath = `/uploads/${req.params.filename}`;
+        fs.readFile(filePath, callback);
+      user_controlled_paths: |
+        // ❌ BAD - User-controlled file paths
+        const userFile = req.body.filepath;
+        fs.unlink(userFile, callback);
+    secure_file_handling:
+      validate_sanitize_paths: |
+        // ✅ GOOD - Validate and sanitize file paths
+        const filename = path.basename(req.params.filename);
+        const filePath = path.join('/uploads', filename);
+        if (!filePath.startsWith('/uploads/')) {
+          throw new Error('Invalid file path');
+        }
+      whitelist_operations: |
+        // ✅ GOOD - Whitelist allowed file operations
+        const allowedPaths = ['/uploads/', '/temp/'];
+        const isAllowed = allowedPaths.some(allowed => filePath.startsWith(allowed));
+
+  insecure_http_headers_cors:
+    description: "Insecure HTTP Headers and CORS"
+    missing_security_headers:
+      no_security_headers: |
+        // ❌ BAD - Missing security headers
+        app.use((req, res, next) => {
+          next();
+        });
+      permissive_cors: |
+        // ❌ BAD - Overly permissive CORS
+        app.use(cors({ origin: '*' }));
+    secure_headers_configuration:
+      security_headers: |
+        // ✅ GOOD - Security headers
+        app.use(helmet({
+          contentSecurityPolicy: true,
+          hsts: true,
+          noSniff: true,
+          xssFilter: true
+        }));
+      restrictive_cors: |
+        // ✅ GOOD - Restrictive CORS
+        app.use(cors({ 
+          origin: ['https://yourdomain.com', 'https://app.yourdomain.com'],
+          credentials: true 
+        }));
+
+  client_side_security_issues:
+    description: "Client-Side Security Issues"
+    insecure_local_storage:
+      storing_sensitive_data: |
+        // ❌ BAD - Storing sensitive data in localStorage
+        localStorage.setItem('authToken', jwtToken);
+        localStorage.setItem('userPassword', password);
+      using_eval: |
+        // ❌ BAD - Using eval() or similar
+        eval(userInput);
+        new Function(userInput)();
+    secure_client_side_practices:
+      secure_cookies: |
+        // ✅ GOOD - Use secure, httpOnly cookies for sensitive data
+        // Set via server-side Set-Cookie header with httpOnly flag
+      avoid_eval: |
+        // ✅ GOOD - Never execute user input as code
+        // Use JSON.parse() for data, avoid eval() completely
+        const data = JSON.parse(userInput);
+
+# Automatic security checks
+automatic_security_checks:
+  high_risk_pattern_detection:
+    description: "The following patterns should trigger **immediate security alerts**:"
+    patterns:
+      - "`dangerouslySetInnerHTML` without sanitization"
+      - "`eval()`, `new Function()`, `setTimeout(string)`"
+      - "SQL queries with string concatenation"
+      - "Hardcoded passwords, API keys, secrets"
+      - "`console.log()` with potential sensitive data"
+      - "Missing input validation on user data"
+      - "Overly permissive CORS settings"
+      - "Missing authentication checks on sensitive operations"
+
+# Security alert templates
+security_alert_templates:
+  xss_vulnerabilities: |
+    🚨 SECURITY ALERT: Potential XSS vulnerability detected
+
+    **Issue**: Use of dangerouslySetInnerHTML or unescaped user input
+    **Risk Level**: High
+    **Location**: [file:line]
+    **Recommended Fix**: Sanitize HTML content using DOMPurify or ensure data is properly escaped
+
+  injection_vulnerabilities: |
+    🚨 SECURITY ALERT: Potential injection vulnerability detected
+
+    **Issue**: String concatenation in database queries or dynamic code execution
+    **Risk Level**: High
+    **Location**: [file:line]
+    **Recommended Fix**: Use parameterized queries or prepared statements
+
+  sensitive_data_exposure: |
+    🚨 SECURITY ALERT: Potential sensitive data exposure
+
+    **Issue**: Logging or returning sensitive information
+    **Risk Level**: Medium
+    **Location**: [file:line]
+    **Recommended Fix**: Remove sensitive data from logs and API responses
+
+# Security best practices to enforce
+security_best_practices:
+  input_validation:
+    - "**Always validate** user input on both client and server side"
+    - "**Use whitelist validation** rather than blacklist"
+    - "**Sanitize** all user input before processing or storage"
+
+  authentication_authorization:
+    - "**Verify permissions** on the server side for every sensitive operation"
+    - "**Use strong password requirements** and secure password storage"
+    - "**Implement proper session management** with secure cookies"
+
+  data_protection:
+    - "**Never log sensitive data** (passwords, tokens, personal information)"
+    - "**Use HTTPS** for all data transmission"
+    - "**Implement proper error handling** without information disclosure"
+
+  code_security:
+    - "**Avoid dynamic code execution** (eval, new Function, etc.)"
+    - "**Use security linters** and static analysis tools"
+    - "**Keep dependencies updated** and check for known vulnerabilities"
+
+# Integration with development workflow
+development_workflow_integration:
+  pre_commit_checks:
+    - "Run security scanning on all modified files"
+    - "Flag any high-risk patterns for manual review"
+    - "Prevent commits with critical security issues"
+
+  code_review_requirements:
+    - "**Mandatory security review** for authentication/authorization code"
+    - "**Double-check** all user input handling"
+    - "**Verify** proper error handling and logging practices"
+
+# Environment-specific security
+environment_specific_security:
+  development_environment:
+    - "Use `.env.local` for development secrets"
+    - "Never commit `.env` files to version control"
+    - "Use different credentials for dev/staging/production"
+
+  production_environment:
+    - "Enable all security headers"
+    - "Use environment variables for all configuration"
+    - "Regularly update and patch dependencies"
+    - "Implement monitoring and alerting for security events"
+
+# Integration with FSD architecture
+fsd_architecture_integration:
+  description: "This rule works across all FSD layers:"
+  layers:
+    shared_layer: "**Shared Layer**: Secure utility functions and API clients"
+    entities_layer: "**Entities Layer**: Secure data models and validation"
+    features_layer: "**Features Layer**: Secure business logic and user interactions"
+    widgets_layer: "**Widgets Layer**: Secure component composition and data handling"
+    pages_layer: "**Pages Layer**: Secure route handlers and page-level security"
+  priority: "**Priority**: Security concerns override other architectural considerations - always address security issues first."
+
+# What patterns this rule flags as problematic
+anti_patterns:
+  - "dangerouslySetInnerHTML with user input"
+  - "innerHTML = userInput"
+  - "document.write(userInput)"
+  - "String concatenation in SQL queries"
+  - "Template literals with user input in queries"
+  - "Client-side only auth checks"
+  - "Hardcoded credentials in code"
+  - "Logging sensitive data like passwords"
+  - "Exposing stack traces in production"
+  - "Unrestricted file access with user paths"
+  - "Missing security headers"
+  - "Overly permissive CORS settings"
+  - "Storing sensitive data in localStorage"
+  - "Using eval() or new Function() with user input"
+
+# Correct approach according to this rule
+correct_pattern: |
+  **Secure Coding Practices:**
+  ```tsx
+  // XSS Prevention
+  import DOMPurify from 'dompurify';
+  <div dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(userInput)}} />
+  
+  // SQL Injection Prevention
+  const query = 'SELECT * FROM users WHERE id = ?';
+  db.query(query, [userId]);
+  
+  // Secure Authentication
+  const hasPermission = await verifyPermissionOnServer(userId, action);
+  
+  // Environment Variables for Secrets
+  const API_KEY = process.env.API_KEY;
+  
+  // Secure Error Handling
+  const isDev = process.env.NODE_ENV === 'development';
+  return res.status(500).json({ 
+    error: isDev ? error.message : 'Internal server error' 
+  });
+  
+  // Secure Client-Side Storage
+  // Use secure, httpOnly cookies instead of localStorage
+  
+  // Input Validation
+  const sanitizedInput = validator.escape(userInput);
+  ```
+
+# Patterns that trigger this rule
+flagged_patterns:
+  - "dangerouslySetInnerHTML.*userInput"
+  - "innerHTML.*=.*userInput"
+  - "eval\\("
+  - "new Function\\("
+  - "localStorage.setItem.*password"
+  - "console.log.*password"
+  - "SELECT.*\\+.*user"
+  - "WHERE.*\\$\\{.*\\}"
+  - "document.write\\("
+  - "setTimeout\\(.*string.*\\)"
+  - "setInterval\\(.*string.*\\)"
+
+# Solutions this rule suggests
+suggested_solutions:
+  - "Use DOMPurify.sanitize() for HTML content"
+  - "Use parameterized queries for database operations"
+  - "Move authentication checks to server-side"
+  - "Use environment variables for secrets"
+  - "Never log sensitive data"
+  - "Implement proper error handling for production"
+  - "Validate and sanitize all user inputs"
+  - "Use secure, httpOnly cookies for sensitive data"
+  - "Implement security headers with helmet.js"
+  - "Use restrictive CORS policies"
+  - "Avoid dynamic code execution completely"
+
+# Cases where this rule doesn't apply
+exceptions:
+  - "Development environment error logging (with proper conditions)"
+  - "Non-sensitive data in localStorage"
+  - "Properly sanitized HTML content with DOMPurify"
+  - "Server-side parameterized queries"
+  - "Secure authentication flows with proper validation"
+  - "Environment-specific configurations with proper guards"
+
+# Benefits of following this rule
+benefits:
+  - "**Proactive Vulnerability Detection**: Catch security issues during development"
+  - "**Consistent Security Standards**: Apply uniform security practices across the codebase"
+  - "**Developer Education**: Learn secure coding practices through immediate feedback"
+  - "**Risk Mitigation**: Reduce the likelihood of security breaches"
+  - "**Compliance**: Meet security standards and regulatory requirements"
+  - "**User Trust**: Protect user data and application integrity"
+  - "**Early Detection**: Find security issues before they reach production" 

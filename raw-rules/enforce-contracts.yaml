@@ -1,0 +1,356 @@
+# === enforce-contracts.yaml ===
+id: enforce-contracts
+description: "Ensures that all API files in feature slices (features/*/api.ts) contain explicit TypeScript interfaces or imported schema definitions for requests and responses"
+globs:
+  - "features/*/api.ts"
+always_apply: false
+
+# Rule requirements
+rule_requirements:
+  mandatory_contract_definitions:
+    description: "Every `features/*/api.ts` file **must** contain at least one of the following:"
+    
+    preferred_local_api_contracts:
+      description: "🎯 **PREFERRED: Local API Contract Interfaces (Recommended for FSD)**"
+      example: |
+        // API Contract Definitions - Required by enforce-contracts rule
+        // These interfaces define the request/response contracts for API endpoints
+
+        /**
+         * Request contract for getting items with optional filtering
+         */
+        export interface GetItemsRequest {
+          // Define request parameters
+          filter?: string;
+          page?: number;
+        }
+
+        /**
+         * Response contract for items list endpoint
+         */
+        export interface GetItemsResponse {
+          // Define response structure
+          items: Item[];
+          total: number;
+        }
+
+        /**
+         * Request contract for creating a new item
+         */
+        export interface CreateItemRequest {
+          // Define creation payload
+          name: string;
+          description?: string;
+        }
+
+        /**
+         * Response contract for item creation endpoint
+         */
+        export interface CreateItemResponse {
+          // Define creation response
+          item: Item;
+          success: boolean;
+        }
+
+    alternative_type_aliases:
+      description: "🔄 **ALTERNATIVE: Type Aliases (When Extending Entity Types)**"
+      example: |
+        // Import entity types for reuse
+        import type {
+          Item,
+          CreateItemData,
+          UpdateItemData,
+          ItemsResponse,
+          ItemResponse,
+          ItemFilters,
+        } from '~/entities/item';
+
+        // API Contract Definitions (Required by enforce-contracts rule)
+        // Re-export or extend entity types as explicit API contracts
+
+        /**
+         * Request contract extending entity filters
+         */
+        export type GetItemsApiRequest = ItemFilters | void;
+
+        /**
+         * Response contract using entity response type
+         */
+        export type GetItemsApiResponse = ItemsResponse;
+
+        /**
+         * Request contract using entity data type
+         */
+        export type CreateItemApiRequest = CreateItemData;
+
+        /**
+         * Response contract using entity response type
+         */
+        export type CreateItemApiResponse = ItemResponse;
+
+    advanced_zod_schemas:
+      description: "⚡ **ADVANCED: Zod Schema Validation**"
+      example: |
+        // Zod schemas for runtime validation
+        import { z } from 'zod';
+
+        const CreateItemRequestSchema = z.object({
+          name: z.string().min(1),
+          description: z.string().optional(),
+        });
+
+        const CreateItemResponseSchema = z.object({
+          item: z.object({
+            id: z.string(),
+            name: z.string(),
+            description: z.string().optional(),
+          }),
+          success: z.boolean(),
+        });
+
+        export type CreateItemRequest = z.infer<typeof CreateItemRequestSchema>;
+        export type CreateItemResponse = z.infer<typeof CreateItemResponseSchema>;
+
+# Critical requirements for FSD architecture
+critical_requirements_for_fsd:
+  why_local_contracts_required:
+    description: "**Why Local Contracts Are Required**"
+    
+    not_sufficient_example:
+      description: "**❌ This is NOT sufficient (Entity imports only):**"
+      code: |
+        // features/user-management/api.ts
+        import type { User, CreateUserData } from '~/entities/user';
+
+        // RTK Query endpoints using entity types directly
+        export const userApi = baseApi.injectEndpoints({
+          endpoints: (builder) => ({
+            createUser: builder.mutation<User, CreateUserData>({
+              // This lacks explicit API contracts!
+            }),
+          }),
+        });
+
+    required_example:
+      description: "**✅ This IS required (Local API contracts):**"
+      code: |
+        // features/user-management/api.ts
+        import type { User, CreateUserData } from '~/entities/user';
+
+        // API Contract Definitions (Required by enforce-contracts rule)
+        export interface CreateUserApiRequest extends CreateUserData {
+          // API-specific request structure
+        }
+
+        export interface CreateUserApiResponse {
+          user: User;
+          success: boolean;
+          message?: string;
+        }
+
+        // RTK Query endpoints using explicit API contracts
+        export const userApi = baseApi.injectEndpoints({
+          endpoints: (builder) => ({
+            createUser: builder.mutation<CreateUserApiResponse, CreateUserApiRequest>({
+              // Now uses explicit API contracts!
+            }),
+          }),
+        });
+
+  benefits_of_local_contracts:
+    description: "**Benefits of Local API Contracts**"
+    benefits:
+      - "**📋 Clear Documentation** — API contracts are immediately visible in the API file"
+      - "**🔍 Better Discoverability** — Developers can see request/response shapes without jumping to entities"
+      - "**🛡️ API-Layer Validation** — API-specific validation and transformation logic"
+      - "**🔄 Easier Refactoring** — Changes to entities don't automatically break API contracts"
+      - "**📚 Living Documentation** — API contracts serve as endpoint documentation"
+
+# Detection patterns
+detection_patterns:
+  description: "This rule looks for these patterns in `features/*/api.ts` files:"
+  
+  valid_contract_patterns:
+    description: "✅ Valid Contract Patterns"
+    patterns:
+      - "`interface ApiRequestName { ... }` or `interface ApiResponseName { ... }`"
+      - "`type ApiRequestName = { ... }` or `type ApiResponseName = { ... }`"
+      - "`export interface GetXRequest` or `export type CreateXResponse`"
+      - "`const SchemaName = z.object({...})` (Zod schemas)"
+
+  invalid_patterns:
+    description: "❌ Invalid Patterns (Will Trigger Error)"
+    patterns:
+      - "Only entity type imports without local contracts"
+      - "Only utility type imports without API-specific contracts"
+      - "API endpoints without explicit request/response typing"
+
+# Error messages and solutions
+error_messages_and_solutions:
+  entity_imports_only:
+    description: "**When Entity Imports Only Are Found:**"
+    message: |
+      ❌ Entity imports detected but no local API contracts found.
+      ✅ Add explicit API contracts: export interface GetXRequest { ... }
+      ✅ Or use type aliases: export type GetXApiRequest = EntityFilter | void;
+
+  no_contracts_found:
+    description: "**When No Contracts Are Found:**"
+    message: |
+      ❌ Missing API contracts: please define or import TS interfaces for all API endpoints.
+      ✅ Add local interfaces or type aliases for request/response contracts.
+      ✅ See examples in .cursor/rules/enforce-contracts.mdc
+
+# Integration with FSD architecture
+integration_with_fsd_architecture:
+  recommended_fsd_api_file_structure:
+    description: "**Recommended FSD API File Structure:**"
+    example: |
+      // features/user-management/api.ts
+
+      // 1. Import dependencies
+      import { baseApi } from '~/shared/lib/store/api';
+      import type { User, CreateUserData } from '~/entities/user';
+
+      // 2. API Contract Definitions (REQUIRED)
+      export interface GetUsersRequest {
+        filter?: string;
+        page?: number;
+      }
+
+      export interface GetUsersResponse {
+        users: User[];
+        total: number;
+        page: number;
+      }
+
+      export type CreateUserApiRequest = CreateUserData;
+
+      export interface CreateUserApiResponse {
+        user: User;
+        success: boolean;
+      }
+
+      // 3. API Implementation
+      export const userApi = baseApi.injectEndpoints({
+        endpoints: (builder) => ({
+          getUsers: builder.query<GetUsersResponse, GetUsersRequest>({
+            // Implementation
+          }),
+          createUser: builder.mutation<CreateUserApiResponse, CreateUserApiRequest>({
+            // Implementation  
+          }),
+        }),
+      });
+
+# Generator integration
+generator_integration:
+  description: "To automatically create compliant API files, use the enhanced generator template that includes contract definitions by default."
+  purpose: "This rule ensures that each feature slice maintains clear, explicit contracts for its API interactions, supporting the overall architectural quality and maintainability of the FSD-based application."
+
+# What patterns this rule flags as problematic
+anti_patterns:
+  - "Only entity type imports without local contracts"
+  - "Only utility type imports without API-specific contracts"
+  - "API endpoints without explicit request/response typing"
+  - "RTK Query endpoints using entity types directly without local contracts"
+  - "Missing API contract definitions in feature slices"
+  - "Implicit typing in API endpoint definitions"
+  - "No explicit request/response interfaces"
+  - "Direct entity usage without API-specific contracts"
+
+# Correct approach according to this rule
+correct_pattern: |
+  **Local API Contract Interfaces (Recommended for FSD):**
+  ```typescript
+  // API Contract Definitions - Required by enforce-contracts rule
+  export interface GetItemsRequest {
+    filter?: string;
+    page?: number;
+  }
+  
+  export interface GetItemsResponse {
+    items: Item[];
+    total: number;
+  }
+  
+  export interface CreateItemRequest {
+    name: string;
+    description?: string;
+  }
+  
+  export interface CreateItemResponse {
+    item: Item;
+    success: boolean;
+  }
+  ```
+
+  **Type Aliases (Alternative Approach):**
+  ```typescript
+  // Import entity types for reuse
+  import type { Item, CreateItemData, ItemFilters } from '~/entities/item';
+
+  // API Contract Definitions (Required by enforce-contracts rule)
+  export type GetItemsApiRequest = ItemFilters | void;
+  export type CreateItemApiRequest = CreateItemData;
+  
+  export interface CreateItemApiResponse {
+    item: Item;
+    success: boolean;
+  }
+  ```
+
+  **Zod Schema Validation (Advanced):**
+  ```typescript
+  import { z } from 'zod';
+
+  const CreateItemRequestSchema = z.object({
+    name: z.string().min(1),
+    description: z.string().optional(),
+  });
+
+  export type CreateItemRequest = z.infer<typeof CreateItemRequestSchema>;
+  ```
+
+# Patterns that trigger this rule
+flagged_patterns:
+  - "interface ApiRequestName"
+  - "interface ApiResponseName"
+  - "type ApiRequestName"
+  - "type ApiResponseName"
+  - "export interface GetXRequest"
+  - "export type CreateXResponse"
+  - "const SchemaName = z.object"
+  - "Only entity imports without local contracts"
+  - "API endpoints without explicit typing"
+
+# Solutions this rule suggests
+suggested_solutions:
+  - "Add explicit API contracts: export interface GetXRequest { ... }"
+  - "Use type aliases: export type GetXApiRequest = EntityFilter | void"
+  - "Add local interfaces or type aliases for request/response contracts"
+  - "See examples in enforce-contracts documentation"
+  - "Create API-specific request/response interfaces"
+  - "Extend entity types with API-specific contracts"
+  - "Use Zod schemas for runtime validation"
+  - "Follow recommended FSD API file structure"
+
+# Cases where this rule doesn't apply
+exceptions:
+  - "Type-only imports for interface definitions"
+  - "Configuration and constants"
+  - "Pure utility functions"
+  - "Files that don't contain API endpoints"
+  - "Legacy API files during migration"
+  - "Third-party API integrations with different patterns"
+
+# Benefits of following this rule
+benefits:
+  - "**Clear Documentation**: API contracts immediately visible in API file"
+  - "**Better Discoverability**: Request/response shapes visible without jumping to entities"
+  - "**API-Layer Validation**: API-specific validation and transformation logic"
+  - "**Easier Refactoring**: Changes to entities don't automatically break API contracts"
+  - "**Living Documentation**: API contracts serve as endpoint documentation"
+  - "**Type Safety**: Explicit typing prevents runtime errors"
+  - "**FSD Compliance**: Maintains proper architectural boundaries"
+  - "**Team Coordination**: Clear contracts improve team understanding" 
