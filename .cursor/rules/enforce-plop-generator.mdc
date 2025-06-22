@@ -58,6 +58,15 @@ If you realize you've created files manually when generators were available:
 5. **MIGRATE content** to generated files
 6. **CONTINUE with development**
 
+### 🚨 POST-GENERATION VALIDATION REQUIREMENT
+
+After using any generator, **immediately validate**:
+1. **File structure** matches expected FSD patterns
+2. **Import/export** statements are correct
+3. **TypeScript** compilation has no errors
+4. **API contracts** are properly defined (for API files)
+5. **Tests** are properly scaffolded
+
 ## 📋 WORKFLOW INTEGRATION
 
 ### Pre-Task Checklist:
@@ -67,7 +76,8 @@ Before starting task execution:
 2. ✅ Create step-by-step execution plan  
 3. ✅ Identify generator needs for each step
 4. ✅ Verify available CLI commands
-5. ✅ ONLY THEN begin implementation
+5. ✅ Plan final validation step with linting
+6. ✅ ONLY THEN begin implementation
 ```
 
 ### Step Execution Pattern:
@@ -77,6 +87,17 @@ For each step involving file creation:
 2. ✅ Use: Run generator with full arguments
 3. ✅ Verify: All expected files were created
 4. ✅ Customize: Modify generated content as needed
+```
+
+### Final Validation Pattern:
+```
+After completing all implementation steps:
+1. ✅ Run linter with auto-fix: npm run lint:fix
+2. ✅ Run TypeScript type checking: npm run type-check
+3. ✅ Fix any type errors immediately
+4. ✅ Run tests: npm run test
+5. ✅ Verify all functionality works
+6. ✅ ONLY THEN report completion
 ```
 
 ### 🚨 GENERATOR CHECK REQUIREMENTS
@@ -300,6 +321,7 @@ The generator's role is to ensure **structural consistency** and **eliminate set
 - Am I consistently using generators?
 - Am I creating proper execution plans?
 - Am I checking for available tools before manual work?
+- Am I running final validation before reporting completion?
 - Are there gaps in my workflow that lead to mistakes?
 
 ### Rule Evolution:
@@ -307,6 +329,12 @@ The generator's role is to ensure **structural consistency** and **eliminate set
 - Add new checkpoints as needed
 - Strengthen enforcement mechanisms
 - Improve clarity of instructions
+
+### Linter Integration Requirements:
+- **API files** must pass `fsd/enforce-api-contracts` rule
+- **Component files** must pass design token and layer boundary rules
+- **All files** must have no TypeScript compilation errors
+- **Test files** must be properly generated and structured
 
 ## 🎯 SUCCESS METRICS
 

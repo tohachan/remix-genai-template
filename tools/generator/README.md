@@ -1,250 +1,190 @@
 # FSD Component Generator
 
-A component generator for projects following the Feature-Sliced Design (FSD) architecture. Automatically creates components that comply with all project rules and standards.
+This generator helps create Feature-Sliced Design (FSD) compliant components, API files, and other slice elements.
 
-## Features
+## CLI Component Generator
 
-- ✅ Component creation in accordance with FSD architecture
-- ✅ Automatic placement in correct layers (`shared`, `entities`, `features`, `widgets`, `pages`)
-- ✅ Simple functional components with children and className props
-- ✅ Automatic test generation with full coverage
-- ✅ Optional Storybook stories generation
-- ✅ Compliance with all project rules:
-  - Minimal use of Tailwind classes (only basic ones)
-  - TypeScript strict mode
-  - Component size limit of 200 lines
-  - One default export per file
-  - Correct import/export patterns
+The generator is designed to work with CLI arguments to avoid interactive prompts and ensure consistency.
 
-## Usage
-
-### CLI Generation (Recommended)
+### Basic Usage
 
 ```bash
-npm run generate:component -- [ComponentName] [options]
+# Generate component with full arguments (required approach)
+npm run generate:component -- ComponentName --layer <layer> --slice <slice> --includeTests <true|false> --includeStorybook <true|false>
+
+# Generate README for feature slice
+npm run generate:readme <slice-name>
 ```
 
-**Available CLI Arguments:**
-- `--layer <layer>` - FSD layer (shared, entities, features, widgets, pages) **[REQUIRED]**
-- `--slice <slice>` - Slice name (required for entities, features, widgets, pages)
-- `--includeTests <bool>` - Generate test file (default: true)
-- `--includeStorybook <bool>` - Generate Storybook story (default: false)
-- `--help, -h` - Show help with examples
-
-**Important:** Always specify all arguments including defaults to avoid interactive prompts.
-
-### CLI Arguments Reference
-
-| Argument | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
-| `ComponentName` | string | Yes | - | Component name in PascalCase |
-| `--layer` | string | Yes | - | FSD layer: shared, entities, features, widgets, pages |
-| `--slice` | string | Conditional | - | Slice name (required for non-shared layers) |
-| `--includeTests` | boolean | Yes | true | Generate test file (.spec.tsx) |
-| `--includeStorybook` | boolean | Yes | false | Generate Storybook story (.stories.tsx) |
-
-**Best Practice:** Always specify ALL arguments to prevent interactive prompts:
+### Examples
 
 ```bash
-# ✅ CORRECT - Full arguments specified
-npm run generate:component -- Button --layer shared --includeTests true --includeStorybook false
+# Shared component
+npm run generate:component -- Button --layer shared --includeTests true --includeStorybook true
 
-# ❌ WRONG - Missing arguments will trigger prompts  
-npm run generate:component -- Button --layer shared
-```
-
-### Interactive Generation (Alternative)
-
-```bash
-npm run generate:component
-```
-
-The generator will ask you to select:
-1. **FSD Layer** (`shared`, `entities`, `features`, `widgets`, `pages`)
-2. **Slice Name** (for layers requiring slices)
-3. **Component Name** (PascalCase)
-4. **Generate Tests** (enabled by default)
-5. **Generate Storybook Stories** (optional)
-
-### CLI Examples
-
-#### Creating a Component in the Shared Layer
-
-```bash
-# Full command with all arguments (recommended approach)
-npm run generate:component -- CustomButton --layer shared --includeTests true --includeStorybook false
-
-# Result:
-# app/shared/ui/CustomButton.tsx
-# app/shared/ui/CustomButton.spec.tsx
-# app/shared/index.ts (updated)
-```
-
-#### Creating a Component in the Feature Layer
-
-```bash
-# Full command with all arguments (recommended approach)
+# Feature component
 npm run generate:component -- LoginForm --layer features --slice auth --includeTests true --includeStorybook false
 
-# Result:
-# app/features/auth/ui/LoginForm.tsx
-# app/features/auth/ui/LoginForm.spec.tsx
-# app/features/auth/index.ts (updated)
+# Widget component
+npm run generate:component -- UserCard --layer widgets --slice profile --includeTests true --includeStorybook true
 ```
 
-#### Creating a Component with Storybook in the Widgets Layer
+## 🚨 Critical: API Contract Generation
 
-```bash
-# Full command with all arguments (recommended approach)
-npm run generate:component -- UserCard --layer widgets --slice profile --includeStorybook true --includeTests true
+### **New Feature: Auto-Generated API Contracts**
 
-# Result:
-# app/widgets/profile/ui/UserCard.tsx
-# app/widgets/profile/ui/UserCard.spec.tsx
-# app/widgets/profile/ui/UserCard.stories.tsx
-# app/widgets/profile/index.ts (updated)
+When generating features with API files, the generator now automatically creates API contracts that comply with the `enforce-contracts` ESLint rule.
+
+### **Generated API File Structure:**
+
+```typescript
+// features/user-management/api.ts
+
+import { baseApi } from '~/shared/lib/store/api';
+
+// API Contract Definitions (Required by enforce-contracts rule)
+export interface GetUserRequest { /* ... */ }
+export interface GetUserResponse { /* ... */ }
+export interface CreateUserRequest { /* ... */ }
+export interface CreateUserResponse { /* ... */ }
+
+// RTK Query endpoints using explicit API contracts
+export const userApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getUsers: builder.query<GetUserResponse, GetUserRequest>({
+      // Implementation with proper contracts
+    }),
+  }),
+});
 ```
 
-#### Creating Components in Other Layers
+### **Why API Contracts Are Required:**
 
-```bash
-# Entity layer component
-npm run generate:component -- ProductCard --layer entities --slice products --includeTests true --includeStorybook false
+1. **ESLint Compliance** — Satisfies `enforce-contracts` rule requirements
+2. **Documentation** — API contracts serve as living endpoint documentation  
+3. **Type Safety** — Explicit request/response typing at compile time
+4. **FSD Architecture** — Proper separation between entities and API layers
 
-# Page layer component  
-npm run generate:component -- HomePage --layer pages --slice home --includeTests true --includeStorybook false
+### **Best Practices for API Generation:**
+
+#### ✅ **DO: Use Local API Contracts**
+```typescript
+// API contracts in the API file itself
+export interface CreateTaskApiRequest extends CreateTaskData {}
+export interface CreateTaskApiResponse extends TaskResponse {}
 ```
 
-### Interactive Examples (Alternative Approach)
-
-#### Creating a Component in the Shared Layer
-
-```bash
-npm run generate:component
-# Select:
-# - Layer: shared
-# - Component Name: CustomButton
-# - Include tests: Yes
-
-# Result:
-# app/shared/ui/CustomButton.tsx
-# app/shared/ui/CustomButton.spec.tsx
-# app/shared/index.ts (updated)
+#### ❌ **DON'T: Only Entity Imports**
+```typescript
+// This will trigger enforce-contracts ESLint error
+import type { Task, CreateTaskData } from '~/entities/task';
+// Missing local API contracts!
 ```
 
-#### Creating a Component in the Feature Layer
+#### ✅ **DO: Import + Local Contracts**
+```typescript
+import type { Task, CreateTaskData } from '~/entities/task';
 
-```bash
-npm run generate:component
-# Select:
-# - Layer: features
-# - Slice: auth  
-# - Component Name: LoginForm
-# - Include tests: Yes
-
-# Result:
-# app/features/auth/ui/LoginForm.tsx
-# app/features/auth/ui/LoginForm.spec.tsx
-# app/features/auth/index.ts (updated)
+// API contracts extending entity types
+export interface CreateTaskApiRequest extends CreateTaskData {}
+export interface CreateTaskApiResponse {
+  task: Task;
+  success: boolean;
+}
 ```
 
-## File Structure
+## Component Generation Rules
 
-The generator creates the following structure:
+### Layer Requirements
+
+- **shared**: No slice required
+- **entities, features, widgets, pages**: Slice required
+
+### File Structure
+
+Generated files follow this structure:
 
 ```
-app/
-└── [layer]/
-    └── [slice]?/
-        ├── ui/
-        │   ├── ComponentName.tsx          # Main component
-        │   ├── ComponentName.spec.tsx     # Tests
-        │   └── ComponentName.stories.tsx  # Storybook (optional)
-        ├── index.ts                       # Slice exports
-        └── README.md                      # Slice documentation
+layer/slice/
+├── ui/
+│   ├── ComponentName.tsx       # Main component
+│   ├── ComponentName.spec.tsx  # Tests (if includeTests: true)
+│   └── ComponentName.stories.tsx # Storybook (if includeStorybook: true)
+├── api.ts                      # API file (auto-generated for features)
+├── hooks.ts                    # Custom hooks
+└── index.ts                    # Public exports
 ```
 
-## Component Structure
+### Template Variables
 
-The generator creates a simple functional component with the following characteristics:
+Available variables in templates:
 
-- **Props interface**: Includes `children` and `className`
-- **forwardRef**: Proper ref forwarding to DOM element
-- **cn function**: Using utility for class merging
-- **Basic styling**: Minimal Tailwind class `p-4` for easy editing
+- `{{componentName}}` - Original component name
+- `{{pascalCase componentName}}` - PascalCase component name
+- `{{camelCase componentName}}` - camelCase component name
+- `{{kebabCase componentName}}` - kebab-case component name
+- `{{slice}}` - Slice name
+- `{{layer}}` - Layer name
 
-## Rule Compliance
+## Architecture Compliance
 
-### Minimal Styling
-All components use:
-- Only basic Tailwind class `p-4` for initial styling
-- cn utility for class merging
-- Ready structure for adding custom styling via className prop
+The generator ensures compliance with:
 
-### TypeScript
-- Strict mode compliance
-- Proper typing of all props
-- Generic types for forwardRef
-- Interfaces for component props
+- **FSD Architecture** - Proper layer and slice organization
+- **enforce-contracts** - API files include required contracts
+- **limit-component-responsibility** - Components stay under 200 lines
+- **enforce-layer-boundaries** - Proper import restrictions
+- **feature-slice-baseline** - Required baseline files
 
-### Testing
-- Full coverage of all props and states
-- Rendering, events, and accessibility checks
-- Proper work with Jest and React Testing Library
-- forwardRef and displayName verification
+## Advanced Usage
 
-### FSD Architecture
-- Correct placement in layers
-- Compliance with import/export rules
-- Automatic index.ts file updates
-- Integration with README generation for feature layers
+### Custom Templates
 
-## Templates
+Templates are located in `tools/generator/templates/`:
 
-The generator uses Handlebars templates in the `templates/` folder:
+- `component.hbs` - React component template
+- `api.hbs` - API file template (with contracts)
+- `hooks.hbs` - Custom hooks template
+- `readme.hbs` - Feature README template
 
-- `component.hbs` - main component template
-- `component.spec.hbs` - test template
-- `component.stories.hbs` - Storybook stories template
+### Generator Configuration
 
-### Handlebars Helpers
+The generator is configured via `tools/generator/component.js` and supports:
 
-Available helpers:
-- `{{pascalCase str}}` - PascalCase conversion
-- `{{camelCase str}}` - camelCase conversion
-- `{{kebabCase str}}` - kebab-case conversion
-
-## Rule Integration
-
-After generating a component in the feature layer, the generator automatically suggests updating the README:
-
-```bash
-📝 Slice files modified. Consider updating documentation:
-npm run generate:readme [slice-name]
-```
-
-This complies with the `auto-generate-readme` rule from the project.
-
-## Extension
-
-To customize the generator:
-
-1. Update the template in `component.hbs` to change the component structure
-2. Add additional tests in `component.spec.hbs`
-3. Extend Storybook stories in `component.stories.hbs`
-4. Update this README
+- CLI argument parsing
+- Template customization
+- File path resolution
+- Index file updates
 
 ## Troubleshooting
 
-### "Template not found" Error
-Make sure the `templates/` folder contains all necessary `.hbs` files.
+### Common ESLint Errors
 
-### Name Validation Error
-- Component names must start with a capital letter (PascalCase)
-- Slice names must be lowercase with hyphens
+#### **enforce-contracts violation:**
+```
+Error: API file must contain TypeScript interfaces or schema imports
+```
+**Solution:** Use the updated generator - it automatically includes API contracts.
 
-### Import Conflicts
-The generator automatically updates `index.ts` in the slice root, but check for duplicate exports.
+#### **feature-slice-baseline violation:**
+```  
+Error: Feature slice missing required file: api.ts
+```
+**Solution:** Run the feature generator to create all baseline files.
 
-### Test Issues
-Make sure Jest is configured correctly and all necessary testing-library packages are installed. 
+### Generator Best Practices
+
+1. **Always use CLI mode** with full arguments
+2. **Generate complete features** rather than individual files
+3. **Customize generated templates** for your specific use cases
+4. **Follow FSD import rules** when editing generated files
+
+## Integration with Project Rules
+
+This generator works with all project ESLint rules:
+
+- **enforce-contracts** ✅ Auto-generates API contracts
+- **enforce-plop-generator** ✅ CLI-first approach
+- **feature-slice-baseline** ✅ Creates all required files
+- **limit-component-responsibility** ✅ Templates stay under 200 lines
+- **enforce-layer-boundaries** ✅ Correct import patterns 

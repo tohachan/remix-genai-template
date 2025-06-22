@@ -133,7 +133,7 @@ To get the most from these rules with other AI tools:
 
 1. **Start each session** by referencing relevant rules from `.cursor/rules/`
 2. **Copy rule content** into your conversation for context
-3. **Use ESLint validation** - Run `npm run lint` to check compliance
+3. **Use ESLint validation** - Run `npm run lint:fix` to auto-fix compliance issues
 4. **Follow FSD structure** - Maintain the layer boundaries described in rules
 5. **Generate components** - Use `npm run generate:component` for consistency
 
@@ -346,8 +346,8 @@ See `app/features/example-api/` for a complete RTK Query implementation with:
 The project includes automated FSD architecture validation through ESLint rules:
 
 ```bash
-# Lint code (includes FSD architecture checks)
-npm run lint
+# Lint code with auto-fix (includes FSD architecture checks)
+npm run lint:fix
 
 # Check accessibility compliance
 npm run lint:a11y
@@ -356,7 +356,7 @@ npm run lint:a11y
 npm run format
 
 # Type check
-npm run typecheck
+npm run type-check
 ```
 
 #### FSD ESLint Rules
@@ -488,10 +488,10 @@ npm run test:coverage # Generate test coverage
 npm run test:e2e    # Run e2e tests
 
 # Code Quality
-npm run lint        # Lint code
+npm run lint:fix    # Lint code with auto-fix
 npm run lint:a11y   # Check accessibility compliance
 npm run format      # Format code
-npm run typecheck   # TypeScript type checking
+npm run type-check  # TypeScript type checking
 
 # Code Generation
 npm run generate:component <name> # Generate component with full options
@@ -548,7 +548,7 @@ The template automatically validates through ESLint:
 This template is designed to maintain consistency across teams and **specifically optimized for Cursor AI development**. Please follow the established patterns and run validation scripts before submitting changes:
 
 1. Run tests: `npm test && npm run test:e2e`
-2. Check code quality: `npm run lint && npm run lint:a11y && npm run typecheck`
+2. Check code quality: `npm run lint:fix && npm run lint:a11y && npm run type-check`
 3. Update documentation if needed: `npm run generate:readme <slice>`
 
 For more details, see the [Cursor AI documentation](https://cursor.sh/), [shadcn documentation](https://ui.shadcn.com/) and [Feature-Sliced Design methodology](https://feature-sliced.design/).
