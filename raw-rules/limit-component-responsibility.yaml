@@ -1,121 +1,109 @@
 # === limit-component-responsibility.yaml ===
 id: limit-component-responsibility
-description: "Enforces component responsibility limits in React component files located in ui/ directories to maintain code quality, readability, and adherence to single responsibility principle"
+description: "Enforces component responsibility limits in React component files to maintain code quality and single responsibility principle"
 globs:
   - "**/ui/**/*.tsx"
   - "**/ui/**/*.jsx"
 always_apply: true
 
-# Rule requirements
-rule_requirements:
-  line_count_limit:
-    max_lines: 200
-    includes:
-      - "Import statements"
-      - "Component logic"
-      - "Styled components"
-      - "Type definitions"
-      - "Comments and whitespace"
-
+# RULE REQUIREMENTS
+limits:
+  max_lines: 200
+  includes: ["Import statements", "Component logic", "Styled components", "Type definitions", "Comments"]
+  
   single_default_export:
-    description: "Each React component file **must have exactly one default-exported component**"
-    benefits:
-      - "Code organization"
-      - "Testing clarity"
-      - "Import/export consistency"
-      - "Component reusability"
+    requirement: "Each React component file must have exactly one default-exported component"
+    reasons: ["Code organization", "Testing clarity", "Import/export consistency", "Component reusability"]
 
-# Flagged violations
-flagged_violations:
+# FLAGGED VIOLATIONS
+violations:
   excessive_line_count:
-    description: "Files with more than 200 lines total"
-    error_message: "Component file exceeds 200 lines (current: X). Split into smaller presentational and container components."
+    threshold: ">200 lines total"
+    error: "Component file exceeds 200 lines (current: X). Split into smaller components."
 
   multiple_default_exports:
-    description: "Files containing more than one `export default` statement"
-    error_message: "Component file has multiple default exports. Each file should export exactly one component."
+    pattern: "More than one `export default` statement"
+    error: "Component file has multiple default exports. Each file should export exactly one component."
 
-# Required actions when violations detected
-required_actions:
-  split_large_components:
-    container_presentational_pattern:
-      before_example: |
-        // ❌ BEFORE: Large monolithic component (250+ lines)
-        export default function UserDashboard() {
-          // 50+ lines of state management
-          // 100+ lines of business logic  
-          // 100+ lines of JSX
-        }
-      after_example: |
-        // ✅ AFTER: Split into container and presentational
-        // UserDashboard.container.tsx (50 lines)
-        export default function UserDashboardContainer() {
-          // State management and business logic only
-          const { user, loading, actions } = useUserDashboard();
-          
-          return <UserDashboardView user={user} loading={loading} {...actions} />;
-        }
+# REQUIRED REFACTORING STRATEGIES
+refactoring_strategies:
+  container_presentational_split:
+    when: "Components with mixed business logic and presentation"
+    before: |
+      // ❌ BEFORE: Monolithic component (250+ lines)
+      export default function UserDashboard() {
+        // 50+ lines of state management
+        // 100+ lines of business logic  
+        // 100+ lines of JSX
+      }
+    
+    after: |
+      // ✅ AFTER: Split into container and presentational
+      // UserDashboard.container.tsx (50 lines)
+      export default function UserDashboardContainer() {
+        const { user, loading, actions } = useUserDashboard();
+        return <UserDashboardView user={user} loading={loading} {...actions} />;
+      }
 
-        // UserDashboardView.tsx (80 lines)  
-        export default function UserDashboardView({ user, loading, ...actions }) {
-          // Pure presentational component with JSX only
-        }
+      // UserDashboardView.tsx (80 lines)  
+      export default function UserDashboardView({ user, loading, ...actions }) {
+        // Pure presentational component with JSX only
+      }
 
-  extract_sub_components:
-    component_decomposition:
-      before_example: |
-        // ❌ BEFORE: One large component with multiple responsibilities
-        export default function ProductCard() {
-          // 200+ lines with image, details, actions, reviews
-        }
-      after_example: |
-        // ✅ AFTER: Extracted sub-components
-        // ProductCard.tsx (40 lines)
-        export default function ProductCard({ product }) {
-          return (
-            <Card>
-              <ProductImage src={product.image} alt={product.name} />
-              <ProductDetails product={product} />
-              <ProductActions product={product} />
-              <ProductReviews reviews={product.reviews} />
-            </Card>
-          );
-        }
+  component_decomposition:
+    when: "Components with multiple UI concerns"
+    before: |
+      // ❌ BEFORE: One large component (200+ lines)
+      export default function ProductCard() {
+        // 200+ lines with image, details, actions, reviews
+      }
+    
+    after: |
+      // ✅ AFTER: Extracted sub-components
+      // ProductCard.tsx (40 lines)
+      export default function ProductCard({ product }) {
+        return (
+          <Card>
+            <ProductImage src={product.image} alt={product.name} />
+            <ProductDetails product={product} />
+            <ProductActions product={product} />
+            <ProductReviews reviews={product.reviews} />
+          </Card>
+        );
+      }
 
-        // ProductImage.tsx, ProductDetails.tsx, ProductActions.tsx, ProductReviews.tsx
-        // Each component focused on single responsibility
+  custom_hook_extraction:
+    when: "Components with heavy logic"
+    before: |
+      // ❌ BEFORE: Component with logic (180 lines)
+      export default function FormComponent() {
+        // 100+ lines of form logic, validation, submission
+        // 80+ lines of JSX
+      }
+    
+    after: |
+      // ✅ AFTER: Logic extracted to hooks
+      // useFormLogic.ts
+      export function useFormLogic() {
+        // All form logic, validation, submission
+        return { formData, errors, handleSubmit, validate };
+      }
 
-  extract_custom_hooks:
-    logic_extraction:
-      before_example: |
-        // ❌ BEFORE: Component with heavy logic (180 lines)
-        export default function FormComponent() {
-          // 100+ lines of form logic, validation, submission
-          // 80+ lines of JSX
-        }
-      after_example: |
-        // ✅ AFTER: Logic extracted to hooks
-        // useFormLogic.ts
-        export function useFormLogic() {
-          // All form logic, validation, submission
-          return { formData, errors, handleSubmit, validate };
-        }
+      // FormComponent.tsx (60 lines)
+      export default function FormComponent() {
+        const { formData, errors, handleSubmit } = useFormLogic();
+        // Only JSX and presentation logic
+      }
 
-        // FormComponent.tsx (60 lines)
-        export default function FormComponent() {
-          const { formData, errors, handleSubmit } = useFormLogic();
-          // Only JSX and presentation logic
-        }
-
-# Recommended file organization
-recommended_file_organization:
-  container_presentational_split: |
+# FILE ORGANIZATION PATTERNS
+organization_patterns:
+  container_presentational: |
     ui/
     ├── UserDashboard/
     │   ├── UserDashboard.container.tsx    # Business logic
     │   ├── UserDashboard.view.tsx         # Presentation  
     │   └── index.ts                       # Re-exports
-    └── UserDashboard.tsx                  # Alternative: single file under 200 lines
+    └── UserDashboard.tsx                  # Alternative: single file <200 lines
 
   component_decomposition: |
     ui/
@@ -126,70 +114,54 @@ recommended_file_organization:
     │   ├── ProductActions.tsx             # Sub-component
     │   └── index.ts                       # Re-exports
 
-# Enforcement guidelines
-enforcement_guidelines:
-  immediate_actions_required:
-    - "**Measure line count** of component files in `ui/` directories"
-    - "**Check for multiple default exports** in each file"
-    - "**If violations found**, flag for refactoring before proceeding with development"
-    - "**Suggest specific splitting strategies** based on the component's complexity"
+# ENFORCEMENT PROCESS
+enforcement_steps:
+  - "Measure line count of component files in ui/ directories"
+  - "Check for multiple default exports in each file"
+  - "If violations found, flag for refactoring before proceeding"
+  - "Suggest specific splitting strategies based on complexity"
 
-  splitting_decision_matrix:
-    form_component:
-      line_count: ">200"
-      recommended_split: "Extract validation logic to custom hook"
-    data_display:
-      line_count: ">200"
-      recommended_split: "Split into container (data fetching) + view (presentation)"
-    interactive_widget:
-      line_count: ">200"
-      recommended_split: "Extract event handlers and state to custom hook"
-    compound_component:
-      line_count: ">200"
-      recommended_split: "Split into multiple focused sub-components"
+splitting_decision_matrix:
+  form_component: "Extract validation logic to custom hook"
+  data_display: "Split into container (data) + view (presentation)"
+  interactive_widget: "Extract event handlers and state to custom hook"
+  compound_component: "Split into multiple focused sub-components"
 
-# Exception cases
-exception_cases:
-  description: "These scenarios are **still subject to the rule** but may require different approaches:"
+# EXCEPTION HANDLING
+exception_strategies:
   complex_forms:
-    - "Extract validation logic to `useFormValidation` hook"
-    - "Extract submission logic to `useFormSubmission` hook"
+    - "Extract validation logic to useFormValidation hook"
+    - "Extract submission logic to useFormSubmission hook"
     - "Keep only presentation logic in component"
 
   data_tables:
-    - "Extract table logic to `useTable` hook"
-    - "Create separate components for headers, rows, and actions"
+    - "Extract table logic to useTable hook"
+    - "Create separate components for headers, rows, actions"
     - "Use compound component patterns"
 
-  modal_dialog_components:
+  modal_dialogs:
     - "Extract modal state management to custom hook"
-    - "Separate modal content from modal container logic"
+    - "Separate modal content from container logic"
     - "Create reusable modal components"
 
-# Integration with FSD architecture
-integration_with_fsd_architecture:
-  ui_segment_focus:
-    - "Applied specifically to `ui/` directories across all FSD layers"
-    - "Ensures UI components remain focused and testable"
-    - "Supports component reusability across features"
+# FSD INTEGRATION
+fsd_compliance:
+  - "Applied specifically to ui/ directories across all FSD layers"
+  - "Ensures UI components remain focused and testable"
+  - "Supports component reusability across features"
+  - "Works within existing FSD import rules"
+  - "Maintains clean boundaries between presentation and business logic"
 
-  layer_compliance:
-    - "Works within existing FSD import rules"
-    - "Encourages proper separation of concerns"
-    - "Maintains clean boundaries between presentation and business logic"
+# ERROR RESOLUTION
+resolution_steps:
+  - "Analyze component structure to identify logical boundaries"
+  - "Choose appropriate splitting strategy"
+  - "Refactor gradually maintaining functionality"
+  - "Test thoroughly to ensure no regression"
+  - "Update imports/exports in consuming files"
+  - "Verify line count meets 200-line requirement"
 
-# Error resolution steps
-error_resolution_steps:
-  description: "When this rule flags a violation:"
-  steps:
-    - "**Analyze the component structure** to identify logical boundaries"
-    - "**Choose appropriate splitting strategy** (container/view, sub-components, or hook extraction)"
-    - "**Refactor gradually** maintaining existing functionality"
-    - "**Test thoroughly** to ensure no regression"
-    - "**Update imports/exports** in consuming files"
-    - "**Verify line count** meets the 200-line requirement"
-
-# What patterns this rule flags as problematic
+# FLAGGED PATTERNS
 anti_patterns:
   - "React component files exceeding 200 lines"
   - "Multiple default exports in single file"
@@ -201,10 +173,9 @@ anti_patterns:
   - "Files with excessive imports and dependencies"
   - "Components with deeply nested JSX structures"
 
-# Correct approach according to this rule
-correct_pattern: |
+# CORRECT PATTERNS
+correct_examples: |
   **Single Responsibility Components:**
-  ```tsx
   // ✅ Focused component under 200 lines
   export default function UserCard({ user, onEdit, onDelete }) {
     return (
@@ -215,27 +186,17 @@ correct_pattern: |
       </Card>
     );
   }
-  ```
 
   **Container/Presentational Pattern:**
-  ```tsx
   // Container (50 lines)
   export default function UserDashboardContainer() {
     const { user, loading, actions } = useUserDashboard();
     return <UserDashboardView user={user} loading={loading} {...actions} />;
   }
 
-  // Presentational (80 lines)
-  export default function UserDashboardView({ user, loading, ...actions }) {
-    // Pure presentation logic only
-  }
-  ```
-
   **Custom Hook Extraction:**
-  ```tsx
   // Hook (logic)
   export function useFormLogic() {
-    // All form logic, validation, submission
     return { formData, errors, handleSubmit, validate };
   }
 
@@ -244,10 +205,9 @@ correct_pattern: |
     const { formData, errors, handleSubmit } = useFormLogic();
     // Only JSX and presentation logic
   }
-  ```
 
-# Patterns that trigger this rule
-flagged_patterns:
+# DETECTION PATTERNS
+flagged_file_patterns:
   - "Files in **/ui/**/*.tsx exceeding 200 lines"
   - "Files in **/ui/**/*.jsx exceeding 200 lines"
   - "Multiple export default statements in single file"
@@ -256,8 +216,8 @@ flagged_patterns:
   - "Components with >100 lines of JSX"
   - "Mixed concerns in single component file"
 
-# Solutions this rule suggests
-suggested_solutions:
+# SUGGESTED SOLUTIONS
+solutions:
   - "Split large components into container and presentational patterns"
   - "Extract sub-components for focused responsibilities"
   - "Move business logic to custom hooks"
@@ -265,11 +225,10 @@ suggested_solutions:
   - "Use compound component patterns for complex UI"
   - "Extract validation logic to dedicated hooks"
   - "Separate data fetching from presentation"
-  - "Create reusable component libraries"
   - "Follow single responsibility principle"
 
-# Cases where this rule doesn't apply
-exceptions:
+# EXCEPTIONS
+rule_exceptions:
   - "Type definition files (no components)"
   - "Utility files without React components"
   - "Configuration files"
@@ -277,14 +236,3 @@ exceptions:
   - "Legacy components during migration (temporary)"
   - "Third-party component wrappers (minimal logic)"
   - "Simple components that naturally stay under 200 lines"
-
-# Benefits of following this rule
-benefits:
-  - "**Maintainability**: Smaller components are easier to understand and modify"
-  - "**Testability**: Focused components have clearer test boundaries"
-  - "**Reusability**: Single-purpose components can be reused across features"
-  - "**Performance**: Smaller components can be optimized more effectively"
-  - "**Code Review**: Easier to review focused, single-responsibility components"
-  - "**Developer Experience**: Reduced cognitive load when working with components"
-  - "**Debugging**: Easier to isolate issues in focused components"
-  - "**Team Collaboration**: Clear component boundaries improve team coordination" 

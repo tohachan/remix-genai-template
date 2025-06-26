@@ -1,513 +1,233 @@
-# === task-approach.yaml ===
+# === task-approach-optimized.yaml ===
 id: task-approach
-description: "Systematic approach for handling user requests with mandatory architectural validation, ensuring clarity, thoroughness, and focused execution"
+description: "Systematic approach for handling user requests with mandatory architectural validation"
 globs: []
 always_apply: true
 
-# MANDATORY VALIDATION CHECKPOINT
+# Mandatory validation checkpoint
 mandatory_validation_checkpoint:
   description: "🚨 BEFORE ANY CODE ACTION: Execute architectural validation"
   validation_source: "critical-workflow-checks.yaml -> mandatory_pre_execution_validation"
-  
   validation_process:
-    description: "All validation logic is centralized in critical-workflow-checks.yaml"
-    reference_workflow:
-      - "Parse user request for architectural implications"
-      - "Run architectural_validation_checklist"
-      - "Check conflict_detection_triggers" 
-      - "If conflicts found → Use required_conflict_response_format"
-      - "If no conflicts → Proceed with file_clarification_requirement"
-      - "Continue with task execution"
-  
-  integration_note: "This checkpoint references and does not duplicate critical-workflow-checks validation"
+    - "Parse user request for architectural implications"
+    - "Run architectural_validation_checklist"
+    - "Check conflict_detection_triggers"
+    - "If conflicts found → Use required_conflict_response_format"
+    - "If no conflicts → Proceed with file_clarification_requirement"
 
 # File clarification requirements
 file_clarification_requirement:
   always_clarify_file_references: |
-    When a user mentions files or components without explicit paths or clear identification:
-
+    When files/components mentioned without explicit paths:
+    
     **❌ Never assume** which files the user is referring to
-    **✅ Always ask for clarification** using this pattern:
-
+    **✅ Always ask for clarification:**
+    
     ```
     I need to clarify which files you're referring to. Are you talking about:
-    - [List specific file paths/options you think they might mean]
+    - [List specific file paths/options]
     - Or different files entirely?
-
-    Please specify the exact file paths or provide more context.
+    
+    Please specify exact file paths or provide more context.
     ```
 
-  clarification_examples:
-    login_component:
-      user_says: "Update the login component"
-      required_response: |
-        I need to clarify which login component you're referring to. Are you talking about:
-        - app/features/auth/ui/LoginForm.tsx
-        - app/shared/ui/LoginModal.tsx
-        - Or a different login component?
-    api_call:
-      user_says: "Fix the API call"
-      required_response: |
-        I need to clarify which API call you're referring to. Are you talking about:
-        - app/features/auth/api.ts
-        - app/entities/user/api/requests.ts
-        - Or a different API file?
-
-# README analysis requirements
+# README analysis requirements  
 readme_analysis_requirement:
-  mandatory_readme_study: |
-    Before making any changes to features or components, **always** read relevant README files:
-
-  initial_entity_analysis: |
-    At the start of any task, identify and read README files for:
-    - Feature slices mentioned in the request
-    - Widget slices involved
-    - Entity slices referenced
-    - Any specific components or utilities mentioned
-
-  progressive_entity_discovery: |
-    As you work through the task and discover new entities that need to be used or modified:
-    - **Immediately read** the README for each newly discovered entity
-    - **Before** making any changes to the entity
-    - **Update your understanding** based on the README content
-
+  mandatory_readme_study: "Before making changes, **always** read relevant README files"
   readme_location_patterns:
     - "`app/features/{feature}/README.md`"
     - "`app/widgets/{widget}/README.md`"
     - "`app/entities/{entity}/README.md`"
     - "`app/pages/{page}/README.md`"
 
-  readme_analysis_actions:
-    - "**Extract key information** about purpose, public API, dependencies"
-    - "**Note any specific usage patterns** or constraints"
-    - "**Identify testing requirements** and locations"
-    - "**Understand integration points** with other parts of the system"
-
 # Strict scope adherence
 strict_scope_adherence:
-  do_only_whats_requested:
-    never_do:
-      - "❌ Never add improvements or enhancements not explicitly requested"
-      - "❌ Never suggest additional features unless directly asked"
-      - "❌ Never optimize code unless optimization is the specific request"
-    always_do:
-      - "✅ Implement exactly what the user asked for"
-      - "✅ Stay focused on the specific requirements"
+  never_do:
+    - "❌ Never add improvements/enhancements not requested"
+    - "❌ Never suggest additional features unless asked"
+    - "❌ Never optimize code unless optimization requested"
+  always_do:
+    - "✅ Implement exactly what user asked for"
+    - "✅ Stay focused on specific requirements"
 
-  scope_violation_examples:
-    wrong_approach:
-      user_asks: "Add a submit button"
-      wrong_response: "I'll add the submit button and also improve the form validation and add loading states"
-    correct_approach:
-      user_asks: "Add a submit button"
-      correct_response: "I'll add the submit button as requested"
-
-# File editing and search-replace error handling
+# File editing error handling
 file_editing_error_handling:
-  search_replace_error_response:
-    first_attempt_failed:
-      - "**Re-read the file** around the target area to verify exact formatting"
-      - "**Check for whitespace differences** - extra spaces, tabs, or line endings"
-      - "**Try a smaller, more specific string** that you're certain exists"
-      - "**Consider that the string may have already been changed** in a previous edit"
-
-    multiple_failures:
-      - "**Re-examine your target string** - it likely doesn't exist as written"
-      - "**Use `grep_search`** to find the actual text pattern in the file"
-      - "**Read the specific file section** to see the current state"
-      - "**Adjust your search string** based on what actually exists"
-
+  search_replace_failed:
+    - "Re-read file around target area"
+    - "Check for whitespace differences"
+    - "Try smaller, more specific string"
+    - "Consider string may have already changed"
   what_not_to_do:
-    - "Do NOT use `sed` commands for text replacement"
-    - "Do NOT attempt line-by-line file reconstruction"
-    - "Do NOT use terminal commands to edit files character by character"
-    - "Do NOT over-analyze with excessive `read_file` calls"
-
-  correct_escalation_process:
-    acknowledge_limitation: |
-      I'm having trouble with the exact text replacement. The search string doesn't seem to match the file content exactly.
-    provide_exact_replacement: |
-      Please manually replace this line:
-      [exact current text]
-
-      With:
-      [exact new text]
-    suggest_edit_file: |
-      Alternatively, I can use edit_file to rewrite the entire section if you prefer.
-
-  escalation_examples:
-    good_approach: |
-      The search_replace failed to find the exact string. Let me read the file to see the current content.
-      [reads file]
-      I can see the actual text is slightly different. Let me try with the correct string.
-      [attempts corrected search_replace]
-    bad_approach: |
-      Let me use sed to replace this line by line...
-      [starts complex terminal manipulation]
-      Actually, let me read each line individually to find the exact position...
-      [over-complicates simple task]
+    - "Do NOT use `sed` commands"
+    - "Do NOT attempt line-by-line reconstruction"
+    - "Do NOT use terminal commands for character editing"
+  escalation_process: |
+    I'm having trouble with exact text replacement. Please manually replace:
+    [exact current text]
+    With:
+    [exact new text]
 
 # Conflict resolution requirement
 conflict_resolution_requirement:
   always_report_inconsistencies:
-    in_requirements:
-      - "Conflicting instructions within the same request"
-      - "Ambiguous or contradictory specifications"
-      - "Missing critical information"
-    in_rules_standards:
-      - "Conflicts between different coding rules"
-      - "Conflicts between different cursor rules"
-      - "Inconsistencies with FSD architecture"
-      - "Violations of established patterns"
-
+    - "Conflicting instructions within request"
+    - "Ambiguous/contradictory specifications"
+    - "Missing critical information"
+    - "Conflicts between coding rules"
+    - "Inconsistencies with FSD architecture"
+  
   required_response_pattern: |
     I've identified an inconsistency/conflict:
-
-    **Issue**: [Describe the specific conflict or inconsistency]
-    **Details**: [Explain what's conflicting and why it's problematic]
-    **Options**: [List possible approaches to resolve it]
-
+    
+    **Issue**: [Describe specific conflict]
+    **Details**: [Explain what's conflicting]
+    **Options**: [List possible approaches]
+    
     How would you like me to proceed?
+
+# Mandatory slice baseline verification
+mandatory_slice_baseline_verification:
+  description: "🚨 BEFORE STARTING ANY SLICE WORK:"
+  step_0_baseline_check:
+    requirement: "MUST perform baseline check before development"
+    steps:
+      - "Identify target slice and layer from user request"
+      - "Run baseline verification using checklist:"
+      - "  - Features: api.ts, api.spec.ts, hooks.ts, hooks.spec.ts, ui/, README.md, index.ts"
+      - "  - Pages: ui/index.tsx, ui/index.spec.tsx, README.md, index.ts, route file"
+      - "  - Widgets: ui/, tests, README.md, index.ts"
+      - "  - Entities: model/, README.md, index.ts"
+      - "If ANY baseline file missing → auto-create using generators"
+      - "No user confirmation needed - auto-create immediately"
 
 # Step-by-step execution
 step_by_step_execution:
-  always_create_execution_plan: true
+  simple_tasks_format: |
+    **Execution Plan:**
+    
+    STEP 0: 🚨 MANDATORY BASELINE VERIFICATION
+    - Target slice: app/[layer]/[slice]/
+    - Baseline check: [checklist type]
+    - Missing files: [list or "All present ✅"]
+    - Action: [Create missing files or "Complete ✅"]
+    
+    1. [Description] - Generator: [Yes/No - which one]
+    2. [Description] - Generator: [Yes/No - which one]
+    3. [Description] - Manual: [Only if no generator]
+    
+    FINAL VALIDATION:
+    - npm run lint:fix
+    - npm run type-check (zero tolerance)
+    - npm run test
+    - Baseline re-verification
 
-  simple_tasks_1_3_steps:
-    plan_format: |
-      **Execution Plan:**
-      1. [Step 1 description] 
-         - Check generators: [List applicable generators for this step]
-      2. [Step 2 description]
-         - Generator needed: [Yes/No - specify which one]
-      3. [Step 3 description]
-         - Manual file creation: [Only if no generator available]
-      4. Final Validation:
-         - Run linter with auto-fix: npm run lint:fix
-         - Run TypeScript type checking: npm run type-check
-         - Fix any type errors immediately
-         - Run tests to verify functionality
-         - Verify implementation works as expected
-
-      I'll now proceed with these steps using CLI generators where applicable.
-
-  complex_tasks_4_plus_steps:
-    file_name_pattern: "task-steps-{taskId}.md"
-    location: "Project root directory"
-    content_structure: |
-      # Task: [Brief task description]
-
-      ## Steps:
-      - [ ] Step 1: [Description] 
-        - Generator check: [CLI generator needed? Which one?]
-      - [ ] Step 2: [Description]
-        - Generator check: [CLI generator needed? Which one?]
-      - [ ] Step 3: [Description]
-        - Generator check: [CLI generator needed? Which one?]
-      - [ ] Step 4: [Description]
-        - Generator check: [CLI generator needed? Which one?]
-      ...
-      - [ ] Final Step: Validation and Quality Check
-        - Run linter with auto-fix: npm run lint:fix
-        - Run TypeScript type checking: npm run type-check
-        - Fix any type errors immediately
-        - Run tests: npm run test
-        - Verify functionality
-
-      ## Generator Commands Used:
-      - Step X: npm run generate:component -- ComponentName --layer features --slice auth --includeTests true --includeStorybook false
-      - Step Y: npm run generate:readme slice-name
-
-      ## Validation Commands:
-      - npm run lint:fix (auto-fix linting violations)
-      - npm run type-check (check TypeScript types)
-      - npm run test (verify functionality)
-      - Manual testing of implemented features
-
-      ## Progress Notes:
-      [Update as you work through steps]
-
-      ## Completed:
-      [Move completed steps here]
-
-  step_execution_process:
-    - "**Create or present** the execution plan"
-    - "**For each step involving file creation:** FIRST check if CLI generator exists for the file type"
-    - "**USE** CLI generator if available (components, README, tests)"
-    - "**ONLY** proceed with manual creation if no generator exists"
-    - "**Follow steps sequentially** - complete one before moving to the next"
-    - "**For complex tasks**: Update the tracking file after each step completion"
-    - "**Stay focused** on current step, don't jump ahead"
-    - "**Always include final validation step** with linting and testing"
-    - "**Only report completion** after successful validation"
-    - "**For complex tasks**: Delete the tracking file when task is complete"
-
-  generator_check_requirements:
-    before_any_file_creation:
-      - "Reference `enforce-plop-generator.mdc` for detailed generator requirements"
-      - "Use CLI generators for all supported file types"
-      - "Only proceed with manual creation if no generator exists"
-
-  step_update_pattern: |
-    ## Progress Notes:
-    - Completed Step 1: [Brief description of what was done]
-    - Working on Step 2: [Current progress]
-
-    ## Completed:
-    - [x] Step 1: [Description]
+  complex_tasks_format: |
+    # Task: [Description]
+    
+    ## STEP 0: 🚨 BASELINE VERIFICATION
+    - [ ] Target slice: app/[layer]/[slice]/
+    - [ ] Baseline checklist: [type]
+    - [ ] Missing files: [list or "None ✅"]
+    - [ ] Files created using generators
+    
+    ## Steps:
+    - [ ] Step 1: [Description] - Generator: [which one]
+    - [ ] Step 2: [Description] - Generator: [which one]
+    
+    ## Final Validation:
+    - [ ] npm run lint:fix
+    - [ ] npm run type-check (ALL errors fixed)
+    - [ ] npm run test
+    - [ ] Baseline re-verification ✅
 
 # Enhanced validation workflow
 enhanced_validation_workflow:
-  required_validation_steps:
-    lint_with_auto_fix:
+  required_steps:
+    lint_auto_fix:
       command: "npm run lint:fix"
-      purpose:
-        - "Automatically fixes common violations"
-        - "Reports remaining issues that need manual attention"
-        - "Ensures FSD architecture compliance"
-
-    typescript_type_checking:
+      purpose: "Auto-fix violations, report remaining issues, ensure FSD compliance"
+    
+    typescript_check:
       command: "npm run type-check"
-      purpose:
-        - "Runs `tsc --noEmit` to validate all types"
-        - "**Must fix all type errors** before proceeding"
-        - "Ensures type safety across the codebase"
-
+      purpose: "Validate all types, MUST fix ALL errors, ensure type safety"
+    
     testing:
       command: "npm run test"
-      purpose:
-        - "Verifies functionality works as expected"
-        - "Ensures no regression was introduced"
-        - "Validates new components and logic"
-
+      purpose: "Verify functionality, ensure no regression, validate components"
+    
     manual_verification:
-      - "Test the implemented feature in browser"
-      - "Verify all user interactions work correctly"
+      - "Test feature in browser"
+      - "Verify user interactions"
       - "Check responsive design if applicable"
 
-  error_handling_requirements:
+  error_handling:
     linting_errors:
       - "Read error messages carefully"
       - "Fix violations that couldn't be auto-fixed"
-      - "Do NOT suppress warnings unless absolutely necessary"
-      - "Re-run `npm run lint:fix` until clean"
-
+      - "Do NOT suppress warnings without justification"
+    
     typescript_errors:
-      - "Fix ALL type errors - zero tolerance policy"
-      - "Do NOT use `@ts-ignore` or `any` types as shortcuts"
-      - "If complex type issues arise, create proper interfaces"
-      - "Re-run `npm run type-check` until clean"
-
+      - "Fix ALL type errors - zero tolerance"
+      - "Do NOT use @ts-ignore or any as shortcuts"
+      - "Create proper interfaces for complex types"
+    
     test_failures:
-      - "Investigate and fix the root cause"
-      - "Do NOT skip or comment out failing tests"
-      - "Update tests only if requirements have genuinely changed"
-      - "Ensure all tests pass before completion"
+      - "Investigate and fix root cause"
+      - "Do NOT skip or comment out tests"
+      - "Update tests only if requirements changed"
 
-# Integration with existing rules
-integration_with_existing_rules:
-  works_in_conjunction_with:
-    - "FSD architecture requirements"
-    - "File structure conventions"
-    - "Testing requirements"
-    - "Code quality standards"
-  priority_note: "When this rule conflicts with other rules, clarify with the user which approach to take"
-
-# What patterns this rule flags as problematic
+# Anti-patterns
 anti_patterns:
-  - "Making assumptions about file references without clarification request"
-  - "Skipping README analysis before making changes"
-  - "Adding improvements or features not explicitly requested"
-  - "Using complex workarounds for simple search-replace failures"
-  - "Not reporting conflicts or inconsistencies"
-  - "Proceeding without clear execution plan"
-  - "Manual file creation without checking for generators"
+  - "Making assumptions about file references"
+  - "Skipping README analysis"
+  - "Adding unrequested improvements"
+  - "Complex workarounds for simple failures"
+  - "Not reporting conflicts"
+  - "Proceeding without execution plan"
+  - "Manual creation without generator checks"
   - "Skipped validation steps"
   - "Unresolved TypeScript errors"
-  - "Suppressed linting warnings without justification"
 
-# Correct approach according to this rule
+# Correct pattern
 correct_pattern: |
-  **File Clarification:**
-  Always ask for clarification when file references are ambiguous:
-  ```
-  I need to clarify which files you're referring to. Are you talking about:
-  - [List specific file paths/options you think they might mean]
-  - Or different files entirely?
-  ```
+  **Process flow:**
+  1. Architectural validation checkpoint
+  2. File clarification if needed
+  3. README analysis for affected entities
+  4. Mandatory baseline verification (Step 0)
+  5. Execution plan with generator checks
+  6. Step-by-step implementation
+  7. Complete validation workflow
+  8. Baseline re-verification
 
-  **README Analysis:**
-  Before making changes, read relevant README files for affected entities.
-
-  **Scope Adherence:**
-  Implement exactly what the user asked for, nothing more, nothing less.
-
-  **Execution Planning:**
-  Create clear step-by-step plan with generator checks and validation steps.
-
-  **Error Handling:**
-  For search-replace failures, re-read files and adjust search strings rather than using complex workarounds.
-
-  **Validation Workflow:**
-  1. npm run lint:fix
-  2. npm run type-check (fix ALL errors)
-  3. npm run test
-  4. Manual verification
-
-# Patterns that trigger this rule
-flagged_patterns:
-  - "Ambiguous file references without clarification request"
-  - "Changes made without reading relevant README files"
-  - "Scope creep - adding unrequested features"
-  - "Complex terminal workarounds for simple text replacement"
-  - "Proceeding despite conflicts or inconsistencies"
-  - "File creation without generator checks"
-  - "Skipped validation steps"
-  - "Unresolved TypeScript errors"
-  - "Suppressed linting warnings without justification"
-
-# Solutions this rule suggests
-suggested_solutions:
-  - "Always ask for clarification on ambiguous file references"
-  - "Read README files before making changes to entities"
-  - "Stick strictly to requested scope"
-  - "Use systematic approach for search-replace failures"
-  - "Report conflicts and ask for user guidance"
-  - "Create execution plans with generator checks"
-  - "Use CLI generators for all supported file types"
-  - "Follow complete validation workflow"
-  - "Fix all TypeScript errors with zero tolerance"
-  - "Address linting violations properly"
-
-# Cases where this rule doesn't apply
-exceptions:
-  - "Emergency fixes where immediate action is required"
-  - "Clear and unambiguous requests with explicit file paths"
-  - "Tasks that explicitly request scope expansion"
-  - "Legacy code that cannot use generators"
-  - "Test environments where validation can be skipped"
-
-# Benefits of following this rule
-benefits:
-  - "**Clarity**: No assumptions about file references"
-  - "**Thoroughness**: Complete understanding of affected components"
-  - "**Focus**: Strict adherence to requested scope"
-  - "**Quality**: Systematic conflict resolution and validation"
-  - "**Type Safety**: Zero tolerance for type errors"
-  - "**Code Quality**: Automated enforcement of standards"
-  - "**Trackability**: Clear execution progress for complex tasks"
-  - "**Completeness**: Nothing is forgotten or overlooked"
-  - "**Efficiency**: Avoids time-consuming workarounds for simple tasks"
-  - "**Reliability**: Reduces errors from complex command chains"
-  - "**Transparency**: Makes the editing process clear to users"
-
-# 🚨 MANDATORY SLICE BASELINE VERIFICATION 
-mandatory_slice_baseline_verification:
-  description: "**BEFORE STARTING ANY SLICE WORK:**"
-  
-  step_0_baseline_requirements_check:
-    description: "Step 0: Baseline Requirements Check (MANDATORY)"
-    requirement: "**I MUST perform this check before any development:**"
-    
-    steps:
-      - "1. **Identify the target slice and layer** from user request"
-      - "2. **Run baseline verification** using appropriate checklist:"
-      - "   - Features: api.ts, api.spec.ts, hooks.ts, hooks.spec.ts, ui/, README.md, index.ts"
-      - "   - Pages: ui/index.tsx, ui/index.spec.tsx, README.md, index.ts, route file"
-      - "   - Widgets: ui/, tests, README.md, index.ts"
-      - "   - Entities: model/, README.md, index.ts"
-      - "3. **If ANY baseline file is missing:**"
-      - "   ```"
-      - "   ⚠️ INCOMPLETE SLICE DETECTED: app/[layer]/[slice]/"
-      - "   "
-      - "   Missing baseline files:"
-      - "   - [list each missing file]"
-      - "   "
-      - "   Auto-creating files:"
-      - "   - npm run generate:readme [slice] (if README.md missing)"
-      - "   - [other generator commands for missing files]"
-      - "   "
-      - "   Creating missing baseline files automatically..."
-      - "   ```"
-      - "4. **AUTOMATICALLY CREATE** all missing baseline files using generators"
-      - "5. **Verify completion** - re-check all files exist"
-      - "6. **PROCEED** with the actual request"
-    
-    note: "**NO USER CONFIRMATION NEEDED** - Always auto-create missing files immediately."
-
-  step_0_5_generator_availability_check:
-    description: "Step 0.5: Generator Availability Check (MANDATORY)"
-    requirement: "**For every file I need to create:**"
-    
-    steps:
-      - "1. **Check if generator exists** for the file type"
-      - "2. **Use generator if available** (components, README, tests)"
-      - "3. **Document manual creation reason** if no generator available"
-
-# UPDATED EXECUTION PLANNING
-updated_execution_planning:
-  simple_tasks_1_3_steps:
-    format: |
-      **Execution Plan:**
-
-      STEP 0: 🚨 MANDATORY BASELINE VERIFICATION
-      - Target slice: app/[layer]/[slice]/
-      - Baseline check: [Feature/Page/Widget/Entity checklist]
-      - Missing files: [list any missing files]
-      - Action: [Create missing files or "All baseline files present ✅"]
-
-      1. [Step 1 description] 
-         - Generator check: [List applicable generators for this step]
-      2. [Step 2 description]
-         - Generator needed: [Yes/No - specify which one]
-      3. [Step 3 description]
-         - Manual file creation: [Only if no generator available]
-
-      FINAL VALIDATION:
-      - npm run lint:fix (auto-fix violations)  
-      - npm run type-check (zero tolerance for type errors)
-      - npm run test (verify functionality)
-      - Baseline re-verification: [Confirm all baseline files still exist]
-
-      I'll now proceed with Step 0 baseline verification.
-
-  complex_tasks_4_plus_steps:
-    format: |
-      # Task: [Brief task description]
-
-      ## STEP 0: 🚨 MANDATORY BASELINE VERIFICATION
-      - [ ] Target slice identified: app/[layer]/[slice]/
-      - [ ] Baseline checklist applied: [Feature/Page/Widget/Entity]
-      - [ ] Missing files detected: [list or "None ✅"]
-      - [ ] Missing files created using generators
-      - [ ] Baseline verification complete ✅
-
-      ## Steps:
-      - [ ] Step 1: [Description]
-        - Generator check: [CLI generator needed? Which one?]
-      - [ ] Step 2: [Description]  
-        - Generator check: [CLI generator needed? Which one?]
-      ...
-
-      ## Final Validation:
-      - [ ] npm run lint:fix 
-      - [ ] npm run type-check (ALL errors fixed)
-      - [ ] npm run test
-      - [ ] Baseline re-verification complete ✅
-
-# ENFORCEMENT: NO EXCEPTIONS
+# Enforcement - no exceptions
 enforcement_no_exceptions:
   never_allowed:
     - "Skip Step 0 baseline verification"
-    - "Proceed without checking all baseline files"
-    - "Report completion without re-verifying baseline requirements"
+    - "Proceed without checking baseline files"
     - "Ignore missing README.md files"
-    - "Create incomplete slices"
-    - "Ask for confirmation before creating baseline files"
+    - "Ask confirmation before creating baseline files"
   
   must_always:
     - "Run baseline verification first"
-    - "Automatically create missing baseline files immediately using generators"
-    - "Use generators for all supported file types"
+    - "Auto-create missing baseline files using generators"
     - "Re-verify baseline completion after changes"
-    - "Report any baseline violations and auto-fix them" 
+    - "Fix ALL TypeScript errors"
+
+# Solutions
+suggested_solutions:
+  - "Ask for clarification on ambiguous references"
+  - "Read README files before changes"
+  - "Stick to requested scope"
+  - "Use systematic approach for failures"
+  - "Report conflicts and ask guidance"
+  - "Create execution plans with generator checks"
+  - "Use CLI generators for supported types"
+  - "Follow complete validation workflow"
+
+# Exceptions
+exceptions:
+  - "Emergency fixes requiring immediate action"
+  - "Clear requests with explicit file paths"
+  - "Tasks explicitly requesting scope expansion"
+  - "Legacy code that cannot use generators"

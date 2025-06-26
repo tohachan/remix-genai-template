@@ -1,6 +1,6 @@
 # === feature-readme-format.yaml ===
 id: feature-readme-format
-description: "Enforces a standardized format for README.md files in FSD slice directories to ensure consistent documentation for both human developers and AI systems"
+description: "Enforces standardized format for README.md files in FSD slice directories for consistent documentation"
 globs:
   - "app/features/*/README.md"
   - "app/pages/*/README.md"
@@ -8,105 +8,39 @@ globs:
   - "app/entities/*/README.md"
 always_apply: false
 
-# Required structure
-required_structure:
-  description: "Each slice README **must** contain exactly two top-level sections:"
+# REQUIRED STRUCTURE
+two_section_format:
+  description: "Each slice README MUST contain exactly two top-level sections:"
   
-  for_humans_section:
-    description: "1. For Humans Section"
+  for_humans:
     header: "# For Humans"
-    content_requirements:
+    content:
       - "Slice description/purpose"
       - "How to run the slice"
       - "How to test the slice"
-      - "Any additional human-readable documentation"
+      - "Additional human-readable documentation"
 
-  for_ai_section:
-    description: "2. For AI Section"
+  for_ai:
     header: "# For AI"
-    content_requirements:
-      - "Must include `<!-- AI_META -->` comment followed by a JSON or YAML code block"
-    required_metadata_keys:
-      - "`purpose` — Brief description of the slice's purpose"
-      - "`publicApi` — Public API endpoints/functions exposed by this slice"
+    content:
+      - "Must include `<!-- AI_META -->` comment followed by JSON/YAML code block"
+    required_keys:
+      - "`purpose` — Brief description of slice purpose"
+      - "`publicApi` — Public API endpoints/functions exposed"
       - "`dependencies` — Dependencies this slice relies on"
       - "`tests` — Testing information and test file locations"
 
-# Expected format
-expected_format:
-  json_format:
-    description: "Standard JSON format for AI metadata:"
-    example: |
-      # For Humans
-
-      [Slice description in markdown]
-
-      ## How to Run
-      [Instructions for running this slice]
-
-      ## How to Test  
-      [Instructions for testing this slice]
-
-      # For AI
-
-      <!-- AI_META -->
-      ```json
-      {
-        "purpose": "Brief description of slice purpose",
-        "publicApi": [
-          "List of public API endpoints or functions"
-        ],
-        "dependencies": [
-          "List of dependencies this slice uses"
-        ],
-        "tests": {
-          "location": "Path to test files",
-          "command": "Command to run tests"
-        }
-      }
-      ```
-
-      [Additional AI-readable documentation]
-
-  yaml_format:
-    description: "Alternative YAML format for AI metadata:"
-    example: |
-      # For AI
-
-      <!-- AI_META -->
-      ```yaml
-      purpose: Brief description of slice purpose
-      publicApi:
-        - List of public API endpoints or functions
-      dependencies:
-        - List of dependencies this slice uses
-      tests:
-        location: Path to test files
-        command: Command to run tests
-      ```
-
-# Enforcement rules
-enforcement_rules:
-  description: "When working with FSD slice README files:"
-  checks:
-    - "**Check for required sections** — Ensure both \"For Humans\" and \"For AI\" sections exist"
-    - "**Verify AI metadata** — Confirm `<!-- AI_META -->` comment exists with proper JSON/YAML block"
-    - "**Validate metadata keys** — Ensure all required keys are present: `purpose`, `publicApi`, `dependencies`, `tests`"
-    - "**If structure is missing or incorrect**, prompt with minimal template"
-
-# Minimal template
-minimal_template:
-  description: "When structure violations are detected, provide this template:"
-  template: |
+# EXPECTED FORMAT
+format_examples:
+  json_format: |
     # For Humans
 
-    ## Overview
-    [Describe what this slice does]
+    [Slice description in markdown]
 
     ## How to Run
-    [Step-by-step instructions to run this slice]
+    [Instructions for running this slice]
 
-    ## How to Test
+    ## How to Test  
     [Instructions for testing this slice]
 
     # For AI
@@ -114,85 +48,127 @@ minimal_template:
     <!-- AI_META -->
     ```json
     {
-      "purpose": "",
-      "publicApi": [],
-      "dependencies": [],
+      "purpose": "Brief description of slice purpose",
+      "publicApi": [
+        "List of public API endpoints or functions"
+      ],
+      "dependencies": [
+        "List of dependencies this slice uses"
+      ],
       "tests": {
-        "location": "",
-        "command": ""
+        "location": "Path to test files",
+        "command": "Command to run tests"
       }
     }
     ```
 
-# Detected violations
-detected_violations:
+  yaml_format: |
+    # For AI
+
+    <!-- AI_META -->
+    ```yaml
+    purpose: Brief description of slice purpose
+    publicApi:
+      - List of public API endpoints or functions
+    dependencies:
+      - List of dependencies this slice uses
+    tests:
+      location: Path to test files
+      command: Command to run tests
+    ```
+
+# ENFORCEMENT RULES
+validation_checks:
+  - "Check for required sections — Both \"For Humans\" and \"For AI\" sections exist"
+  - "Verify AI metadata — `<!-- AI_META -->` comment with proper JSON/YAML block"
+  - "Validate metadata keys — Required keys: `purpose`, `publicApi`, `dependencies`, `tests`"
+  - "If structure missing/incorrect, prompt with minimal template"
+
+# MINIMAL TEMPLATE
+template_fix: |
+  # For Humans
+
+  ## Overview
+  [Describe what this slice does]
+
+  ## How to Run
+  [Step-by-step instructions to run this slice]
+
+  ## How to Test
+  [Instructions for testing this slice]
+
+  # For AI
+
+  <!-- AI_META -->
+  ```json
+  {
+    "purpose": "",
+    "publicApi": [],
+    "dependencies": [],
+    "tests": {
+      "location": "",
+      "command": ""
+    }
+  }
+  ```
+
+# DETECTED VIOLATIONS
+violation_types:
   missing_sections:
-    description: "Missing Sections"
-    violations:
-      - "Missing \"For Humans\" top-level header"
-      - "Missing \"For AI\" top-level header"
-      - "Extra or incorrectly named top-level sections"
+    - "Missing \"For Humans\" top-level header"
+    - "Missing \"For AI\" top-level header"
+    - "Extra or incorrectly named top-level sections"
 
   invalid_ai_metadata:
-    description: "Invalid AI Metadata"
-    violations:
-      - "Missing `<!-- AI_META -->` comment"
-      - "Missing JSON/YAML code block after AI_META comment"
-      - "Missing required metadata keys: `purpose`, `publicApi`, `dependencies`, `tests`"
-      - "Invalid JSON/YAML syntax in metadata block"
+    - "Missing `<!-- AI_META -->` comment"
+    - "Missing JSON/YAML code block after AI_META comment"
+    - "Missing required keys: `purpose`, `publicApi`, `dependencies`, `tests`"
+    - "Invalid JSON/YAML syntax in metadata block"
 
-  incorrect_section_order:
-    description: "Incorrect Section Order"
-    violations:
-      - "\"For AI\" section appearing before \"For Humans\" section"
+  incorrect_order:
+    - "\"For AI\" section appearing before \"For Humans\" section"
 
-# Error messages
-error_messages:
+# ERROR MESSAGES
+error_templates:
   missing_sections: "README.md must contain exactly two sections: '# For Humans' and '# For AI'"
   missing_ai_metadata: "AI section must include '<!-- AI_META -->' comment with JSON/YAML metadata block"
-  missing_metadata_keys: "AI metadata must include keys: purpose, publicApi, dependencies, tests"
+  missing_keys: "AI metadata must include keys: purpose, publicApi, dependencies, tests"
   invalid_format: "Use the minimal template to fix README.md structure"
 
-# Layer-specific considerations
-layer_specific_considerations:
+# LAYER-SPECIFIC FOCUS
+layer_considerations:
   features:
-    description: "Features (`app/features/*/README.md`)"
-    focus_areas:
-      - "Focus on product functionality and user value"
-      - "Document feature flags and configuration options"
-      - "Include integration points with other features"
+    focus:
+      - "Product functionality and user value"
+      - "Feature flags and configuration options"
+      - "Integration points with other features"
 
   pages:
-    description: "Pages (`app/pages/*/README.md`)"
-    focus_areas:
-      - "Document routing and URL parameters"
-      - "Include SEO considerations and meta tags"
-      - "Document page-level data loading patterns"
+    focus:
+      - "Routing and URL parameters"
+      - "SEO considerations and meta tags"
+      - "Page-level data loading patterns"
 
   widgets:
-    description: "Widgets (`app/widgets/*/README.md`)"
-    focus_areas:
-      - "Document widget composition and layout"
-      - "Include props and configuration options"
-      - "Document responsive behavior and breakpoints"
+    focus:
+      - "Widget composition and layout"
+      - "Props and configuration options"
+      - "Responsive behavior and breakpoints"
 
   entities:
-    description: "Entities (`app/entities/*/README.md`)"
-    focus_areas:
-      - "Document data models and business rules"
-      - "Include API schema and validation rules"
-      - "Document relationships with other entities"
+    focus:
+      - "Data models and business rules"
+      - "API schema and validation rules"
+      - "Relationships with other entities"
 
-# Integration with FSD
-integration_with_fsd:
-  description: "This rule works with Feature-Sliced Design architecture by:"
-  benefits:
-    - "Ensuring each slice in features, pages, widgets, and entities layers has proper documentation"
-    - "Supporting the baseline structure requirements across all FSD layers"
-    - "Providing clear boundaries between human and machine-readable content"
-    - "Facilitating slice understanding and integration across the entire application"
+# FSD INTEGRATION
+fsd_support:
+  - "Ensures each slice has proper documentation"
+  - "Supports baseline structure requirements across FSD layers"
+  - "Provides clear boundaries between human and machine-readable content"
+  - "Facilitates slice understanding and integration"
 
-# What patterns this rule flags as problematic
+# FLAGGED PATTERNS
 anti_patterns:
   - "Missing 'For Humans' section"
   - "Missing 'For AI' section"
@@ -204,10 +180,10 @@ anti_patterns:
   - "AI metadata without proper code block formatting"
   - "Incomplete metadata structure"
 
-# Correct approach according to this rule
-correct_pattern: |
+# CORRECT APPROACH
+correct_structure: |
   **Required README structure:**
-  ```markdown
+  
   # For Humans
   
   [Slice description in markdown]
@@ -236,10 +212,9 @@ correct_pattern: |
     }
   }
   ```
-  ```
 
   **Alternative YAML format:**
-  ```markdown
+  
   # For AI
   
   <!-- AI_META -->
@@ -253,10 +228,9 @@ correct_pattern: |
     location: Path to test files
     command: Command to run tests
   ```
-  ```
 
-# Patterns that trigger this rule
-flagged_patterns:
+# DETECTION PATTERNS
+flagged_regex:
   - "missing # For Humans header"
   - "missing # For AI header"
   - "missing <!-- AI_META --> comment"
@@ -265,8 +239,8 @@ flagged_patterns:
   - "incorrect section order"
   - "extra top-level sections"
 
-# Solutions this rule suggests
-suggested_solutions:
+# SUGGESTED SOLUTIONS
+solutions:
   - "Add both 'For Humans' and 'For AI' top-level sections"
   - "Include <!-- AI_META --> comment with JSON/YAML metadata block"
   - "Ensure all required keys: purpose, publicApi, dependencies, tests"
@@ -275,21 +249,10 @@ suggested_solutions:
   - "Correct section order: For Humans first, then For AI"
   - "Remove extra sections beyond the required two"
 
-# Cases where this rule doesn't apply
-exceptions:
+# EXCEPTIONS
+rule_exceptions:
   - "YAML format instead of JSON for metadata"
   - "Additional sections beyond required two"
   - "Extended metadata with layer-specific information"
   - "Legacy README files during migration"
   - "Third-party slice documentation with different standards"
-
-# Benefits of following this rule
-benefits:
-  - "**Human Documentation**: Clear instructions for developers"
-  - "**AI Integration**: Structured metadata for AI systems"
-  - "**Consistency**: Uniform documentation across all FSD layers"
-  - "**Discoverability**: Easy to locate testing and usage information"
-  - "**Maintainability**: Structured format makes updates easier"
-  - "**Machine Readability**: Standardized metadata for automated processing"
-  - "**Team Coordination**: Clear documentation standards for all team members"
-  - "**Quality Assurance**: Systematic documentation requirements" 

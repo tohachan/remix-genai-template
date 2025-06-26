@@ -1,6 +1,6 @@
-# === require-ts-strict.yaml ===
+# === require-ts-strict-optimized.yaml ===
 id: require-ts-strict
-description: "Ensures that TypeScript strict mode and related compiler options are properly configured in tsconfig.json to maintain code quality and type safety"
+description: "Ensures TypeScript strict mode is configured in tsconfig.json for type safety"
 globs:
   - "tsconfig.json"
   - "tsconfig.*.json"
@@ -9,111 +9,91 @@ always_apply: false
 # Required compiler options
 required_compiler_options:
   core_strict_mode:
-    description: "Core Strict Mode"
     option: "`\"strict\": true` — Enable all strict type checking options"
 
   individual_strict_options:
-    description: "Individual Strict Options (automatically enabled by strict: true)"
-    note: "When `\"strict\": true` is set, these options are automatically enabled, but they can be explicitly set for clarity or selectively disabled if needed:"
+    note: "Automatically enabled by strict: true, can be explicitly set:"
     options:
-      - "`\"noImplicitAny\": true` — Error on expressions with implied 'any' type"
-      - "`\"strictNullChecks\": true` — Enable strict null checks"
-      - "`\"strictFunctionTypes\": true` — Enable strict checking of function types"
-      - "`\"strictBindCallApply\": true` — Enable strict 'bind', 'call', and 'apply' methods"
-      - "`\"strictPropertyInitialization\": true` — Enable strict checking of property initialization"
-      - "`\"noImplicitReturns\": true` — Error when not all code paths return a value"
-      - "`\"noImplicitThis\": true` — Error on 'this' expressions with implied 'any' type"
+      - "`\"noImplicitAny\": true`"
+      - "`\"strictNullChecks\": true`"
+      - "`\"strictFunctionTypes\": true`"
+      - "`\"strictBindCallApply\": true`"
+      - "`\"strictPropertyInitialization\": true`"
+      - "`\"noImplicitReturns\": true`"
+      - "`\"noImplicitThis\": true`"
 
-  additional_recommended_options:
-    description: "Additional Recommended Options"
+  additional_recommended:
     options:
-      - "`\"noUncheckedIndexedAccess\": true` — Add undefined to index signature results"
-      - "`\"exactOptionalPropertyTypes\": true` — Interpret optional property types as written"
-      - "`\"noImplicitOverride\": true` — Ensure overriding members are marked with 'override'"
+      - "`\"noUncheckedIndexedAccess\": true`"
+      - "`\"exactOptionalPropertyTypes\": true`"
+      - "`\"noImplicitOverride\": true`"
 
 # Configuration examples
 configuration_examples:
-  minimal_required_configuration:
-    description: "**✅ Minimal Required Configuration:**"
-    example: |
-      {
-        "compilerOptions": {
-          "strict": true,
-          // ... other options
-        }
+  minimal_required: |
+    {
+      "compilerOptions": {
+        "strict": true
       }
+    }
 
-  explicit_configuration:
-    description: "**✅ Explicit Configuration:**"
-    example: |
-      {
-        "compilerOptions": {
-          "strict": true,
-          "noImplicitAny": true,
-          "strictNullChecks": true,
-          "strictFunctionTypes": true,
-          "strictBindCallApply": true,
-          "strictPropertyInitialization": true,
-          "noImplicitReturns": true,
-          "noImplicitThis": true,
-          "noUncheckedIndexedAccess": true,
-          "exactOptionalPropertyTypes": true,
-          "noImplicitOverride": true,
-          // ... other options
-        }
+  explicit_configuration: |
+    {
+      "compilerOptions": {
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUncheckedIndexedAccess": true,
+        "exactOptionalPropertyTypes": true,
+        "noImplicitOverride": true
       }
+    }
+
+  gradual_adoption: |
+    {
+      "compilerOptions": {
+        "strict": true,
+        // Temporarily disable during migration
+        "strictPropertyInitialization": false,
+        "noImplicitReturns": false
+      }
+    }
 
 # Enforcement rules
 enforcement_rules:
-  description: "TypeScript strict mode enforcement requirements:"
-  rules:
-    - "**Always verify** that `\"strict\": true` is present in `compilerOptions`"
-    - "**If strict mode is missing**, immediately prompt to update `tsconfig.json`"
-    - "**Check for conflicting settings** — ensure no strict options are explicitly set to `false` when `strict: true` is enabled"
-    - "**Validate inheritance** — if using extended configurations, ensure parent configs don't disable strict mode"
+  - "Always verify `\"strict\": true` is present in `compilerOptions`"
+  - "If missing, prompt to update `tsconfig.json`"
+  - "Check for conflicting settings (strict options set to false)"
+  - "Validate inheritance - ensure parent configs don't disable strict mode"
 
 # Error resolution
 error_resolution:
-  description: "If `tsconfig.json` is missing strict mode configuration:"
   steps:
-    - "**Add `\"strict\": true`** to the `compilerOptions` object"
-    - "**Review existing code** for type errors that may surface"
-    - "**Update code** to fix newly detected type issues"
-    - "**Consider gradual adoption** by temporarily setting specific strict options to false, then enabling them incrementally"
+    - "Add `\"strict\": true` to `compilerOptions`"
+    - "Review existing code for new type errors"
+    - "Update code to fix type issues"
+    - "Consider gradual adoption by temporarily disabling specific options"
 
-# Project-specific notes
-project_specific_notes:
-  description: "Project-Specific Notes"
-  notes:
-    - "This rule applies to all TypeScript configuration files (`tsconfig.json`, `tsconfig.*.json`)"
-    - "Strict mode helps catch potential runtime errors at compile time"
-    - "All new TypeScript code should be written with strict mode in mind"
-    - "Legacy code should be gradually updated to comply with strict mode requirements"
-
-# What patterns this rule flags as problematic
+# Anti-patterns
 anti_patterns:
   - "Missing strict: true in compilerOptions"
-  - "Strict options explicitly set to false when strict: true is enabled"
+  - "Strict options explicitly set to false when strict: true enabled"
   - "Missing recommended strict options"
-  - "TypeScript configuration without strict mode"
   - "Conflicting strict mode settings"
   - "Parent configurations disabling strict mode"
-  - "Legacy configurations without type safety"
 
-# Correct approach according to this rule
+# Correct pattern
 correct_pattern: |
-  **Required TypeScript configuration:**
+  **Required configuration:**
   ```json
   {
     "compilerOptions": {
       "strict": true,
-      "noImplicitAny": true,
-      "strictNullChecks": true,
-      "strictFunctionTypes": true,
-      "strictBindCallApply": true,
-      "strictPropertyInitialization": true,
-      "noImplicitReturns": true,
-      "noImplicitThis": true,
       "noUncheckedIndexedAccess": true,
       "exactOptionalPropertyTypes": true,
       "noImplicitOverride": true
@@ -121,36 +101,14 @@ correct_pattern: |
   }
   ```
 
-  **Minimal configuration:**
-  ```json
-  {
-    "compilerOptions": {
-      "strict": true
-    }
-  }
-  ```
-
-  **Gradual adoption approach:**
-  ```json
-  {
-    "compilerOptions": {
-      "strict": true,
-      // Temporarily disable specific options during migration
-      "strictPropertyInitialization": false,
-      "noImplicitReturns": false
-    }
-  }
-  ```
-
-# Patterns that trigger this rule
+# Flagged patterns
 flagged_patterns:
   - "missing \"strict\": true"
   - "strict options set to false"
   - "missing recommended strict options"
   - "conflicting strict mode settings"
-  - "parent config disabling strict mode"
 
-# Solutions this rule suggests
+# Solutions
 suggested_solutions:
   - "Add \"strict\": true to compilerOptions"
   - "Remove conflicting settings that disable strict options"
@@ -158,22 +116,10 @@ suggested_solutions:
   - "Review and fix newly detected type errors"
   - "Consider gradual adoption for legacy codebases"
   - "Update parent configurations to enable strict mode"
-  - "Implement proper TypeScript type annotations"
 
-# Cases where this rule doesn't apply
+# Exceptions
 exceptions:
   - "Gradual adoption by temporarily disabling specific strict options"
   - "Legacy code with planned migration to strict mode"
   - "Third-party configurations with different requirements"
   - "Test configurations with relaxed type checking"
-
-# Benefits of following this rule
-benefits:
-  - "**Type Safety**: Catch potential runtime errors at compile time"
-  - "**Code Quality**: Enforce higher standards for TypeScript code"
-  - "**Maintainability**: Prevent common type-related bugs"
-  - "**Developer Experience**: Better IDE support and error detection"
-  - "**Runtime Reliability**: Fewer type-related runtime errors"
-  - "**Team Standards**: Consistent type safety across the codebase"
-  - "**Refactoring Safety**: More confident code changes with strict typing"
-  - "**Documentation**: Types serve as living documentation" 

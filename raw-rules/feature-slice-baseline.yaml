@@ -1,123 +1,109 @@
 # === feature-slice-baseline.yaml ===
 id: feature-slice-baseline
-description: "Enforces that each feature slice under app/features/ contains the required baseline files and directories"
+description: "Enforces required baseline files and directories for each feature slice under app/features/"
 globs:
   - "app/features/**/*"
 always_apply: true
 
-# Required structure
-required_structure:
-  description: "Each feature slice directory `app/features/<feature>/` **must** contain:"
-  required_files:
-    api_file: "`api.ts` — Backend interactions and data fetching logic"
-    api_test: "`api.spec.ts` — Unit tests for API functions (next to api.ts)"
-    hooks_file: "`hooks.ts` — React hooks specific to this feature"
-    hooks_test: "`hooks.spec.ts` — Unit tests for hooks (next to hooks.ts)"
-    ui_directory: "`ui/` — UI components directory containing **reusable business components**"
-    main_component: "`ui/<ComponentName>.tsx` — Main business component (e.g., LoginForm, TaskCard, UserProfile)"
-    component_test: "`ui/<ComponentName>.spec.ts` — Unit tests for components"
-    readme: "`README.md` — Feature documentation"
+# REQUIRED STRUCTURE
+required_baseline_files:
+  description: "Each feature slice `app/features/<feature>/` MUST contain:"
+  files:
+    - "`api.ts` — Backend interactions and data fetching"
+    - "`api.spec.ts` — Unit tests for API functions"
+    - "`hooks.ts` — React hooks specific to feature"
+    - "`hooks.spec.ts` — Unit tests for hooks"
+    - "`ui/` — UI components directory"
+    - "`ui/<ComponentName>.tsx` — Main business component"
+    - "`ui/<ComponentName>.spec.ts` — Component tests"
+    - "`README.md` — Feature documentation"
 
-# What features should NOT contain
-features_should_not_contain:
-  description: "Features are **business logic**, not pages. Features should NOT contain:"
-  prohibited_items:
-    - "`ui/<feature>.page.tsx` — Page components belong in `app/pages/` layer"
-    - "Full page layouts or routing logic"
-    - "Application-level concerns"
+# FEATURE CONTENT RULES
+content_rules:
+  should_contain:
+    description: "Features should contain reusable business functionality:"
+    items:
+      - "Forms (LoginForm, TaskForm, UserProfileForm)"
+      - "Cards (TaskCard, UserCard, ProductCard)"
+      - "Modals (ConfirmationModal, EditModal)"
+      - "Business hooks (useAuth, useTaskManagement)"
+      - "API interactions (loginUser, createTask, updateProfile)"
 
-# What features should contain
-features_should_contain:
-  description: "Features should contain **reusable business functionality**:"
-  allowed_items:
-    - "Forms (LoginForm, TaskForm, UserProfileForm)"
-    - "Cards (TaskCard, UserCard, ProductCard)"
-    - "Modals (ConfirmationModal, EditModal)"
-    - "Business logic hooks (useAuth, useTaskManagement)"
-    - "API interactions (loginUser, createTask, updateProfile)"
+  should_not_contain:
+    description: "Features are business logic, NOT pages:"
+    prohibited:
+      - "`ui/<feature>.page.tsx` — Pages belong in app/pages/"
+      - "Full page layouts or routing logic"
+      - "Application-level concerns"
 
-# Enforcement rules
-enforcement_rules:
-  description: "When working in any feature slice directory (`app/features/<feature>/`):"
-  rules:
-    - "**Check for missing baseline files** before making changes"
-    - "**If any required files are missing**, immediately prompt:"
-    - "```"
-    - "Create missing file <path> with appropriate business component template."
-    - "```"
-    - "**Do not proceed** with feature development until baseline structure is complete"
+# ENFORCEMENT RULES
+enforcement:
+  process:
+    - "Check for missing baseline files before changes"
+    - "If files missing, immediately prompt to create them"
+    - "Do not proceed until baseline structure complete"
+  
+  missing_file_response:
+    template: "Create missing file <path> with appropriate business component template."
 
-# Examples
-examples:
-  correct_feature_structure_business_components:
-    description: "✅ Correct Feature Structure (Business Components):"
-    structure: |
-      app/features/user-authentication/
-      ├── api.ts                    # Authentication API calls
-      ├── api.spec.ts
-      ├── hooks.ts                  # useAuth, useLogin hooks
-      ├── hooks.spec.ts
-      ├── ui/
-      │   ├── LoginForm.tsx         # Reusable login form
-      │   ├── LoginForm.spec.tsx
-      │   ├── SignupForm.tsx        # Reusable signup form
-      │   └── SignupForm.spec.tsx
-      └── README.md
+# EXAMPLES
+correct_structures:
+  user_authentication: |
+    ✅ app/features/user-authentication/
+    ├── api.ts                    # Auth API calls
+    ├── api.spec.ts
+    ├── hooks.ts                  # useAuth, useLogin hooks
+    ├── hooks.spec.ts
+    ├── ui/
+    │   ├── LoginForm.tsx         # Reusable login form
+    │   ├── LoginForm.spec.tsx
+    │   ├── SignupForm.tsx        # Reusable signup form
+    │   └── SignupForm.spec.tsx
+    └── README.md
 
-  correct_feature_structure_task_management:
-    description: "✅ Correct Feature Structure (Task Management):"
-    structure: |
-      app/features/task-management/
-      ├── api.ts                    # Task CRUD operations
-      ├── api.spec.ts
-      ├── hooks.ts                  # useTaskManagement hooks
-      ├── hooks.spec.ts
-      ├── ui/
-      │   ├── TaskCard.tsx          # Reusable task display
-      │   ├── TaskCard.spec.tsx
-      │   ├── TaskForm.tsx          # Reusable task form
-      │   └── TaskForm.spec.tsx
-      └── README.md
+  task_management: |
+    ✅ app/features/task-management/
+    ├── api.ts                    # Task CRUD operations
+    ├── api.spec.ts
+    ├── hooks.ts                  # useTaskManagement hooks
+    ├── hooks.spec.ts
+    ├── ui/
+    │   ├── TaskCard.tsx          # Reusable task display
+    │   ├── TaskCard.spec.tsx
+    │   ├── TaskForm.tsx          # Reusable task form
+    │   └── TaskForm.spec.tsx
+    └── README.md
 
-  incorrect_feature_structure_page_components:
-    description: "❌ Incorrect Feature Structure (Page Components):"
-    structure: |
-      app/features/dashboard/
-      ├── ui/
-      │   └── dashboard.page.tsx    # ❌ Pages belong in app/pages/
+incorrect_example:
+  page_in_feature: |
+    ❌ app/features/dashboard/
+    ├── ui/
+    │   └── dashboard.page.tsx    # Pages belong in app/pages/
 
-# Feature name matching
-feature_name_matching:
-  description: "Feature Name Matching Rules:"
-  rules:
-    - "Component names should reflect **business purpose**, not page names"
-    - "For feature directory `app/features/user-management/`, components should be:"
+# NAMING RULES
+naming_conventions:
+  principle: "Component names should reflect business purpose, not page names"
   examples:
-    user_form: "`ui/UserForm.tsx` (not `ui/user-management.page.tsx`)"
-    user_card: "`ui/UserCard.tsx`"
-    user_list: "`ui/UserList.tsx`"
+    user_management_feature:
+      correct: ["`ui/UserForm.tsx`", "`ui/UserCard.tsx`", "`ui/UserList.tsx`"]
+      incorrect: "`ui/user-management.page.tsx`"
 
-# Integration with FSD
-integration_with_fsd:
-  description: "This rule works in conjunction with Feature-Sliced Design principles:"
-  principles:
-    - "Each feature represents a **reusable business capability**"
-    - "Features are **imported by pages and widgets** for composition"
-    - "Features focus on **business logic**, not presentation layout"
-    - "Page composition happens in the **pages layer**"
+# FSD INTEGRATION
+fsd_principles:
+  - "Each feature = reusable business capability"
+  - "Features imported by pages and widgets for composition"
+  - "Features focus on business logic, not presentation layout"
+  - "Page composition happens in pages layer"
 
-# Correct architecture flow
-correct_architecture_flow:
-  description: "Correct Architecture Flow:"
-  flow: |
-    app/pages/dashboard/ui/index.tsx     ← Composes widgets and features
-        ↓ imports
-    app/widgets/user-dashboard/          ← Composes multiple features  
-        ↓ imports
-    app/features/user-management/        ← Provides UserCard, UserForm
-    app/features/task-management/        ← Provides TaskCard, TaskList
+architecture_flow: |
+  app/pages/dashboard/ui/index.tsx     ← Composes widgets and features
+      ↓ imports
+  app/widgets/user-dashboard/          ← Composes multiple features  
+      ↓ imports
+  app/features/user-management/        ← Provides UserCard, UserForm
+  app/features/task-management/        ← Provides TaskCard, TaskList
 
-# What patterns this rule flags as problematic
+# FLAGGED PATTERNS
 anti_patterns:
   - "Feature slices missing required baseline files"
   - "Feature directories without api.ts file"
@@ -125,78 +111,58 @@ anti_patterns:
   - "Missing test files for API functions"
   - "Missing test files for hooks"
   - "Feature directories without ui/ directory"
-  - "Missing main page component in ui/ directory"
-  - "Missing integration tests for page components"
-  - "Feature directories without README.md documentation"
+  - "Missing main component in ui/ directory"
+  - "Feature directories without README.md"
   - "Incomplete feature slice structure"
 
-# Correct approach according to this rule
-correct_pattern: |
+# CORRECT PATTERN TEMPLATE
+baseline_template: |
   **Complete Feature Slice Structure:**
-  ```
   app/features/<feature-name>/
   ├── api.ts                    # Backend interactions
   ├── api.spec.ts              # API unit tests
   ├── hooks.ts                 # React hooks
   ├── hooks.spec.ts            # Hooks unit tests
   ├── ui/                      # UI components directory
-  │   ├── <feature-name>.page.tsx    # Main page component
-  │   ├── <feature-name>.page.spec.ts # Page integration tests
-  │   └── [other-components].tsx      # Additional UI components
+  │   ├── <ComponentName>.tsx  # Main business component
+  │   ├── <ComponentName>.spec.ts # Component tests
+  │   └── [other-components].tsx   # Additional components
   └── README.md                # Feature documentation
-  ```
 
-  **File Naming Convention:**
-  - Page component: `ui/<feature-name>.page.tsx`
-  - Page tests: `ui/<feature-name>.page.spec.ts`
-  - API tests: `api.spec.ts`
-  - Hooks tests: `hooks.spec.ts`
+  **File Content Requirements:**
+  - api.ts: Backend interactions and data fetching
+  - hooks.ts: React hooks specific to feature
+  - ui/<Component>.tsx: Main business component
+  - README.md: Feature documentation and API info
 
-  **Required Content:**
-  - `api.ts`: Backend interactions and data fetching logic
-  - `hooks.ts`: React hooks specific to this feature
-  - `ui/<feature>.page.tsx`: Main page component matching directory name
-  - `README.md`: Feature documentation and API information
-
-# Patterns that trigger this rule
-flagged_patterns:
+# DETECTION PATTERNS
+flagged_file_patterns:
   - "Feature directories in app/features/ missing api.ts"
   - "Feature directories in app/features/ missing hooks.ts"
   - "Feature directories in app/features/ missing ui/ directory"
   - "Feature directories in app/features/ missing README.md"
   - "Missing .spec.ts files for api.ts"
   - "Missing .spec.ts files for hooks.ts"
-  - "Missing .page.tsx file in ui/ directory"
-  - "Missing .page.spec.ts file for page component"
+  - "Missing main component in ui/ directory"
+  - "Missing component tests in ui/ directory"
   - "Incomplete baseline structure in feature slices"
 
-# Solutions this rule suggests
-suggested_solutions:
-  - "Create missing api.ts file with backend interaction template"
-  - "Create missing hooks.ts file with React hooks template"
+# SUGGESTED SOLUTIONS
+solutions:
+  - "Create missing api.ts with backend interaction template"
+  - "Create missing hooks.ts with React hooks template"
   - "Create missing ui/ directory for components"
   - "Create missing README.md with feature documentation template"
   - "Add api.spec.ts with unit tests for API functions"
   - "Add hooks.spec.ts with unit tests for hooks"
-  - "Add <feature>.page.tsx as main page component"
-  - "Add <feature>.page.spec.ts with integration tests"
+  - "Add main business component in ui/ directory"
+  - "Add component tests for ui/ components"
   - "Use templates from scripts/templates/feature_README.md"
 
-# Cases where this rule doesn't apply
-exceptions:
-  - "Feature slices that are work-in-progress (temporary)"
+# EXCEPTIONS
+rule_exceptions:
+  - "Work-in-progress features (temporary)"
   - "Legacy features during migration (temporary)"
-  - "Features that don't require all baseline files (rare cases)"
+  - "Features not requiring all baseline files (rare)"
   - "Experimental features in development (temporary)"
   - "Third-party feature integrations with different structure"
-
-# Benefits of following this rule
-benefits:
-  - "**Consistency**: All features follow identical baseline structure"
-  - "**Completeness**: Ensures features have all necessary components"
-  - "**Documentation**: Every feature has README documentation"
-  - "**Testing**: Enforces test coverage for API and hooks"
-  - "**Maintainability**: Predictable structure across features"
-  - "**Team Onboarding**: New developers know exactly what to expect"
-  - "**Quality Assurance**: Prevents incomplete feature implementations"
-  - "**FSD Compliance**: Supports Feature-Sliced Design methodology" 

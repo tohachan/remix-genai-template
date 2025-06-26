@@ -1,15 +1,14 @@
 # === enforce-plop-generator.yaml ===
 id: enforce-plop-generator
-description: "Mandates the use of CLI component generator with full arguments for creating all new React components to ensure consistency, proper structure, and adherence to FSD architecture"
+description: "Mandates CLI component generator usage with full arguments for React components to ensure FSD architecture consistency"
 globs:
   - "**/ui/**/*.tsx"
   - "**/ui/**/*.ts"
 always_apply: true
 
-# Mandatory stop points - critical workflow checks (integrates with critical-workflow-checks)
+# 🚨 MANDATORY STOP POINTS
 mandatory_stop_points:
   auto_detection_patterns:
-    description: "These patterns trigger mandatory validation workflow"
     manual_creation_indicators:
       - "export default function ComponentName()"
       - "Files created in **/ui/**/*.tsx without generator"
@@ -17,369 +16,154 @@ mandatory_stop_points:
       - "Incorrect index.ts export structure"
     
     violation_handling:
-      description: "When manual creation detected, use critical-workflow-checks validation format"
-      process:
-        - "STOP immediately"
-        - "Use critical-workflow-checks -> mandatory_pre_execution_validation -> required_conflict_response_format"
-        - "Show generator alternatives"
-        - "Wait for user acknowledgment"
+      - "STOP immediately"
+      - "Use critical-workflow-checks validation format"
+      - "Show generator alternatives"
+      - "Wait for user acknowledgment"
 
-  before_creating_any_file:
-    planning_phase_check:
-      - "**Created execution plan** with step-by-step breakdown?"
-      - "**Identified all file types** that will be created?"
-      - "**Checked for available generators** for each file type?"
-      - "**Listed generator commands** in the execution plan?"
+  pre_creation_checks:
+    - "Checked if CLI generator exists for this file type?"
+    - "Attempted generator first before manual creation?"
+    - "Documented why manual creation necessary (if unavailable)?"
 
-    file_creation_check_most_critical:
-      - "**Checked if CLI generator exists** for this file type?"
-      - "**Attempted to use generator first** before manual creation?"
-      - "**Documented why manual creation** is necessary (if generator unavailable)?"
-
-    component_creation_check:
-      - "**STOP immediately** - this should be generated"
-      - "**Run generator command** with full arguments"
-      - "**Verify generator created** all expected files"
-      - "**Only then customize** the generated content"
-
-# Critical error prevention
-critical_error_prevention:
-  red_flag_patterns_stop_immediately:
-    - "Starting to write JSX component syntax manually"
-    - "Creating files in `ui/` directories by hand"
-    - "Writing test files without using generators"
-    - "Creating README.md files in features manually"
-    - "Writing `export default function ComponentName()` from scratch"
-
-  recovery_actions:
-    - "**PAUSE current work**"
-    - "**DELETE manually created files**"
-    - "**RUN appropriate generator**"
-    - "**CONTINUE with customization**"
-
-  mistake_recovery_protocol:
-    immediate_actions:
-      - "**ACKNOWLEDGE the mistake** publicly"
-      - "**STOP current development**"
-      - "**DELETE manually created files**"
-      - "**RUN appropriate generators**"
-      - "**MIGRATE content** to generated files"
-      - "**CONTINUE with development**"
-
-  post_generation_validation_requirement:
-    - "**File structure** matches expected FSD patterns"
-    - "**Import/export** statements are correct"
-    - "**TypeScript** compilation has no errors"
-    - "**API contracts** are properly defined (for API files)"
-    - "**Tests** are properly scaffolded"
-
-# Workflow integration
-workflow_integration:
-  pre_task_checklist: |
-    Before starting task execution:
-    1. ✅ Read all relevant README files
-    2. ✅ Create step-by-step execution plan  
-    3. ✅ Identify generator needs for each step
-    4. ✅ Verify available CLI commands
-    5. ✅ Plan final validation step with linting
-    6. ✅ ONLY THEN begin implementation
-
-  step_execution_pattern: |
-    For each step involving file creation:
-    1. ✅ Check: Is there a generator for this?
-    2. ✅ Use: Run generator with full arguments
-    3. ✅ Verify: All expected files were created
-    4. ✅ Customize: Modify generated content as needed
-
-  final_validation_pattern: |
-    After completing all implementation steps:
-    1. ✅ Run linter with auto-fix: npm run lint:fix
-    2. ✅ Run TypeScript type checking: npm run type-check
-    3. ✅ Fix any type errors immediately
-    4. ✅ Run tests: npm run test
-    5. ✅ Verify all functionality works
-    6. ✅ ONLY THEN report completion
-
-  generator_check_requirements:
-    before_any_file_creation_step:
-      component_tsx_file: "Use `npm run generate:component`"
-      feature_complete_bundle: "Use `npm run generate:feature` for complete business features"
-      readme_md_in_feature: "Use `npm run generate:readme`"
-      test_file: "Use `npm run generate:test` for utility test files"
-      other_file_type: "Check available generators first"
-
-    generator_first_step_pattern: |
-      Step X: Create ComponentName component
-        X.1: Check CLI generator: npm run generate:component --help
-        X.2: Run generator: npm run generate:component -- ComponentName --layer features --slice auth --includeTests true --includeStorybook false
-        X.3: Customize generated content as needed
-
-# Required generator usage
-required_generator_usage:
-  mandatory_generator_command: |
-    All new components **must** be created using the component generator in CLI mode with full arguments:
-
-    # CLI mode with FULL arguments (REQUIRED approach)
-    npm run generate:component -- ComponentName --layer <layer> --includeTests <true|false> --includeStorybook <true|false>
-
-  examples_with_full_arguments:
-    shared_button: "npm run generate:component -- Button --layer shared --includeTests true --includeStorybook false"
-    feature_login: "npm run generate:component -- LoginForm --layer features --slice auth --includeTests true --includeStorybook false"
-    widget_user_card: "npm run generate:component -- UserCard --layer widgets --slice profile --includeStorybook true --includeTests true"
-    complete_feature: "npm run generate:feature -- user-authentication --template with-api --layer features --includeTests true --includeStorybook false"
-
-  help_command: "npm run generate:component -- --help"
-
-  strict_prohibitions:
-    - "❌ Manual component creation is STRICTLY PROHIBITED - Never create component files manually"
-    - "❌ Interactive mode is FORBIDDEN - Always use CLI mode with full arguments to avoid prompts"
-    - "❌ Partial arguments are FORBIDDEN - Always specify ALL arguments including defaults"
-
-  immediate_actions_when_manual_creation_detected:
-    - "**STOP work immediately**"
-    - "**DELETE manually created files**"
-    - "**Run CLI generator with full arguments**"
-    - "**ONLY THEN continue with customization**"
-
-# Enforcement scope
-enforcement_scope:
-  applies_to:
-    - "`**/ui/**/*.tsx` - React component files"
-    - "`**/ui/**/*.ts` - TypeScript utility files in UI segments"
-    - "All FSD layers: `shared`, `entities`, `features`, `widgets`, `pages`"
-
-  special_note_pages_layer:
-    - "Page components should use `ui/index.tsx` pattern (not `ui/[page].page.tsx`)"
-    - "Generator creates proper structure following existing project patterns"
-
-# Required generator-created structure
-required_generator_created_structure:
-  component_files: |
-    [layer]/[slice?]/ui/
-    ├── ComponentName.tsx        # Main component (generated)
-    ├── ComponentName.spec.tsx   # Tests (generated)
-    └── ComponentName.stories.tsx # Storybook (optional, generated)
-
-  index_files: |
-    [layer]/[slice?]/
-    └── index.ts                 # Exports (auto-updated by generator)
-
-# Error messages and actions
-error_messages_and_actions:
-  manual_creation_detected: |
-    ❌ Manual component creation detected: [file-path]
-    ✅ Use generator instead: npm run generate:component -- ComponentName --layer <layer> --slice <slice> --includeTests true --includeStorybook false
-    Delete manually created files and regenerate using the proper CLI command with full arguments.
-
-  test_files_missing: |
-    ❌ Component created without tests: [component-path]
-    ✅ Regenerate with tests: npm run generate:component -- ComponentName --layer <layer> --slice <slice> --includeTests true --includeStorybook false
-    Always use CLI mode with full arguments.
-
-  index_exports_incorrect: |
-    ❌ Incorrect index.ts structure detected
-    ✅ Use generator to create proper exports: npm run generate:component -- ComponentName --layer <layer> --slice <slice> --includeTests true --includeStorybook false
-    Generator automatically updates index.ts with correct patterns when using CLI mode with full arguments.
-
-# Generator command reference
-generator_command_reference:
-  cli_generation_required_approach: |
-    # CLI mode with FULL arguments - prevents any interactive prompts
-    npm run generate:component -- ComponentName --layer <layer> --includeTests <true|false> --includeStorybook <true|false>
-
-    # Always specify ALL arguments including defaults
-    npm run generate:component -- ComponentName --layer shared --includeTests true --includeStorybook false
-
-  required_command_line_arguments:
-    layer: "`--layer <layer>` - FSD layer (shared, entities, features, widgets, pages) **[REQUIRED]**"
-    slice: "`--slice <slice>` - Slice name (required for entities, features, widgets, pages) **[REQUIRED for non-shared layers]**"
-    include_tests: "`--includeTests <true|false>` - Generate test file **[REQUIRED - specify even if default]**"
-    include_storybook: "`--includeStorybook <true|false>` - Generate Storybook story **[REQUIRED - specify even if default]**"
-    help: "`--help, -h` - Show help with examples"
-
-  important_note: "ALL arguments must be specified to prevent interactive prompts"
-
-  example_generator_sessions:
-    cli_mode_full_arguments: |
-      $ npm run generate:component -- LoginButton --layer features --slice auth --includeTests true --includeStorybook false
-      🚀 FSD Component Generator
-
-      ✅ Created component: app/features/auth/ui/LoginButton.tsx
-      ✅ Created test: app/features/auth/ui/LoginButton.spec.tsx
-      ✅ Updated index: app/features/auth/index.ts
-
-    additional_cli_examples:
-      shared_component: "npm run generate:component -- Button --layer shared --includeTests true --includeStorybook false"
-      widget_with_storybook: "npm run generate:component -- UserCard --layer widgets --slice profile --includeStorybook true --includeTests true"
-      entity_component: "npm run generate:component -- ProductCard --layer entities --slice products --includeTests true --includeStorybook false"
-
-# Integration with project rules
-integration_with_project_rules:
-  fsd_architecture_rules:
-    - "`enforce-project-structure.mdc` - Proper layer organization"
-    - "`feature-slice-baseline.mdc` - Required slice structure"
-    - "`enforce-layer-boundaries.mdc` - Import restrictions"
-
-  code_quality_rules:
-    - "`limit-component-responsibility.mdc` - Component size limits"
-    - "`require-pure-function-tests.mdc` - Testing requirements"
-    - "`enforce-design-tokens.mdc` - Styling standards"
-
-  development_workflow:
-    - "`auto-generate-readme.mdc` - Documentation updates"
-    - "Generated components trigger README updates for feature slices"
-
-# Generator philosophy and scope
-generator_philosophy_and_scope:
-  what_generator_does_create:
-    - "✅ **File Structure**: Proper FSD-compliant directory and file organization"
-    - "✅ **Naming Consistency**: Correct file names, imports, and exports"
-    - "✅ **Type Safety**: TypeScript interfaces and proper type definitions"
-    - "✅ **Test Scaffolding**: Test files with correct imports and basic structure"
-    - "✅ **Integration Points**: Proper index.ts exports and feature baseline files"
-
-  what_generator_does_not_create:
-    - "❌ **Business Logic**: Specific functionality implementation"
-    - "❌ **API Implementation**: Actual RTK Query endpoints or data fetching"
-    - "❌ **Component Logic**: Props interfaces, state management, or event handlers"
-    - "❌ **Test Implementation**: Specific test cases or component behavior testing"
-
-  expected_workflow:
-    - "**Generator Creates Foundation** → Consistent structure and naming"
-    - "**Developer Implements Logic** → Business requirements and functionality"
-    - "**Custom Code on Scaffolding** → Real implementation over generated templates"
-
-  generator_role: "The generator's role is to ensure **structural consistency** and **eliminate setup errors**, not to replace thoughtful software design and implementation"
-
-# Specific generator triggers
-specific_generator_triggers:
-  always_use_generators_for:
-    react_components: "**React Components** (.tsx files) → `npm run generate:component`"
-    complete_features: "**Complete business features** (when creating multiple files for a feature) → `npm run generate:feature`"
-    feature_readme: "**Feature README** files → `npm run generate:readme`"
-    test_files: "**Test files** for utilities → `npm run generate:test`"
-    storybook_stories: "**Storybook stories** → Component generator with `--includeStorybook true`"
-
-  manual_creation_only_when:
-    - "No generator exists for the file type"
-    - "Generator is broken or unavailable"
-    - "Explicitly documented why manual creation is necessary"
-
-# Continuous improvement
-continuous_improvement:
-  regular_self_assessment:
-    - "Am I consistently using generators?"
-    - "Am I creating proper execution plans?"
-    - "Am I checking for available tools before manual work?"
-    - "Am I running final validation before reporting completion?"
-    - "Are there gaps in my workflow that lead to mistakes?"
-
-  rule_evolution:
-    - "Update this rule based on recurring mistakes"
-    - "Add new checkpoints as needed"
-    - "Strengthen enforcement mechanisms"
-    - "Improve clarity of instructions"
-
-  linter_integration_requirements:
-    - "**API files** must pass `fsd/enforce-api-contracts` rule"
-    - "**Component files** must pass design token and layer boundary rules"
-    - "**All files** must have no TypeScript compilation errors"
-    - "**Test files** must be properly generated and structured"
-
-# Success metrics
-success_metrics:
-  following_rule_correctly_when:
-    - "✅ All components are created via CLI generators"
-    - "✅ Execution plans include generator usage"
-    - "✅ Manual file creation is rare and justified"
-    - "✅ Workflow mistakes are caught early and corrected"
-    - "✅ Development speed improves due to consistent patterns"
-
-  rule_purpose: "This rule serves as a safety net to ensure consistent, high-quality development practices and prevent workflow mistakes that compromise project standards"
-
-# What patterns this rule flags as problematic
-anti_patterns:
-  - "Manual creation of React component files"
-  - "Creating files in ui/ directories by hand"
-  - "Writing export default function ComponentName() from scratch"
-  - "Creating test files without using generators"
+# 🚨 ERROR PREVENTION
+critical_patterns_stop_immediately:
+  - "Starting to write JSX component syntax manually"
+  - "Creating files in `ui/` directories by hand"
+  - "Writing test files without generators"
   - "Creating README.md files in features manually"
-  - "Using interactive mode instead of CLI mode with full arguments"
-  - "Specifying partial arguments instead of all required arguments"
-  - "Proceeding with manual creation without checking for generators"
-  - "Skipping post-generation validation"
-  - "Not following the generator-first step pattern"
+  - "Writing `export default function ComponentName()` from scratch"
 
-# Correct approach according to this rule
+recovery_protocol:
+  - "PAUSE current work"
+  - "DELETE manually created files"
+  - "RUN appropriate generator"
+  - "CONTINUE with customization"
+
+mistake_recovery:
+  - "ACKNOWLEDGE mistake publicly"
+  - "STOP current development"
+  - "DELETE manually created files"
+  - "RUN appropriate generators"
+  - "MIGRATE content to generated files"
+  - "CONTINUE development"
+
+# WORKFLOW INTEGRATION
+pre_task_checklist: |
+  Before task execution:
+  1. ✅ Read relevant README files
+  2. ✅ Create step-by-step execution plan  
+  3. ✅ Identify generator needs for each step
+  4. ✅ Verify available CLI commands
+  5. ✅ Plan final validation with linting
+  6. ✅ Begin implementation
+
+step_execution_pattern: |
+  For each file creation step:
+  1. ✅ Check: Generator available?
+  2. ✅ Use: Run generator with full arguments
+  3. ✅ Verify: All expected files created
+  4. ✅ Customize: Modify generated content
+
+final_validation: |
+  After implementation:
+  1. ✅ npm run lint:fix
+  2. ✅ npm run type-check
+  3. ✅ Fix type errors immediately
+  4. ✅ npm run test
+  5. ✅ Verify functionality
+
+# GENERATOR COMMANDS
+available_generators:
+  component: "npm run generate:component -- ComponentName --layer [features|widgets|entities|shared] --slice sliceName --includeTests true --includeStorybook false"
+  feature: "npm run generate:feature -- feature-name"
+  readme: "npm run generate:readme slice-name"
+  test: "npm run generate:test -- utility-name"
+
+command_examples:
+  shared_component: "npm run generate:component -- Button --layer shared --includeTests true --includeStorybook false"
+  feature_component: "npm run generate:component -- LoginButton --layer features --slice auth --includeTests true --includeStorybook false"
+  widget_with_storybook: "npm run generate:component -- UserCard --layer widgets --slice profile --includeStorybook true --includeTests true"
+
+# GENERATOR SCOPE
+what_generator_creates:
+  - "✅ File Structure: FSD-compliant organization"
+  - "✅ Naming Consistency: Correct names, imports, exports"
+  - "✅ Type Safety: TypeScript interfaces"
+  - "✅ Test Scaffolding: Test files with structure"
+  - "✅ Integration Points: index.ts exports"
+
+what_generator_does_not_create:
+  - "❌ Business Logic: Specific functionality"
+  - "❌ API Implementation: RTK Query endpoints"
+  - "❌ Component Logic: Props, state, handlers"
+  - "❌ Test Implementation: Specific test cases"
+
+expected_workflow:
+  - "Generator Creates Foundation → Structure & naming"
+  - "Developer Implements Logic → Business requirements"
+  - "Custom Code on Scaffolding → Real implementation"
+
+# SPECIFIC TRIGGERS
+always_use_generators_for:
+  - "React Components (.tsx) → `npm run generate:component`"
+  - "Complete features → `npm run generate:feature`"
+  - "Feature README → `npm run generate:readme`"
+  - "Test files → `npm run generate:test`"
+  - "Storybook stories → Component generator with `--includeStorybook true`"
+
+manual_creation_only_when:
+  - "No generator exists for file type"
+  - "Generator broken/unavailable"
+  - "Explicitly documented why manual creation necessary"
+
+# VALIDATION REQUIREMENTS
+post_generation_validation:
+  - "File structure matches FSD patterns"
+  - "Import/export statements correct"
+  - "TypeScript compilation no errors"
+  - "API contracts properly defined"
+  - "Tests properly scaffolded"
+
+linter_integration:
+  - "API files pass `fsd/enforce-api-contracts`"
+  - "Components pass design token rules"
+  - "All files have no TS errors"
+  - "Test files properly structured"
+
+# FLAGGED PATTERNS
+anti_patterns:
+  - "Manual React component creation"
+  - "Creating ui/ files by hand"
+  - "export default function from scratch"
+  - "Test files without generators"
+  - "Feature README manual creation"
+  - "Interactive mode usage"
+  - "Partial CLI arguments"
+  - "No generator check before creation"
+  - "Skipped post-generation validation"
+
+# CORRECT APPROACH
 correct_pattern: |
-  **Generator-First Approach:**
-  Always check for CLI generators before creating any files:
-  ```bash
-  # For React components
-  npm run generate:component -- ComponentName --layer features --slice auth --includeTests true --includeStorybook false
-
-  # For feature README files
-  npm run generate:readme slice-name
-
-  # Always use full arguments to prevent interactive prompts
-  ```
-
-  **Workflow Pattern:**
-  1. Create execution plan with generator checks
-  2. Use CLI generators with full arguments
+  Generator-First Approach:
+  1. Check for CLI generators before creating files
+  2. Use full arguments to prevent interactive prompts
   3. Verify generated files match FSD patterns
   4. Customize generated content as needed
   5. Run validation (lint, type-check, test)
 
-  **Recovery Pattern:**
-  If manual creation detected:
-  1. STOP immediately
+  Recovery Pattern:
+  1. STOP immediately if manual creation detected
   2. DELETE manually created files
   3. RUN appropriate generator
   4. CONTINUE with customization
 
-# Patterns that trigger this rule
-flagged_patterns:
-  - "export default function ComponentName()"
-  - "Files created in **/ui/**/*.tsx without generator"
-  - "Missing test files for components"
-  - "Incorrect index.ts export structure"
-  - "Interactive prompts during component generation"
-  - "Partial CLI arguments used"
-  - "Manual file creation without generator check"
-  - "Skipped validation after generation"
-
-# Solutions this rule suggests
-suggested_solutions:
-  - "Always use CLI generators with full arguments for component creation"
-  - "Check for available generators before any file creation"
-  - "Include generator usage in execution plans"
-  - "Use --includeTests true for all components"
-  - "Specify all CLI arguments to prevent interactive prompts"
-  - "Validate generated files match FSD patterns"
-  - "Run complete validation workflow after generation"
-  - "Delete and regenerate if manual creation detected"
-  - "Document why manual creation is necessary if no generator exists"
-
-# Cases where this rule doesn't apply
-exceptions:
-  - "File types not supported by existing generators"
-  - "Generator is broken or unavailable"
+# EXCEPTIONS
+rule_does_not_apply_to:
+  - "File types not supported by generators"
+  - "Broken/unavailable generators"
   - "Legacy code that cannot be regenerated"
-  - "Emergency fixes where generator use is impractical"
-  - "Non-component TypeScript files outside ui/ directories"
+  - "Emergency fixes where generator impractical"
+  - "Non-component TS files outside ui/"
   - "Configuration files and constants"
-  - "Third-party library integrations that require specific patterns"
-
-# Benefits of following this rule
-benefits:
-  - "**Consistency**: All components follow identical patterns through CLI generation"
-  - "**Quality**: Built-in testing and TypeScript compliance with full argument specification"
-  - "**Speed**: Faster development with automated boilerplate via CLI commands"
-  - "**Maintainability**: Standardized structure across the codebase"
-  - "**Architecture**: Automatic FSD compliance through CLI generator"
-  - "**Documentation**: Integrated Storybook support when specified in CLI arguments"
-  - "**Testing**: Complete test coverage from creation with --includeTests true"
-  - "**Predictability**: No interactive prompts when using full CLI arguments"
-  - "**Error Prevention**: Eliminates setup errors and structural inconsistencies"
-  - "**Workflow Safety**: Serves as safety net to prevent workflow mistakes" 
+  - "Third-party library integrations"

@@ -1,21 +1,18 @@
-# === require-di-pattern.yaml ===
+# === require-di-pattern-optimized.yaml ===
 id: require-di-pattern
-description: "Enforces proper dependency injection patterns in React components by flagging direct imports of service singletons and triggering mandatory architectural validation"
+description: "Enforces dependency injection patterns in React components by flagging direct service imports"
 globs:
   - "**/*.tsx"
   - "**/*.jsx"
 always_apply: false
 
-# Detection patterns (integrates with critical-workflow-checks)
+# Detection patterns
 detection_patterns:
-  description: "This rule detects DI violations and triggers critical-workflow-checks validation"
-  
-  trigger_validation: "When DI violations found, use critical-workflow-checks -> mandatory_pre_execution_validation"
-  
+  description: "Detects DI violations and triggers critical-workflow-checks validation"
+  trigger_validation: "Use critical-workflow-checks -> mandatory_pre_execution_validation"
   violation_response_reference: "Use required_conflict_response_format from critical-workflow-checks.yaml"
   
   service_import_patterns:
-    description: "Service Import Patterns (triggers architectural validation)"
     patterns_that_trigger_validation:
       - "import.*Service.*from.*"
       - "import.*Client.*from.*"
@@ -31,307 +28,170 @@ detection_patterns:
       - "/\\.create\\(/m"
 
   flagged_import_examples:
-    description: "Flagged Import Examples"
-    examples:
-      - "`import apiClient from 'shared/services/apiClient'`"
-      - "`import { authService } from 'shared/services/auth'`"
-      - "`import { userStore } from 'features/user'`"
-      - "`import httpClient from 'shared/api/httpClient'`"
-      - "`import notificationService from 'services/notifications'`"
-      - "`axios.create()` calls in component files"
+    - "`import apiClient from 'shared/services/apiClient'`"
+    - "`import { authService } from 'shared/services/auth'`"
+    - "`import { userStore } from 'features/user'`"
+    - "`import httpClient from 'shared/api/httpClient'`"
+    - "`axios.create()` calls in component files"
 
 # Error messages
 error_messages:
-  description: "When violations are detected, provide specific guidance:"
-  
-  service_imports:
-    description: "**For Service Imports:**"
-    message: |
-      ❌ Avoid importing service instances directly: import {serviceName}
-      ✅ Use the corresponding hook instead: const service = use{ServiceName}()
+  service_imports: |
+    ❌ Avoid importing service instances directly: import {serviceName}
+    ✅ Use the corresponding hook instead: const service = use{ServiceName}()
 
-  api_client_imports:
-    description: "**For API Client Imports:**"
-    message: |
-      ❌ Avoid importing API clients directly: import {clientName}
-      ✅ Use dependency injection: const client = useApiClient() or inject via context/props
+  api_client_imports: |
+    ❌ Avoid importing API clients directly: import {clientName}
+    ✅ Use dependency injection: const client = useApiClient() or inject via context/props
 
-  store_imports:
-    description: "**For Store Imports:**"
-    message: |
-      ❌ Avoid importing store instances directly: import {storeName}
-      ✅ Use React context or custom hooks: const store = use{StoreName}()
+  store_imports: |
+    ❌ Avoid importing store instances directly: import {storeName}
+    ✅ Use React context or custom hooks: const store = use{StoreName}()
 
 # Code examples
 code_examples:
-  bad_direct_service_imports:
-    description: "❌ Bad: Direct Service Imports"
-    example: |
-      // ❌ BAD - Direct service imports
-      import { authService } from 'shared/services/authService';
-      import apiClient from 'shared/services/apiClient';
-      import { userStore } from 'features/user';
-      import axios from 'axios';
+  bad_direct_service_imports: |
+    // ❌ BAD - Direct service imports
+    import { authService } from 'shared/services/authService';
+    import apiClient from 'shared/services/apiClient';
+    import { userStore } from 'features/user';
 
-      function UserProfile() {
-        const [user, setUser] = useState(null);
-        
-        useEffect(() => {
-          // Direct service usage - tightly coupled
-          authService.getCurrentUser().then(setUser);
-        }, []);
-        
-        const handleUpdate = async (data) => {
-          // Direct API client usage
-          await apiClient.patch('/user', data);
-          userStore.updateUser(data);
-        };
-        
-        return <div>{user?.name}</div>;
-      }
-
-  good_dependency_injection:
-    description: "✅ Good: Dependency Injection"
-    example: |
-      // ✅ GOOD - Using dependency injection hooks
-      import { useAuthService } from 'shared/lib/di/useAuthService';
-      import { useApiClient } from 'shared/lib/di/useApiClient';
-      import { useUserStore } from 'features/user/lib/useUserStore';
-
-      function UserProfile() {
-        const [user, setUser] = useState(null);
-        const authService = useAuthService();
-        const apiClient = useApiClient();
-        const userStore = useUserStore();
-        
-        useEffect(() => {
-          // Injected service usage - loosely coupled
-          authService.getCurrentUser().then(setUser);
-        }, [authService]);
-        
-        const handleUpdate = async (data) => {
-          // Injected API client usage
-          await apiClient.patch('/user', data);
-          userStore.updateUser(data);
-        };
-        
-        return <div>{user?.name}</div>;
-      }
-
-# Dependency injection implementation patterns
-dependency_injection_implementation_patterns:
-  react_context_hook_pattern:
-    description: "1. React Context Hook Pattern"
-    example: |
-      // services/AuthServiceContext.tsx
-      const AuthServiceContext = createContext<AuthService | null>(null);
-
-      export const useAuthService = (): AuthService => {
-        const service = useContext(AuthServiceContext);
-        if (!service) {
-          throw new Error('useAuthService must be used within AuthServiceProvider');
-        }
-        return service;
+    function UserProfile() {
+      useEffect(() => {
+        authService.getCurrentUser().then(setUser);
+      }, []);
+      
+      const handleUpdate = async (data) => {
+        await apiClient.patch('/user', data);
+        userStore.updateUser(data);
       };
+    }
 
-      export const AuthServiceProvider = ({ children }: { children: ReactNode }) => {
-        const authService = useMemo(() => new AuthService(), []);
-        return (
-          <AuthServiceContext.Provider value={authService}>
-            {children}
-          </AuthServiceContext.Provider>
-        );
-      };
+  good_dependency_injection: |
+    // ✅ GOOD - Using dependency injection hooks
+    import { useAuthService } from 'shared/lib/di/useAuthService';
+    import { useApiClient } from 'shared/lib/di/useApiClient';
+    import { useUserStore } from 'features/user/lib/useUserStore';
 
-  custom_hook_with_di_container:
-    description: "2. Custom Hook with DI Container"
-    example: |
-      // shared/lib/di/useServices.ts
-      import { container } from './container';
+    function UserProfile() {
+      const authService = useAuthService();
+      const apiClient = useApiClient();
+      const userStore = useUserStore();
+      
+      useEffect(() => {
+        authService.getCurrentUser().then(setUser);
+      }, [authService]);
+    }
 
-      export const useAuthService = () => {
-        return container.get<AuthService>('AuthService');
-      };
+# DI implementation patterns
+dependency_injection_patterns:
+  react_context_hook: |
+    // Context setup
+    const AuthServiceContext = createContext<AuthService | null>(null);
 
-      export const useApiClient = () => {
-        return container.get<ApiClient>('ApiClient');
-      };
-
-  props_based_injection:
-    description: "3. Props-Based Injection"
-    example: |
-      interface UserProfileProps {
-        authService?: AuthService;
-        apiClient?: ApiClient;
+    export const useAuthService = (): AuthService => {
+      const service = useContext(AuthServiceContext);
+      if (!service) {
+        throw new Error('useAuthService must be used within AuthServiceProvider');
       }
+      return service;
+    };
 
-      function UserProfile({ 
-        authService = defaultAuthService,
-        apiClient = defaultApiClient 
-      }: UserProfileProps) {
-        // Use injected dependencies
-      }
+  custom_hook_with_container: |
+    // DI container hook
+    export const useAuthService = () => {
+      return container.get<AuthService>('AuthService');
+    };
+
+  props_injection: |
+    interface UserProfileProps {
+      authService?: AuthService;
+      apiClient?: ApiClient;
+    }
+
+    function UserProfile({ 
+      authService = defaultAuthService,
+      apiClient = defaultApiClient 
+    }: UserProfileProps) {
+      // Use injected dependencies
+    }
 
 # Allowed import patterns
 allowed_import_patterns:
-  description: "These imports are **not** flagged by this rule:"
-  
-  type_only_imports:
-    description: "Type-Only Imports"
-    examples: |
-      import type { AuthService, User } from '~/entities/user/model/types';
-      import type { ApiResponse } from '~/shared/api/types';
+  type_imports: |
+    import type { AuthService, User } from '~/entities/user/model/types';
+    import type { ApiResponse } from '~/shared/api/types';
 
-  configuration_and_constants:
-    description: "Configuration and Constants"
-    examples: |
-      import { API_ENDPOINTS } from '~/shared/config/api';
-      import { APP_CONFIG } from '~/shared/config/app';
+  config_constants: |
+    import { API_ENDPOINTS } from '~/shared/config/api';
+    import { APP_CONFIG } from '~/shared/config/app';
 
-  pure_utility_functions:
-    description: "Pure Utility Functions"
-    examples: |
-      import { formatDate, parseQuery } from '~/shared/lib/utils';
-      import { validateEmail } from '~/shared/lib/validation';
+  utilities: |
+    import { formatDate, parseQuery } from '~/shared/lib/utils';
+    import { validateEmail } from '~/shared/lib/validation';
 
-  react_and_ui_components:
-    description: "React and UI Components"
-    examples: |
-      import { useState, useEffect, useContext } from 'react';
-      import { Button } from '~/shared/ui/Button';
-      import { Modal } from '~/shared/ui/Modal';
-
-# Benefits of dependency injection
-benefits_of_dependency_injection:
-  description: "Following this pattern provides:"
-  benefits:
-    - "**Enhanced Testability**: Easy to mock services in unit tests"
-    - "**Runtime Flexibility**: Switch implementations without code changes"
-    - "**Loose Coupling**: Components depend on abstractions, not concrete classes"
-    - "**Better Separation of Concerns**: Clear boundaries between UI and business logic"
-    - "**Improved Maintainability**: Centralized service management and easier refactoring"
-
-# Integration with FSD architecture
-integration_with_fsd_architecture:
-  description: "This rule supports Feature-Sliced Design by:"
-  benefits:
-    - "Enforcing proper dependency management across FSD layers"
-    - "Supporting clean boundaries between features and shared services"
-    - "Enabling better testing strategies within the FSD structure"
-    - "Maintaining consistency in service usage patterns"
+  react_ui: |
+    import { useState, useEffect, useContext } from 'react';
+    import { Button } from '~/shared/ui/Button';
 
 # File scope
 file_scope:
-  description: "This rule applies to:"
   applies_to:
     - "React component files (`.tsx`, `.jsx`)"
     - "Files in `app/` directory following FSD architecture"
-    - "UI components across all FSD layers (shared, entities, features, widgets, pages)"
+    - "UI components across all FSD layers"
   
   excludes:
-    description: "**Excludes:**"
-    excluded:
-      - "Service implementation files themselves"
-      - "DI container setup files"
-      - "Configuration files"
-      - "Test files (`.spec.ts`, `.test.ts`)"
+    - "Service implementation files"
+    - "DI container setup files"
+    - "Configuration files"
+    - "Test files (`.spec.ts`, `.test.ts`)"
 
-# What patterns this rule flags as problematic
+# Anti-patterns
 anti_patterns:
   - "import.*Service.*from"
   - "import.*Client.*from"
   - "import.*Store.*from"
   - "Direct service imports in components"
   - "API client imports in UI components"
-  - "Store imports in components"
   - "axios.create() calls in component files"
   - "Tightly coupled service dependencies"
-  - "Direct singleton usage in React components"
 
-# Correct approach according to this rule
+# Correct pattern
 correct_pattern: |
   **Dependency injection using hooks:**
   ```tsx
-  // ✅ GOOD - Using dependency injection hooks
   import { useAuthService } from 'shared/lib/di/useAuthService';
-  import { useApiClient } from 'shared/lib/di/useApiClient';
-  import { useUserStore } from 'features/user/lib/useUserStore';
   
   function UserProfile() {
     const authService = useAuthService();
-    const apiClient = useApiClient();
-    const userStore = useUserStore();
-    
     // Use injected dependencies
   }
   ```
 
-  **React Context Pattern:**
-  ```tsx
-  // Context setup
-  const ServiceContext = createContext<Service | null>(null);
-
-  export const useService = (): Service => {
-    const service = useContext(ServiceContext);
-    if (!service) {
-      throw new Error('useService must be used within ServiceProvider');
-    }
-    return service;
-  };
-  ```
-
-  **Props-based injection:**
-  ```tsx
-  interface ComponentProps {
-    authService?: AuthService;
-    apiClient?: ApiClient;
-  }
-
-  function Component({ 
-    authService = defaultAuthService,
-    apiClient = defaultApiClient 
-  }: ComponentProps) {
-    // Use injected dependencies
-  }
-  ```
-
-# Patterns that trigger this rule
+# Flagged patterns
 flagged_patterns:
   - "import.*Service.*from"
-  - "import.*Client.*from" 
+  - "import.*Client.*from"
   - "import.*Store.*from"
   - "\\.create\\("
   - "Direct service singleton imports"
-  - "API client direct imports"
-  - "Store singleton imports"
 
-# Solutions this rule suggests
+# Solutions
 suggested_solutions:
-  - "Use the corresponding hook instead: const service = use{ServiceName}()"
-  - "Use dependency injection: const client = useApiClient() or inject via context/props"
+  - "Use corresponding hook: const service = use{ServiceName}()"
+  - "Use dependency injection: const client = useApiClient()"
   - "Use React context or custom hooks: const store = use{StoreName}()"
   - "Replace direct imports with DI hooks"
-  - "Implement React Context pattern for service injection"
+  - "Implement React Context pattern"
   - "Use props-based dependency injection"
-  - "Create custom hooks for service access"
 
-# Cases where this rule doesn't apply
+# Exceptions
 exceptions:
   - "Type-only imports with import type"
   - "Configuration and constants imports"
   - "Pure utility function imports"
   - "React and UI component imports"
-  - "Service implementation files themselves"
+  - "Service implementation files"
   - "DI container setup files"
   - "Test files"
-
-# Benefits of following this rule
-benefits:
-  - "**Enhanced Testability**: Easy to mock services in unit tests"
-  - "**Runtime Flexibility**: Switch implementations without code changes"
-  - "**Loose Coupling**: Components depend on abstractions, not concrete classes"
-  - "**Better Separation of Concerns**: Clear boundaries between UI and business logic"
-  - "**Improved Maintainability**: Centralized service management and easier refactoring"
-  - "**FSD Compliance**: Maintains proper architectural boundaries"
-  - "**Testing Benefits**: Simplified unit testing with dependency mocking"
-  - "**Code Quality**: Reduces tight coupling and improves modularity" 

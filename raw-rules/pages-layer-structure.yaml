@@ -1,146 +1,131 @@
 # === pages-layer-structure.yaml ===
 id: pages-layer-structure
-description: "Enforces that the app/pages/ layer contains full page components that compose widgets and features according to FSD principles"
+description: "Enforces that app/pages/ layer contains composition-focused page components according to FSD principles"
 globs:
   - "app/pages/**/*"
 always_apply: true
 
-# Required structure
-required_structure:
-  description: "Each page slice directory `app/pages/<page>/` **must** contain:"
-  required_files:
-    main_component: "`ui/index.tsx` — Main page component that composes widgets and features"
-    component_test: "`ui/index.spec.tsx` — Integration tests for the full page"
-    readme: "`README.md` — Page documentation including routing and SEO information"
+# REQUIRED STRUCTURE
+required_files:
+  description: "Each page slice `app/pages/<page>/` MUST contain:"
+  files:
+    - "`ui/index.tsx` — Main page component that composes widgets and features"
+    - "`ui/index.spec.tsx` — Integration tests for the full page"
+    - "`README.md` — Page documentation including routing and SEO information"
 
-# What pages should contain
-pages_should_contain:
-  description: "Pages are **composition layers** that should:"
+# PAGE RESPONSIBILITIES
+what_pages_should_contain:
+  description: "Pages are composition layers that should:"
   responsibilities:
-    - "**Import and compose widgets** from `app/widgets/`"
-    - "**Import and compose features** from `app/features/`"
-    - "**Handle page-level concerns**: routing, SEO, layout, data loading"
-    - "**Provide page-specific context** and state management"
+    - "Import and compose widgets from `app/widgets/`"
+    - "Import and compose features from `app/features/`"
+    - "Handle page-level concerns: routing, SEO, layout, data loading"
+    - "Provide page-specific context and state management"
 
-# What pages should NOT contain
-pages_should_not_contain:
-  description: "Pages should NOT contain:"
-  prohibited_items:
-    - "**Business logic** — belongs in features"
-    - "**Reusable components** — belongs in features or shared"
-    - "**API calls** — should be abstracted through features/widgets"
-    - "**Complex state management** — should be in features or shared"
+what_pages_should_not_contain:
+  prohibited:
+    - "Business logic — belongs in features"
+    - "Reusable components — belongs in features or shared"
+    - "API calls — should be abstracted through features/widgets"
+    - "Complex state management — should be in features or shared"
 
-# Examples
-examples:
-  correct_page_structure:
-    description: "✅ Correct Page Structure:"
-    structure: |
-      app/pages/dashboard/
-      ├── ui/
-      │   ├── index.tsx         # Main dashboard page
-      │   └── index.spec.tsx    # Page integration tests
-      └── README.md             # Page documentation
+# EXAMPLES
+structure_example:
+  correct: |
+    ✅ CORRECT:
+    app/pages/dashboard/
+    ├── ui/
+    │   ├── index.tsx         # Main dashboard page
+    │   └── index.spec.tsx    # Page integration tests
+    └── README.md             # Page documentation
 
-  correct_page_implementation:
-    description: "✅ Correct Page Implementation:"
-    example: |
-      // app/pages/dashboard/ui/index.tsx
-      import { UserDashboard } from '~/widgets/user-dashboard';
-      import { TaskBoard } from '~/widgets/task-board';
-      import { AnalyticsWidget } from '~/widgets/analytics-widget';
-
-      export default function DashboardPage() {
-        return (
-          <div className="dashboard-page">
-            <header>
-              <h1>Dashboard</h1>
-            </header>
-            
-            <main className="dashboard-grid">
-              <UserDashboard />
-              <TaskBoard />
-              <AnalyticsWidget />
-            </main>
-          </div>
-        );
-      }
-
-  incorrect_page_implementation:
-    description: "❌ Incorrect Page Implementation:"
-    example: |
-      // ❌ Page with business logic (should be in features)
-      export default function DashboardPage() {
-        const [tasks, setTasks] = useState([]);
-        
-        useEffect(() => {
-          // ❌ Direct API calls in page
-          fetch('/api/tasks').then(/* ... */);
-        }, []);
-        
-        const handleCreateTask = () => {
-          // ❌ Business logic in page
-        };
-        
-        return (
-          <div>
-            {/* ❌ Inline business components */}
-            <TaskForm onSubmit={handleCreateTask} />
-            <TaskList tasks={tasks} />
-          </div>
-        );
-      }
-
-# Page naming convention
-page_naming_convention:
-  description: "Page Naming Convention:"
-  rules:
-    - "**File name**: Always `ui/index.tsx` (not `ui/<page>.page.tsx`)"
-    - "**Component name**: `<Page>Page` (e.g., `DashboardPage`, `HomePage`)"
-    - "**Export**: Default export"
-
-# Integration with Remix routing
-integration_with_remix_routing:
-  description: "Pages should integrate with Remix routes:"
-  example: |
-    // app/routes/dashboard.tsx
-    import DashboardPage from '~/pages/dashboard/ui';
-
-    export default DashboardPage;
-
-# Required page metadata
-required_page_metadata:
-  description: "Pages should include proper metadata for SEO:"
-  example: |
+implementation_examples:
+  correct: |
+    // ✅ CORRECT - Composition-focused page
     // app/pages/dashboard/ui/index.tsx
-    import type { MetaFunction } from '@remix-run/node';
+    import { UserDashboard } from '~/widgets/user-dashboard';
+    import { TaskBoard } from '~/widgets/task-board';
+    import { AnalyticsWidget } from '~/widgets/analytics-widget';
 
-    export const meta: MetaFunction = () => {
-      return [
-        { title: 'Dashboard - MyApp' },
-        { name: 'description', content: 'User dashboard with tasks and analytics' },
-      ];
-    };
+    export default function DashboardPage() {
+      return (
+        <div className="dashboard-page">
+          <header>
+            <h1>Dashboard</h1>
+          </header>
+          
+          <main className="dashboard-grid">
+            <UserDashboard />
+            <TaskBoard />
+            <AnalyticsWidget />
+          </main>
+        </div>
+      );
+    }
 
-# Enforcement rules
-enforcement_rules:
-  description: "When working in pages layer:"
-  checks:
-    - "**Check for proper composition** — Pages should import from widgets/features, not implement business logic"
-    - "**Check for correct file naming** — Use `ui/index.tsx` pattern"
-    - "**Check for integration tests** — Each page should have corresponding tests"
-    - "**If violations found**, prompt for refactoring"
+  incorrect: |
+    // ❌ INCORRECT - Business logic in page
+    export default function DashboardPage() {
+      const [tasks, setTasks] = useState([]);
+      
+      useEffect(() => {
+        // ❌ Direct API calls in page
+        fetch('/api/tasks').then(/* ... */);
+      }, []);
+      
+      const handleCreateTask = () => {
+        // ❌ Business logic in page
+      };
+      
+      return (
+        <div>
+          {/* ❌ Inline business components */}
+          <TaskForm onSubmit={handleCreateTask} />
+          <TaskList tasks={tasks} />
+        </div>
+      );
+    }
 
-# Integration with FSD
-integration_with_fsd:
-  description: "This rule supports Feature-Sliced Design by:"
-  benefits:
-    - "**Enforcing composition over implementation** in pages"
-    - "**Maintaining clear separation** between page layout and business logic"
-    - "**Supporting proper dependency flow**: pages → widgets → features → entities → shared"
-    - "**Enabling reusability** of widgets and features across different pages"
+# NAMING CONVENTION
+naming_rules:
+  - "File name: Always `ui/index.tsx` (not `ui/<page>.page.tsx`)"
+  - "Component name: `<Page>Page` (e.g., `DashboardPage`, `HomePage`)"
+  - "Export: Default export"
 
-# What patterns this rule flags as problematic
+# REMIX INTEGRATION
+remix_routing: |
+  // app/routes/dashboard.tsx
+  import DashboardPage from '~/pages/dashboard/ui';
+
+  export default DashboardPage;
+
+# SEO METADATA
+page_metadata: |
+  // app/pages/dashboard/ui/index.tsx
+  import type { MetaFunction } from '@remix-run/node';
+
+  export const meta: MetaFunction = () => {
+    return [
+      { title: 'Dashboard - MyApp' },
+      { name: 'description', content: 'User dashboard with tasks and analytics' },
+    ];
+  };
+
+# ENFORCEMENT RULES
+enforcement_checks:
+  - "Check for proper composition — Pages should import from widgets/features"
+  - "Check for correct file naming — Use `ui/index.tsx` pattern"
+  - "Check for integration tests — Each page should have tests"
+  - "If violations found, prompt for refactoring"
+
+# FSD INTEGRATION
+fsd_compliance:
+  - "Enforces composition over implementation in pages"
+  - "Maintains clear separation between page layout and business logic"
+  - "Supports proper dependency flow: pages → widgets → features → entities → shared"
+  - "Enables reusability of widgets and features across pages"
+
+# FLAGGED PATTERNS
 anti_patterns:
   - "Pages containing business logic instead of composition"
   - "Direct API calls in page components"
@@ -151,19 +136,16 @@ anti_patterns:
   - "Missing SEO metadata in page components"
   - "Application-level concerns mixed with page layout"
 
-# Correct approach according to this rule
+# CORRECT APPROACH
 correct_pattern: |
-  **Correct Page Structure:**
-  ```
+  **Page Structure:**
   app/pages/<page>/
   ├── ui/
   │   ├── index.tsx         # Main page component (composition only)
   │   └── index.spec.tsx    # Page integration tests
   └── README.md             # Page documentation
-  ```
 
-  **Correct Page Implementation:**
-  ```tsx
+  **Page Implementation:**
   // Composition-focused page
   import { WidgetA } from '~/widgets/widget-a';
   import { WidgetB } from '~/widgets/widget-b';
@@ -178,7 +160,6 @@ correct_pattern: |
       </div>
     );
   }
-  ```
 
   **Page-Level Concerns:**
   - Layout composition
@@ -186,8 +167,8 @@ correct_pattern: |
   - Route-specific data loading
   - Page-specific context providers
 
-# Patterns that trigger this rule
-flagged_patterns:
+# DETECTION PATTERNS
+flagged_file_patterns:
   - "useState/useEffect with business logic in page components"
   - "Direct fetch() calls in page components"
   - "Business component implementations inside pages"
@@ -196,8 +177,8 @@ flagged_patterns:
   - "Missing integration tests for page components"
   - "Missing README.md in page directories"
 
-# Solutions this rule suggests
-suggested_solutions:
+# SUGGESTED SOLUTIONS
+solutions:
   - "Move business logic to features layer"
   - "Extract API calls to feature hooks"
   - "Import widgets and features instead of implementing inline"
@@ -207,20 +188,9 @@ suggested_solutions:
   - "Add README.md with page documentation"
   - "Include SEO metadata in page components"
 
-# Cases where this rule doesn't apply
-exceptions:
+# EXCEPTIONS
+rule_exceptions:
   - "Legacy pages during migration (temporary)"
   - "Simple static pages with minimal composition"
   - "Third-party integrations with different patterns"
   - "Experimental pages during development (temporary)"
-
-# Benefits of following this rule
-benefits:
-  - "**Clear separation of concerns** between layout and business logic"
-  - "**Reusable widgets and features** across multiple pages"
-  - "**Easier testing** with focused page integration tests"
-  - "**Better maintainability** through proper composition patterns"
-  - "**Scalable architecture** that grows with application complexity"
-  - "**FSD Compliance**: Maintains proper layer boundaries"
-  - "**SEO Optimization**: Consistent metadata handling"
-  - "**Development Speed**: Faster page creation through composition" 

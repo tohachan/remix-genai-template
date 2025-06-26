@@ -1,87 +1,76 @@
 # === auto-generate-readme.yaml ===
 id: auto-generate-readme
-description: "Auto-Generate README for FSD Slices - automatically suggests running the README generation command when files are modified in Feature-Sliced Design (FSD) slice directories"
+description: "Auto-suggests README generation command when files are modified in FSD slice directories"
 globs: ["app/features/**/*", "app/pages/**/*", "app/widgets/**/*", "app/entities/**/*"]
 always_apply: true
 
-# Trigger conditions
-trigger_conditions: |
-  This rule activates when **any file changes** are detected in these FSD layer directories:
+# TRIGGER CONDITIONS
+triggers:
+  description: "Rule activates when any file changes in FSD layer directories:"
+  directories:
+    - "app/features/<slice>/ — Feature slices"
+    - "app/pages/<slice>/ — Page slices"
+    - "app/widgets/<slice>/ — Widget slices"
+    - "app/entities/<slice>/ — Entity slices"
 
-  - `app/features/<slice>/` — Feature slices
-  - `app/pages/<slice>/` — Page slices  
-  - `app/widgets/<slice>/` — Widget slices
-  - `app/entities/<slice>/` — Entity slices
+# SUGGESTED ACTION
+main_action:
+  command_format: "npm run generate:readme <slice-name>"
+  
+  examples:
+    feature_changes:
+      - "app/features/auth/ → `npm run generate:readme auth`"
+      - "app/features/user-profile/ → `npm run generate:readme user-profile`"
+    page_changes:
+      - "app/pages/home/ → `npm run generate:readme home`"
+      - "app/pages/dashboard/ → `npm run generate:readme dashboard`"
+    widget_changes:
+      - "app/widgets/navigation/ → `npm run generate:readme navigation`"
+      - "app/widgets/sidebar/ → `npm run generate:readme sidebar`"
+    entity_changes:
+      - "app/entities/user/ → `npm run generate:readme user`"
+      - "app/entities/product/ → `npm run generate:readme product`"
 
-# Main action when triggered
-suggested_action: |
-  When file changes are detected in a slice directory, the rule suggests:
-
-  ### Command Format
-  ```bash
-  npm run generate:readme <slice-name>
-  ```
-
-# Specific examples of the rule in action
-examples:
-  feature_changes:
-    - "Changes in `app/features/auth/` → Suggest: `npm run generate:readme auth`"
-    - "Changes in `app/features/user-profile/` → Suggest: `npm run generate:readme user-profile`"
-  page_changes:
-    - "Changes in `app/pages/home/` → Suggest: `npm run generate:readme home`"
-    - "Changes in `app/pages/dashboard/` → Suggest: `npm run generate:readme dashboard`"
-  widget_changes:
-    - "Changes in `app/widgets/navigation/` → Suggest: `npm run generate:readme navigation`"
-    - "Changes in `app/widgets/sidebar/` → Suggest: `npm run generate:readme sidebar`"
-  entity_changes:
-    - "Changes in `app/entities/user/` → Suggest: `npm run generate:readme user`"
-    - "Changes in `app/entities/product/` → Suggest: `npm run generate:readme product`"
-
-# Message format to display to user
-suggestion_message_format: |
-  When suggesting the command, display:
-
-  ```
+# MESSAGE FORMAT
+suggestion_message: |
   📝 Slice files modified. Consider updating documentation:
 
   npm run generate:readme <slice-name>
 
   This will update the README.md with current slice structure and API information.
-  ```
 
-# How the rule detects and processes changes
-detection_logic:
-  steps:
-    - "**Monitor file changes** in specified glob patterns"
-    - "**Extract slice name** from the directory path (e.g., `app/features/auth/api.ts` → slice name is `auth`)"
-    - "**Suggest the command** with the extracted slice name"
-    - "**Show exact CLI command** that can be copy-pasted"
+# DETECTION LOGIC
+processing_steps:
+  - "Monitor file changes in specified glob patterns"
+  - "Extract slice name from directory path (e.g., app/features/auth/api.ts → auth)"
+  - "Suggest command with extracted slice name"
+  - "Show exact CLI command for copy-paste"
 
-# File types that trigger this rule
-file_change_scope:
-  - "Source files (`.ts`, `.tsx`, `.js`, `.jsx`)"
-  - "Component files in `ui/` directories"
-  - "API files (`api.ts`, `*.api.ts`)"
-  - "Hook files (`hooks.ts`, `*.hooks.ts`)"
-  - "Model files (`model/`, `*.model.ts`)"
-  - "Configuration files (`config/`, `*.config.ts`)"
-  - "Test files (`*.spec.ts`, `*.test.ts`)"
+# FILE CHANGE SCOPE
+monitored_files:
+  - "Source files (.ts, .tsx, .js, .jsx)"
+  - "Component files in ui/ directories"
+  - "API files (api.ts, *.api.ts)"
+  - "Hook files (hooks.ts, *.hooks.ts)"
+  - "Model files (model/, *.model.ts)"
+  - "Configuration files (config/, *.config.ts)"
+  - "Test files (*.spec.ts, *.test.ts)"
 
-# How this integrates with FSD methodology
-fsd_integration:
-  - "**Maintaining documentation consistency** across all FSD layers"
-  - "**Encouraging up-to-date README files** when slice code changes"
-  - "**Automating documentation workflow** to reduce manual overhead"
-  - "**Supporting all FSD layers** (features, pages, widgets, entities)"
+# FSD INTEGRATION
+fsd_methodology:
+  - "Maintains documentation consistency across all FSD layers"
+  - "Encourages up-to-date README files when slice code changes"
+  - "Automates documentation workflow to reduce manual overhead"
+  - "Supports all FSD layers (features, pages, widgets, entities)"
 
-# Usage guidelines and notes
+# USAGE GUIDELINES
 usage_notes:
-  - "The command should be run from the project root directory"
-  - "The `<slice-name>` parameter must match the exact directory name"
-  - "The suggestion appears automatically when relevant files are modified"
-  - "Manual dismissal is possible if README update is not needed for the current changes"
+  - "Command should be run from project root directory"
+  - "<slice-name> parameter must match exact directory name"
+  - "Suggestion appears automatically when relevant files modified"
+  - "Manual dismissal possible if README update not needed"
 
-# What patterns this rule flags as problematic
+# FLAGGED PATTERNS
 anti_patterns:
   - "Missing README updates when slice files change"
   - "Outdated documentation in FSD slices"
@@ -89,33 +78,25 @@ anti_patterns:
   - "Inconsistent README files across slices"
   - "Forgetting to update documentation after code changes"
 
-# Correct approach according to this rule
-correct_pattern: |
-  When files are modified in FSD slice directories, automatically suggest:
+# CORRECT APPROACH
+workflow_pattern: |
+  When files modified in FSD slice directories, automatically suggest:
 
   **Command Format:**
-  ```bash
   npm run generate:readme <slice-name>
-  ```
 
-  **Specific Examples:**
-  - Changes in `app/features/auth/` → Suggest: `npm run generate:readme auth`
-  - Changes in `app/features/user-profile/` → Suggest: `npm run generate:readme user-profile`
-  - Changes in `app/pages/home/` → Suggest: `npm run generate:readme home`
-  - Changes in `app/widgets/navigation/` → Suggest: `npm run generate:readme navigation`
-  - Changes in `app/entities/user/` → Suggest: `npm run generate:readme user`
+  **Examples:**
+  - app/features/auth/ → npm run generate:readme auth
+  - app/pages/home/ → npm run generate:readme home
+  - app/widgets/navigation/ → npm run generate:readme navigation
+  - app/entities/user/ → npm run generate:readme user
 
-  **Suggestion Message:**
-  ```
+  **Message:**
   📝 Slice files modified. Consider updating documentation:
-
   npm run generate:readme <slice-name>
 
-  This will update the README.md with current slice structure and API information.
-  ```
-
-# Patterns that trigger this rule
-flagged_patterns:
+# DETECTION PATTERNS
+flagged_file_patterns:
   - "File changes in app/features/<slice>/ without README suggestion"
   - "File changes in app/pages/<slice>/ without README suggestion"
   - "File changes in app/widgets/<slice>/ without README suggestion"
@@ -124,9 +105,9 @@ flagged_patterns:
   - "API file changes without README generation suggestion"
   - "Component changes without documentation update"
 
-# Solutions this rule suggests
-suggested_solutions:
-  - "Monitor file changes in specified FSD slice directories"
+# SUGGESTED SOLUTIONS
+solutions:
+  - "Monitor file changes in FSD slice directories"
   - "Extract slice name from directory path automatically"
   - "Suggest README generation command with exact slice name"
   - "Show copy-pastable CLI command for easy execution"
@@ -134,21 +115,10 @@ suggested_solutions:
   - "Support all FSD layers: features, pages, widgets, entities"
   - "Trigger on all relevant file types: source, API, hooks, models, config, tests"
 
-# Cases where this rule doesn't apply
-exceptions:
-  - "Manual dismissal when README update is not needed"
+# EXCEPTIONS
+rule_exceptions:
+  - "Manual dismissal when README update not needed"
   - "Test-only changes that don't affect public API"
   - "Temporary experimental files"
   - "Auto-generated files that don't reflect actual changes"
   - "Documentation files themselves (README.md changes)"
-
-# Benefits of following this rule
-benefits:
-  - "**Automated Documentation**: Prompts for README updates when code changes"
-  - "**Consistency**: Ensures all slices maintain current documentation"
-  - "**Developer Experience**: Reduces friction in keeping docs up-to-date"
-  - "**Team Coordination**: Helps team members understand slice changes through updated documentation"
-  - "**CI/CD Integration**: Can be incorporated into development workflow automation"
-  - "**FSD Integration**: Maintains documentation consistency across all FSD layers"
-  - "**Workflow Automation**: Reduces manual overhead in documentation maintenance"
-  - "**Quality Assurance**: Prevents outdated documentation from becoming stale" 

@@ -1,465 +1,120 @@
 # === critical-workflow-checks.yaml ===
 id: critical-workflow-checks
-description: "Provides mandatory validation layers for development practices, focusing on workflow compliance, quality assurance, and architectural integrity"
+description: "Mandatory validation layers for development practices, workflow compliance, quality assurance, and architectural integrity"
 globs: []
 always_apply: true
 
 # 🚨 MANDATORY BASELINE REQUIREMENTS VERIFICATION
-mandatory_baseline_requirements_verification:
-  description: "**BEFORE ANY DEVELOPMENT ACTION, VERIFY ALL BASELINE REQUIREMENTS FOR THE TARGET LAYER:**"
-  
+mandatory_baseline_requirements:
   for_feature_slices:
-    description: "For Feature Slices (`app/features/<slice>/`)"
-    mandatory_checklist: "**MANDATORY CHECKLIST - ALL MUST BE ✅:**"
     requirements:
-      - "✅ `api.ts` exists or will be created"
-      - "✅ `api.spec.ts` exists or will be created"
-      - "✅ `hooks.ts` exists or will be created"
-      - "✅ `hooks.spec.ts` exists or will be created"
-      - "✅ `ui/` directory exists or will be created"
-      - "✅ Main component in `ui/` exists or will be created"
-      - "✅ Component tests exist or will be created"
-      - "✅ `README.md` exists or will be created"
-      - "✅ `index.ts` exports exist or will be created"
-    stop_rule: "**STOP RULE**: If ANY file is missing, CREATE IT before proceeding"
+      - "✅ `api.ts` + `api.spec.ts`"
+      - "✅ `hooks.ts` + `hooks.spec.ts`"
+      - "✅ `ui/` directory + main component + tests"
+      - "✅ `README.md` + `index.ts`"
+    stop_rule: "If ANY file missing, CREATE IT before proceeding"
 
   for_page_slices:
-    description: "For Page Slices (`app/pages/<slice>/`)"
-    mandatory_checklist: "**MANDATORY CHECKLIST - ALL MUST BE ✅:**"
     requirements:
-      - "✅ `ui/index.tsx` exists or will be created (main page component)"
-      - "✅ `ui/index.spec.tsx` exists or will be created (integration tests)"
-      - "✅ `README.md` exists or will be created (page documentation)"
-      - "✅ Route file in `app/routes/` exists or will be created"
-      - "✅ `index.ts` exports exist or will be created"
-    stop_rule: "**STOP RULE**: If ANY file is missing, CREATE IT before proceeding"
+      - "✅ `ui/index.tsx` + `ui/index.spec.tsx`"
+      - "✅ `README.md` + `index.ts`"
+      - "✅ Route file in `app/routes/`"
+    stop_rule: "If ANY file missing, CREATE IT before proceeding"
 
   for_widget_slices:
-    description: "For Widget Slices (`app/widgets/<slice>/`)"
-    mandatory_checklist: "**MANDATORY CHECKLIST - ALL MUST BE ✅:**"
     requirements:
-      - "✅ `ui/` directory exists or will be created"
-      - "✅ Main widget component exists or will be created"
-      - "✅ Component tests exist or will be created"
-      - "✅ `README.md` exists or will be created"
-      - "✅ `index.ts` exports exist or will be created"
-      - "✅ `model/types.ts` if using types"
-    stop_rule: "**STOP RULE**: If ANY file is missing, CREATE IT before proceeding"
+      - "✅ `ui/` directory + main component + tests"
+      - "✅ `README.md` + `index.ts`"
+      - "✅ `model/types.ts` (if needed)"
+    stop_rule: "If ANY file missing, CREATE IT before proceeding"
 
   for_entity_slices:
-    description: "For Entity Slices (`app/entities/<slice>/`)"
-    mandatory_checklist: "**MANDATORY CHECKLIST - ALL MUST BE ✅:**"
     requirements:
-      - "✅ `model/` directory exists or will be created"
-      - "✅ Type definitions exist or will be created"
-      - "✅ `api/` directory if API interactions needed"
-      - "✅ `README.md` exists or will be created"
-      - "✅ `index.ts` exports exist or will be created"
-    stop_rule: "**STOP RULE**: If ANY file is missing, CREATE IT before proceeding"
+      - "✅ `model/` directory + type definitions"
+      - "✅ `api/` directory (if needed)"
+      - "✅ `README.md` + `index.ts`"
+    stop_rule: "If ANY file missing, CREATE IT before proceeding"
 
 # 🚨 ENFORCEMENT PROTOCOL
-enforcement_protocol:
-  description: "**WHEN WORKING WITH ANY SLICE:**"
+enforcement_steps:
+  - "1. IDENTIFY THE LAYER: Feature, Page, Widget, or Entity"
+  - "2. RUN BASELINE CHECK using appropriate checklist above"
+  - "3. STOP IF INCOMPLETE: Do not proceed until ALL baseline files exist"
+  - "4. CREATE MISSING FILES using generators or templates"
+  - "5. VERIFY COMPLETION: Re-check requirements"
+  - "6. PROCEED with requested changes"
+
+# AUTOMATED VERIFICATION
+baseline_verification_command: |
+  # Check slice completeness
+  ls app/[layer]/[slice]/
+
+slice_completion_check:
+  feature_check: |
+    test -f app/features/[slice]/api.ts && \
+    test -f app/features/[slice]/api.spec.ts && \
+    test -f app/features/[slice]/hooks.ts && \
+    test -f app/features/[slice]/hooks.spec.ts && \
+    test -d app/features/[slice]/ui && \
+    test -f app/features/[slice]/README.md && \
+    test -f app/features/[slice]/index.ts && \
+    echo "✅ Complete" || echo "❌ Incomplete"
+  
+  page_check: |
+    test -f app/pages/[slice]/ui/index.tsx && \
+    test -f app/pages/[slice]/ui/index.spec.tsx && \
+    test -f app/pages/[slice]/README.md && \
+    test -f app/pages/[slice]/index.ts && \
+    echo "✅ Complete" || echo "❌ Incomplete"
+
+# ERROR PREVENTION
+missing_files_protocol:
   steps:
-    - "1. **IDENTIFY THE LAYER**: Feature, Page, Widget, or Entity"
-    - "2. **RUN BASELINE CHECK**: Use the appropriate checklist above"
-    - "3. **STOP IF INCOMPLETE**: Do not proceed until ALL baseline files exist"
-    - "4. **CREATE MISSING FILES**: Use generators or create manually with proper templates"
-    - "5. **VERIFY COMPLETION**: Re-check that ALL requirements are met"
-    - "6. **ONLY THEN PROCEED**: Continue with the requested changes"
+    - "1. IMMEDIATELY STOP current development"
+    - "2. REPORT: ⚠️ INCOMPLETE SLICE DETECTED: app/[layer]/[slice]/"
+    - "3. AUTO-CREATE missing files using generators"
+    - "4. VERIFY completion using checklists"
+    - "5. CONTINUE with original request"
+  note: "NO user confirmation required - always auto-create missing baseline files"
 
-# AUTOMATED BASELINE VERIFICATION
-automated_baseline_verification:
-  description: "Before any slice modification, I MUST:"
-  check_command: |
-    # Check if it's a complete slice
-    ls app/[layer]/[slice]/
-  
-  required_files_per_layer:
-    features:
-      description: "**For Features - Required files:**"
-      files:
-        - "`api.ts`, `api.spec.ts`"
-        - "`hooks.ts`, `hooks.spec.ts`"
-        - "`ui/[Component].tsx`, `ui/[Component].spec.tsx`"
-        - "`README.md`, `index.ts`"
-    
-    pages:
-      description: "**For Pages - Required files:**"
-      files:
-        - "`ui/index.tsx`, `ui/index.spec.tsx`"
-        - "`README.md`, `index.ts`"
-        - "`app/routes/[page].tsx`"
-    
-    widgets:
-      description: "**For Widgets - Required files:**"
-      files:
-        - "`ui/[Widget].tsx`, `ui/[Widget].spec.tsx`"
-        - "`README.md`, `index.ts`"
-    
-    entities:
-      description: "**For Entities - Required files:**"
-      files:
-        - "`model/types.ts` or similar"
-        - "`README.md`, `index.ts`"
+# 🚨 PRE-EXECUTION VALIDATION
+validation_checklist:
+  required_checks:
+    - "✅ BASELINE: All layer baseline files exist"
+    - "✅ FSD boundaries respected (no widget→feature imports)"
+    - "✅ Import hierarchy correct (pages→widgets→features→entities→shared)"
+    - "✅ DI patterns followed (no direct service imports in UI)"
+    - "✅ Security rules respected"
+    - "✅ Design tokens used (no hard-coded values)"
+    - "✅ Generator usage where required"
 
-# SLICE COMPLETION VERIFICATION
-slice_completion_verification:
-  description: "**After completing ANY work on a slice, verify:**"
-  
-  feature_slice_completion_check:
-    description: "Feature Slice Completion Check:"
-    command: |
-      # Verify all baseline files exist:
-      test -f app/features/[slice]/api.ts && \
-      test -f app/features/[slice]/api.spec.ts && \
-      test -f app/features/[slice]/hooks.ts && \
-      test -f app/features/[slice]/hooks.spec.ts && \
-      test -d app/features/[slice]/ui && \
-      test -f app/features/[slice]/README.md && \
-      test -f app/features/[slice]/index.ts && \
-      echo "✅ Feature slice complete" || echo "❌ Feature slice incomplete"
-  
-  page_slice_completion_check:
-    description: "Page Slice Completion Check:"
-    command: |
-      # Verify all baseline files exist:
-      test -f app/pages/[slice]/ui/index.tsx && \
-      test -f app/pages/[slice]/ui/index.spec.tsx && \
-      test -f app/pages/[slice]/README.md && \
-      test -f app/pages/[slice]/index.ts && \
-      echo "✅ Page slice complete" || echo "❌ Page slice incomplete"
+conflict_detection_triggers:
+  - "Import from higher FSD layer"
+  - "Direct service/client imports in UI"
+  - "Hard-coded design values"
+  - "Security vulnerability patterns"
+  - "Manual file creation where generators exist"
+  - "Cross-layer boundary violations"
 
-# ERROR PREVENTION PROTOCOL
-error_prevention_protocol:
-  description: "**If I detect missing baseline files:**"
-  steps:
-    - "1. **IMMEDIATELY STOP** current development"
-    - "2. **REPORT AND AUTO-CREATE**:"
-    - "   ```"
-    - "   ⚠️ INCOMPLETE SLICE DETECTED: app/[layer]/[slice]/"
-    - "   "
-    - "   Missing baseline files:"
-    - "   - [list missing files]"
-    - "   "
-    - "   Auto-creating missing files:"
-    - "   - [list commands being executed]"
-    - "   ```"
-    - "3. **AUTOMATICALLY CREATE MISSING FILES** using generators"
-    - "4. **VERIFY COMPLETION** using checklists"
-    - "5. **CONTINUE** with original request"
-  
-  note: "**NO USER CONFIRMATION REQUIRED** - Always auto-create missing baseline files immediately."
+conflict_response_format: |
+  🚨 ARCHITECTURAL CONFLICT DETECTED:
 
-# MANDATORY PRE-EXECUTION VALIDATION
-mandatory_pre_execution_validation:
-  description: "🚨 CRITICAL: Before executing ANY request involving code changes:"
-  
-  architectural_validation_checklist:
-    required_checks:
-      - "✅ **BASELINE REQUIREMENTS**: All layer baseline files exist (use checklists above)"
-      - "✅ FSD layer boundaries respected? (no widget→feature, feature→widget imports)"
-      - "✅ Import hierarchy correct? (pages→widgets→features→entities→shared)"
-      - "✅ DI patterns followed? (no direct service imports in UI)"
-      - "✅ Security rules respected? (no XSS, injection vulnerabilities)"
-      - "✅ Design tokens used? (no hard-coded colors/spacing)"
-      - "✅ Generator usage required? (components, features, tests)"
-    
-    note: "**NEW: BASELINE VERIFICATION MUST BE FIRST CHECK**"
+  **Issue**: [Specific violation]
+  **Rule Violated**: [Which rule]
+  **Risk Level**: [High/Medium/Low] 
+  **Current Request**: [User request]
+  **Why Violates Architecture**: [Technical explanation]
 
-  conflict_detection_triggers:
-    immediate_stop_and_report:
-      - "Any import from higher FSD layer (feature importing widget)"
-      - "Direct service/client imports in UI components"
-      - "Hard-coded design values in components"
-      - "Security vulnerability patterns"
-      - "Manual file creation where generators exist"
-      - "Cross-layer boundary violations"
+  **Solutions**:
+  1. [Compliant option 1]
+  2. [Compliant option 2] 
+  3. [Alternative approach]
 
-  required_conflict_response_format: |
-    🚨 ARCHITECTURAL CONFLICT DETECTED:
+  **Recommended**: [Best option]
 
-    **Issue**: [Specific violation description]
-    **Rule Violated**: [Which rule/pattern is violated]
-    **Risk Level**: [High/Medium/Low] 
-    **Current Request**: [What user asked for]
-    **Why This Violates Architecture**: [Technical explanation]
+  How to proceed?
 
-    **Recommended Solutions**:
-    1. [Option 1 with proper architecture]
-    2. [Option 2 with alternative approach] 
-    3. [Option 3 if applicable]
-
-    **Preferred Solution**: [Recommend the best option]
-
-    How would you like me to proceed?
-
-  validation_failure_response:
-    never_proceed_without: "User acknowledgment and compliant solution choice"
-    always_provide: "Multiple compliant alternatives"
-    always_explain: "Why the original request violates architecture"
-
-# COMMON PATTERNS LIBRARY (for reuse by other rules)
-common_patterns_library:
-  fsd_violation_patterns:
-    description: "Standard FSD violations that trigger validation"
-    patterns:
-      - "import.*from.*'~/widgets/.*' in app/features/"
-      - "import.*from.*'~/features/.*' in app/entities/"  
-      - "import.*from.*'~/pages/.*' in app/widgets/"
-      - "Cross-layer imports violating hierarchy"
-  
-  di_violation_patterns:
-    description: "Dependency injection violations"
-    patterns:
-      - "import.*Service.*from.*in UI components"
-      - "import.*Client.*from.*in UI components"
-      - "import.*Store.*from.*in UI components"
-      - "Direct service imports in components"
-  
-  security_violation_patterns:
-    description: "Common security violations"
-    patterns:
-      - "dangerouslySetInnerHTML.*userInput"
-      - "innerHTML.*=.*userInput"
-      - "eval\\("
-      - "localStorage.setItem.*password"
-  
-  generator_violation_patterns:
-    description: "Manual creation where generators should be used"
-    patterns:
-      - "export default function ComponentName()"
-      - "Files created in **/ui/**/*.tsx without generator"
-      - "Manual component creation patterns"
-
-  standard_validation_triggers:
-    description: "When any rule detects these patterns, trigger mandatory validation"
-    action: "Use mandatory_pre_execution_validation workflow"
-    format: "Use required_conflict_response_format"
-
-# Workflow validation scope
-workflow_validation_scope:
-  description: "This rule validates adherence to:"
-  areas:
-    - "Generator usage (references `enforce-plop-generator.mdc`)"
-    - "File structure compliance"
-    - "Quality standards maintenance"
-    - "Development best practices"
-    - "**FSD architecture boundaries**"
-    - "**Dependency injection patterns**"
-
-# Post-step verification
-post_step_verification:
-  description: "After each development step completion:"
-  
-  file_creation_verification:
-    description: "File Creation Verification:"
-    checklist:
-      - "✅ Files created using proper method (generator or justified manual)"
-      - "✅ All required files present (main, tests, exports)"
-      - "✅ No manual creation where generator was available"
-      - "✅ Documentation updated if needed"
-
-  quality_assurance_verification:
-    description: "Quality Assurance Verification:"
-    checklist:
-      - "✅ Code follows project standards"
-      - "✅ Tests are included where required"
-      - "✅ Documentation is updated"
-      - "✅ FSD architecture compliance maintained"
-
-  mandatory_architecture_validation:
-    description: "🚨 MANDATORY ARCHITECTURE VALIDATION:"
-    checklist:
-      - "✅ FSD layer boundary violations check: npm run lint [target-files]"
-      - "✅ Dependency injection violations check: npm run lint [target-files]"
-      - "✅ Zero tolerance: ALL FSD/DI errors must be fixed immediately"
-      - "✅ Cross-layer import validation completed"
-
-# Compliance monitoring
-compliance_monitoring:
-  generator_compliance_check:
-    description: "Generator Compliance Check:"
-    items:
-      - "Verify components created via CLI generators (see `enforce-plop-generator.mdc`)"
-      - "Confirm proper file structure and naming"
-      - "Validate test coverage requirements"
-
-  architecture_compliance_check:
-    description: "Architecture Compliance Check:"
-    items:
-      - "FSD layer boundaries respected"
-      - "Import rules followed"
-      - "Proper segment usage"
-      - "**🚨 CRITICAL: Check for widget→feature imports**"
-      - "**🚨 CRITICAL: Check for direct service/hook imports**"
-
-  architectural_violation_detection:
-    description: "🚨 ARCHITECTURAL VIOLATION DETECTION (references mandatory_pre_execution_validation)"
-    detection_refers_to: "Use patterns from mandatory_pre_execution_validation.conflict_detection_triggers"
-    response_format_refers_to: "Use format from mandatory_pre_execution_validation.required_conflict_response_format"
-    
-    emergency_response_protocol:
-      description: "Emergency Response Protocol:"
-      steps:
-        - "🚨 STOP: Use mandatory_pre_execution_validation conflict response format"
-        - "1. ANALYZE the violation using pre-execution checklist"
-        - "2. PROVIDE multiple compliant solutions"
-        - "3. EXPLAIN architectural reasoning"
-        - "4. AWAIT user decision before proceeding"
-        - "5. VALIDATE chosen solution against all rules"
-        - "6. ONLY THEN continue with development"
-
-# Improvement tracking
-improvement_tracking:
-  regular_self_assessment_questions:
-    description: "Regular Self-Assessment Questions:"
-    questions:
-      - "Am I consistently following project standards?"
-      - "Are there recurring issues in my workflow?"
-      - "What improvements can be made to prevent mistakes?"
-
-  quality_metrics:
-    description: "Quality Metrics:"
-    metrics:
-      - "Reduced manual file creation incidents"
-      - "Improved generator adoption rates"
-      - "Better adherence to architectural patterns"
-      - "Faster development cycles with fewer errors"
-      - "**Zero FSD/DI violations in completed code**"
-      - "**Improved architectural awareness**"
-
-  enhanced_validation_questions:
-    description: "Enhanced Self-Assessment Questions:"
-    questions:
-      - "**Am I catching FSD/DI violations early?**"
-      - "**Do I understand the layer hierarchy correctly?**"
-
-# Integration with other rules
-integration_with_other_rules:
-  description: "This rule works as a validation layer for:"
-  related_rules:
-    - "`enforce-plop-generator.mdc` - Generator usage enforcement"
-    - "`enforce-project-structure.mdc` - FSD compliance"
-    - "`feature-slice-baseline.mdc` - Feature requirements"
-    - "`require-pure-function-tests.mdc` - Testing standards"
-    - "**Enhanced ESLint rules** - Automated FSD/DI violation detection"
-  
-  purpose: "This rule serves as a quality gate to ensure consistent, high-quality development practices across all project work."
-
-# What patterns this rule flags as problematic
-anti_patterns:
-  - "Manual file creation where generators are available"
-  - "Skipping file creation verification steps"
-  - "Missing documentation updates"
-  - "Inconsistent adherence to project standards"
-  - "Files created without proper method verification"
-  - "Missing required test files"
-  - "Architecture violations in development workflow"
-  - "Quality standards not maintained during development"
-  - "Generator usage not followed when available"
-  - "Widget→feature imports (major architectural violation)"
-  - "Direct service/hook imports without dependency injection"
-  - "FSD layer boundary violations"
-  - "Cross-layer import violations"
-
-# Correct approach according to this rule
-correct_pattern: |
-  **Post-Step Verification Process:**
-  ```
-  File Creation Verification:
-  1. ✅ Files created using proper method (generator or justified manual)
-  2. ✅ All required files present (main, tests, exports)
-  3. ✅ No manual creation where generator was available
-  4. ✅ Documentation updated if needed
-  
-  Quality Assurance Verification:
-  1. ✅ Code follows project standards
-  2. ✅ Tests are included where required
-  3. ✅ Documentation is updated
-  4. ✅ FSD architecture compliance maintained
-  ```
-
-  **Enhanced Validation Sequence:**
-  ```
-  1. npm run lint:fix (auto-fix common issues)
-  2. npm run type-check (zero tolerance for type errors)
-  3. npm run lint [target-files] (MANDATORY FSD/DI check)
-  4. Fix ALL architectural violations immediately
-  5. npm run test (functionality verification)
-  6. Manual testing of features
-  ```
-
-  **Compliance Monitoring:**
-  ```
-  Generator Compliance:
-  - Verify components created via CLI generators
-  - Confirm proper file structure and naming
-  - Validate test coverage requirements
-
-  Architecture Compliance:
-  - FSD layer boundaries respected
-  - Import rules followed
-  - Proper segment usage
-  - 🚨 CRITICAL: Check for widget→feature imports
-  - 🚨 CRITICAL: Check for direct service/hook imports
-  ```
-
-  **Continuous Improvement:**
-  ```
-  Self-Assessment Questions:
-  - Am I consistently following project standards?
-  - Are there recurring issues in my workflow?
-  - What improvements can be made to prevent mistakes?
-
-  Quality Metrics Tracking:
-  - Reduced manual file creation incidents
-  - Improved generator adoption rates
-  - Better adherence to architectural patterns
-  - Faster development cycles with fewer errors
-  ```
-
-# Patterns that trigger this rule
-flagged_patterns:
-  - "manual component creation"
-  - "missing test files"
-  - "missing documentation updates"
-  - "architecture violations"
-  - "generator not used when available"
-  - "incomplete file structure"
-  - "standards not followed"
-  - "quality checks skipped"
-
-# Solutions this rule suggests
-suggested_solutions:
-  - "Verify components created via CLI generators"
-  - "Confirm proper file structure and naming"
-  - "Validate test coverage requirements"
-  - "Check FSD layer boundaries"
-  - "Ensure import rules are followed"
-  - "Validate proper segment usage"
-  - "Complete post-step verification checklist"
-  - "Monitor and improve quality metrics"
-  - "Conduct regular self-assessment"
-
-# Cases where this rule doesn't apply
-exceptions:
-  - "Generator unavailable for specific file type"
-  - "Legacy code with different patterns"
-  - "Temporary development files"
-  - "Third-party integrations with different standards"
-  - "Experimental features during research phase"
-  - "Emergency fixes with planned follow-up"
-
-# Benefits of following this rule
-benefits:
-  - "**Quality Assurance**: Consistent development practices"
-  - "**Error Prevention**: Early detection of workflow mistakes"
-  - "**Standards Compliance**: Adherence to project requirements"
-  - "**Continuous Improvement**: Regular self-assessment and improvement tracking"
-  - "**Team Coordination**: Uniform workflow across team members"
-  - "**Process Optimization**: Identification and elimination of inefficiencies"
-  - "**Quality Gates**: Systematic validation before proceeding"
-  - "**Best Practices**: Reinforcement of established development patterns"
-  - "**Architectural Integrity**: Zero tolerance for FSD/DI violations"
-  - "**Early Detection**: Automated violation detection through enhanced ESLint rules" 
+validation_requirements:
+  never_proceed_without: "User acknowledgment and compliant solution"
+  always_provide: "Multiple compliant alternatives"
+  always_explain: "Why request violates architecture"
