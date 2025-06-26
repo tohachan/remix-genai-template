@@ -1,8 +1,25 @@
 # === task-approach.yaml ===
 id: task-approach
-description: "Systematic approach for handling user requests to ensure clarity, thoroughness, and focused execution"
+description: "Systematic approach for handling user requests with mandatory architectural validation, ensuring clarity, thoroughness, and focused execution"
 globs: []
 always_apply: true
+
+# MANDATORY VALIDATION CHECKPOINT
+mandatory_validation_checkpoint:
+  description: "🚨 BEFORE ANY CODE ACTION: Execute architectural validation"
+  validation_source: "critical-workflow-checks.yaml -> mandatory_pre_execution_validation"
+  
+  validation_process:
+    description: "All validation logic is centralized in critical-workflow-checks.yaml"
+    reference_workflow:
+      - "Parse user request for architectural implications"
+      - "Run architectural_validation_checklist"
+      - "Check conflict_detection_triggers" 
+      - "If conflicts found → Use required_conflict_response_format"
+      - "If no conflicts → Proceed with file_clarification_requirement"
+      - "Continue with task execution"
+  
+  integration_note: "This checkpoint references and does not duplicate critical-workflow-checks validation"
 
 # File clarification requirements
 file_clarification_requirement:
@@ -382,4 +399,115 @@ benefits:
   - "**Completeness**: Nothing is forgotten or overlooked"
   - "**Efficiency**: Avoids time-consuming workarounds for simple tasks"
   - "**Reliability**: Reduces errors from complex command chains"
-  - "**Transparency**: Makes the editing process clear to users" 
+  - "**Transparency**: Makes the editing process clear to users"
+
+# 🚨 MANDATORY SLICE BASELINE VERIFICATION 
+mandatory_slice_baseline_verification:
+  description: "**BEFORE STARTING ANY SLICE WORK:**"
+  
+  step_0_baseline_requirements_check:
+    description: "Step 0: Baseline Requirements Check (MANDATORY)"
+    requirement: "**I MUST perform this check before any development:**"
+    
+    steps:
+      - "1. **Identify the target slice and layer** from user request"
+      - "2. **Run baseline verification** using appropriate checklist:"
+      - "   - Features: api.ts, api.spec.ts, hooks.ts, hooks.spec.ts, ui/, README.md, index.ts"
+      - "   - Pages: ui/index.tsx, ui/index.spec.tsx, README.md, index.ts, route file"
+      - "   - Widgets: ui/, tests, README.md, index.ts"
+      - "   - Entities: model/, README.md, index.ts"
+      - "3. **If ANY baseline file is missing:**"
+      - "   ```"
+      - "   ⚠️ INCOMPLETE SLICE DETECTED: app/[layer]/[slice]/"
+      - "   "
+      - "   Missing baseline files:"
+      - "   - [list each missing file]"
+      - "   "
+      - "   Auto-creating files:"
+      - "   - npm run generate:readme [slice] (if README.md missing)"
+      - "   - [other generator commands for missing files]"
+      - "   "
+      - "   Creating missing baseline files automatically..."
+      - "   ```"
+      - "4. **AUTOMATICALLY CREATE** all missing baseline files using generators"
+      - "5. **Verify completion** - re-check all files exist"
+      - "6. **PROCEED** with the actual request"
+    
+    note: "**NO USER CONFIRMATION NEEDED** - Always auto-create missing files immediately."
+
+  step_0_5_generator_availability_check:
+    description: "Step 0.5: Generator Availability Check (MANDATORY)"
+    requirement: "**For every file I need to create:**"
+    
+    steps:
+      - "1. **Check if generator exists** for the file type"
+      - "2. **Use generator if available** (components, README, tests)"
+      - "3. **Document manual creation reason** if no generator available"
+
+# UPDATED EXECUTION PLANNING
+updated_execution_planning:
+  simple_tasks_1_3_steps:
+    format: |
+      **Execution Plan:**
+
+      STEP 0: 🚨 MANDATORY BASELINE VERIFICATION
+      - Target slice: app/[layer]/[slice]/
+      - Baseline check: [Feature/Page/Widget/Entity checklist]
+      - Missing files: [list any missing files]
+      - Action: [Create missing files or "All baseline files present ✅"]
+
+      1. [Step 1 description] 
+         - Generator check: [List applicable generators for this step]
+      2. [Step 2 description]
+         - Generator needed: [Yes/No - specify which one]
+      3. [Step 3 description]
+         - Manual file creation: [Only if no generator available]
+
+      FINAL VALIDATION:
+      - npm run lint:fix (auto-fix violations)  
+      - npm run type-check (zero tolerance for type errors)
+      - npm run test (verify functionality)
+      - Baseline re-verification: [Confirm all baseline files still exist]
+
+      I'll now proceed with Step 0 baseline verification.
+
+  complex_tasks_4_plus_steps:
+    format: |
+      # Task: [Brief task description]
+
+      ## STEP 0: 🚨 MANDATORY BASELINE VERIFICATION
+      - [ ] Target slice identified: app/[layer]/[slice]/
+      - [ ] Baseline checklist applied: [Feature/Page/Widget/Entity]
+      - [ ] Missing files detected: [list or "None ✅"]
+      - [ ] Missing files created using generators
+      - [ ] Baseline verification complete ✅
+
+      ## Steps:
+      - [ ] Step 1: [Description]
+        - Generator check: [CLI generator needed? Which one?]
+      - [ ] Step 2: [Description]  
+        - Generator check: [CLI generator needed? Which one?]
+      ...
+
+      ## Final Validation:
+      - [ ] npm run lint:fix 
+      - [ ] npm run type-check (ALL errors fixed)
+      - [ ] npm run test
+      - [ ] Baseline re-verification complete ✅
+
+# ENFORCEMENT: NO EXCEPTIONS
+enforcement_no_exceptions:
+  never_allowed:
+    - "Skip Step 0 baseline verification"
+    - "Proceed without checking all baseline files"
+    - "Report completion without re-verifying baseline requirements"
+    - "Ignore missing README.md files"
+    - "Create incomplete slices"
+    - "Ask for confirmation before creating baseline files"
+  
+  must_always:
+    - "Run baseline verification first"
+    - "Automatically create missing baseline files immediately using generators"
+    - "Use generators for all supported file types"
+    - "Re-verify baseline completion after changes"
+    - "Report any baseline violations and auto-fix them" 

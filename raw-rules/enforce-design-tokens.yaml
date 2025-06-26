@@ -1,13 +1,26 @@
 # === enforce-design-tokens.yaml ===
-id: enforce-design-tokens
-description: "Prevents the use of hard-coded color values, numeric spacing values, and other design literals in JSX inline styles, CSS files, styled-components, emotion, and other CSS-in-JS libraries. All styling values must reference design tokens from ~/shared/config/theme.ts"
+id: enforce-design-tokens  
+description: "Prevents the use of hard-coded design values and triggers mandatory validation when design token violations are detected"
 globs:
   - "**/*.tsx"
   - "**/*.ts"
   - "**/*.css"
-  - "**/*.scss"
+  - "**/*.scss"  
   - "**/*.less"
 always_apply: true
+
+# Auto-detection integration with critical-workflow-checks
+auto_detection_integration:
+  description: "Design token violations trigger mandatory architectural validation"
+  
+  violation_triggers:
+    - "Hard-coded hex colors (#ffffff, #000000, etc.)"
+    - "Hard-coded spacing values (16px, 1rem, etc.)"
+    - "Hard-coded typography values (font-size: 16px, etc.)"
+    - "Hard-coded border-radius, box-shadow, z-index values"
+  
+  validation_workflow: "Use critical-workflow-checks -> mandatory_pre_execution_validation"
+  response_format: "Use required_conflict_response_format with design token alternatives"
 
 # Prohibited patterns
 prohibited_patterns:

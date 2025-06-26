@@ -369,4 +369,15 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { generateReadme, analyzeSliceStructure, extractPublicApi };
+module.exports = { generateReadme, generateReadmeForSlice, analyzeSliceStructure, extractPublicApi };
+
+// Wrapper function that finds slice and generates README
+function generateReadmeForSlice(sliceName) {
+  const sliceInfo = findSliceDirectory(sliceName);
+
+  if (!sliceInfo.exists) {
+    throw new Error(`Slice "${sliceName}" not found in any FSD layer`);
+  }
+
+  return generateReadme(sliceInfo.path, sliceName, sliceInfo.layer, true);
+}

@@ -322,7 +322,7 @@ function generateComponentFiles(options) {
 
   const componentPath = getComponentPath(layer, slice, componentName);
 
-  // For features layer, use slice-based naming
+  // For features layer, use business component naming (not page naming)
   // For pages layer, use index.tsx pattern to match existing project structure
   const isFeature = layer === 'features';
   const isPage = layer === 'pages';
@@ -334,8 +334,9 @@ function generateComponentFiles(options) {
     actualComponentName = 'index';
     componentFileName = 'index.tsx';
   } else if (isFeature) {
-    // Features use slice-based naming
-    actualComponentName = `${slice}.page`;
+    // Features use business component naming (NOT page naming)
+    // Examples: LoginForm, TaskCard, UserProfile
+    actualComponentName = componentName;
     componentFileName = `${actualComponentName}.tsx`;
   } else {
     // Other layers use component name

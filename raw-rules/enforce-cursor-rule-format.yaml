@@ -50,6 +50,33 @@ conflict_detection_and_resolution:
     - "Existing rules with similar functionality"
     - "Potential conflicts with established rules"
     - "Redundant or overlapping requirements"
+  when_conflicts_found:
+    description: "**If conflicts or similar rules are found**, immediately report to the user:"
+    actions:
+      - "List the conflicting/similar rules"
+      - "Explain the specific conflicts or overlaps"
+      - "Propose resolution strategies (merge, modify, or replace)"
+  resolution_requirement: "**Do not proceed** with rule creation/updates until conflicts are resolved"
+
+# Meta-rule: mandatory architectural validation integration
+meta_rule_validation_integration:
+  description: "All rules must integrate with the mandatory validation system"
+  requirements:
+    - "**Reference critical-workflow-checks** for validation triggers"
+    - "**Use standardized conflict response format** from critical-workflow-checks"
+    - "**Avoid duplicating validation logic** - reference central validation system"
+    - "**Include clear violation triggers** that activate mandatory validation"
+    - "**Specify integration points** with critical-workflow-checks"
+
+  validation_integration_template: |
+    # Auto-detection integration (add to rule files)
+    auto_detection_integration:
+      description: "[Rule] violations trigger mandatory architectural validation"
+      violation_triggers: ["List specific patterns that trigger validation"]
+      validation_workflow: "Use critical-workflow-checks -> mandatory_pre_execution_validation"
+      response_format: "Use required_conflict_response_format with [rule-specific] alternatives"
+    - "Potential conflicts with established rules"
+    - "Redundant or overlapping requirements"
   
   when_conflicts_found:
     description: "**If conflicts or similar rules are found**, immediately report to the user:"

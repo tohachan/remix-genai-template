@@ -1,17 +1,26 @@
 # === require-di-pattern.yaml ===
 id: require-di-pattern
-description: "Enforces proper dependency injection patterns in React components by flagging direct imports of service singletons and suggesting the use of DI providers or React context hooks instead"
+description: "Enforces proper dependency injection patterns in React components by flagging direct imports of service singletons and triggering mandatory architectural validation"
 globs:
   - "**/*.tsx"
   - "**/*.jsx"
 always_apply: false
 
-# Detection patterns
+# Detection patterns (integrates with critical-workflow-checks)
 detection_patterns:
-  description: "This rule detects and flags direct imports of service instances using these patterns:"
+  description: "This rule detects DI violations and triggers critical-workflow-checks validation"
+  
+  trigger_validation: "When DI violations found, use critical-workflow-checks -> mandatory_pre_execution_validation"
+  
+  violation_response_reference: "Use required_conflict_response_format from critical-workflow-checks.yaml"
   
   service_import_patterns:
-    description: "Service Import Patterns"
+    description: "Service Import Patterns (triggers architectural validation)"
+    patterns_that_trigger_validation:
+      - "import.*Service.*from.*"
+      - "import.*Client.*from.*"
+      - "import.*Store.*from.*"
+      - ".create(*"
     regex_patterns:
       - "/^import\\s+(\\w+)\\s+from\\s+['\"].*[Ss]ervice(s)?['\"];?$/m"
       - "/^import\\s+\\{\\s*(\\w*[Ss]ervice\\w*)\\s*\\}\\s+from/m"

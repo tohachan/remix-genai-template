@@ -1,12 +1,33 @@
 # === enforce-layer-boundaries.yaml ===
 id: enforce-layer-boundaries
-description: "Prevents direct cross-imports between different segments within the same FSD feature slice, maintaining clean separation of concerns and proper architectural boundaries"
+description: "Prevents direct cross-imports between different segments within the same FSD feature slice, with automatic violation detection that triggers mandatory validation workflow"
 globs:
   - "app/features/**/ui/**/*.tsx"
   - "app/features/**/ui/**/*.ts"
   - "app/features/**/api.ts"
   - "app/features/**/hooks.ts"
 always_apply: true
+
+# Auto-detection patterns (triggers critical-workflow-checks validation)
+auto_detection_patterns:
+  critical_violations:
+    description: "These patterns automatically trigger mandatory_pre_execution_validation from critical-workflow-checks"
+    patterns:
+      - "import.*from.*'~/widgets/.*' in app/features/"
+      - "import.*from.*'~/features/.*' in app/entities/"
+      - "import.*from.*'~/pages/.*' in app/widgets/"
+      - "import { loginUser, fetchUserProfile } from '../api' in UI files"
+      - "import.*Service.*from.*in UI components"
+      - "import.*Client.*from.*in UI components"
+
+  violation_handling:
+    description: "When violations detected:"
+    process:
+      - "STOP execution immediately"
+      - "Use critical-workflow-checks -> mandatory_pre_execution_validation -> required_conflict_response_format"
+      - "Present architectural alternatives" 
+      - "Wait for user decision"
+    format_reference: "critical-workflow-checks.yaml -> required_conflict_response_format"
 
 # Prohibited import patterns
 prohibited_import_patterns:

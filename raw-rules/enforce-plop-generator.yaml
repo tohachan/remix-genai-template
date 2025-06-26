@@ -6,8 +6,24 @@ globs:
   - "**/ui/**/*.ts"
 always_apply: true
 
-# Mandatory stop points - critical workflow checks
+# Mandatory stop points - critical workflow checks (integrates with critical-workflow-checks)
 mandatory_stop_points:
+  auto_detection_patterns:
+    description: "These patterns trigger mandatory validation workflow"
+    manual_creation_indicators:
+      - "export default function ComponentName()"
+      - "Files created in **/ui/**/*.tsx without generator"
+      - "Missing test files for components"
+      - "Incorrect index.ts export structure"
+    
+    violation_handling:
+      description: "When manual creation detected, use critical-workflow-checks validation format"
+      process:
+        - "STOP immediately"
+        - "Use critical-workflow-checks -> mandatory_pre_execution_validation -> required_conflict_response_format"
+        - "Show generator alternatives"
+        - "Wait for user acknowledgment"
+
   before_creating_any_file:
     planning_phase_check:
       - "**Created execution plan** with step-by-step breakdown?"
@@ -87,8 +103,9 @@ workflow_integration:
   generator_check_requirements:
     before_any_file_creation_step:
       component_tsx_file: "Use `npm run generate:component`"
+      feature_complete_bundle: "Use `npm run generate:feature` for complete business features"
       readme_md_in_feature: "Use `npm run generate:readme`"
-      test_file: "Check if `npm run generate:test` exists"
+      test_file: "Use `npm run generate:test` for utility test files"
       other_file_type: "Check available generators first"
 
     generator_first_step_pattern: |
@@ -109,6 +126,7 @@ required_generator_usage:
     shared_button: "npm run generate:component -- Button --layer shared --includeTests true --includeStorybook false"
     feature_login: "npm run generate:component -- LoginForm --layer features --slice auth --includeTests true --includeStorybook false"
     widget_user_card: "npm run generate:component -- UserCard --layer widgets --slice profile --includeStorybook true --includeTests true"
+    complete_feature: "npm run generate:feature -- user-authentication --template with-api --layer features --includeTests true --includeStorybook false"
 
   help_command: "npm run generate:component -- --help"
 
@@ -237,8 +255,9 @@ generator_philosophy_and_scope:
 specific_generator_triggers:
   always_use_generators_for:
     react_components: "**React Components** (.tsx files) → `npm run generate:component`"
+    complete_features: "**Complete business features** (when creating multiple files for a feature) → `npm run generate:feature`"
     feature_readme: "**Feature README** files → `npm run generate:readme`"
-    test_files: "**Test files** (if generator exists) → `npm run generate:test`"
+    test_files: "**Test files** for utilities → `npm run generate:test`"
     storybook_stories: "**Storybook stories** → Component generator with `--includeStorybook true`"
 
   manual_creation_only_when:

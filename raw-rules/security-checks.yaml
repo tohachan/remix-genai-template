@@ -1,6 +1,6 @@
 # === security-checks.yaml ===
 id: security-checks
-description: "Enforces secure coding practices by detecting common security vulnerabilities and requiring immediate notification to users when potential security issues are found"
+description: "Enforces secure coding practices by detecting common security vulnerabilities and triggering mandatory architectural validation with immediate user notification"
 globs:
   - "**/*.ts"
   - "**/*.tsx"
@@ -8,18 +8,41 @@ globs:
   - "**/*.jsx"
 always_apply: true
 
-# Critical requirement - always alert users
+# Critical requirement - integrates with critical-workflow-checks
 critical_requirement:
-  description: "When ANY security vulnerability is detected, **immediately alert the user** using this format:"
-  alert_format: |
+  description: "When ANY security vulnerability is detected, trigger mandatory validation workflow"
+  
+  auto_detection_triggers:
+    high_risk_patterns:
+      - "dangerouslySetInnerHTML.*userInput"
+      - "innerHTML.*=.*userInput"
+      - "eval\\("
+      - "new Function\\("
+      - "localStorage.setItem.*password"
+      - "console.log.*password"
+      - "SELECT.*\\+.*user"
+      - "WHERE.*\\$\\{.*\\}"
+  
+  integration_with_validation: "Use critical-workflow-checks -> mandatory_pre_execution_validation -> required_conflict_response_format"
+  
+  security_specific_format: |
     🚨 SECURITY ALERT: [Brief description of the issue]
 
     **Issue**: [Detailed explanation of the security problem]
-    **Risk Level**: [High/Medium/Low]
-    **Location**: [File path and line number if applicable]
-    **Recommended Fix**: [Specific remediation steps]
+    **Risk Level**: HIGH
+    **Location**: [File path and line number if applicable] 
+    **Rule Violated**: security-checks -> [specific security rule]
+    **Current Request**: [What user asked for]
 
-    Please address this security issue before proceeding with development.
+    **Recommended Solutions**:
+    1. [Secure implementation option 1]
+    2. [Secure implementation option 2]
+    
+    **Security Best Practice**: [Explanation of secure approach]
+
+    Please choose a secure solution before proceeding.
+
+  triggers_mandatory_validation: "All security violations must use the mandatory validation workflow"
 
 # Common security vulnerabilities to detect and flag
 security_vulnerabilities:
