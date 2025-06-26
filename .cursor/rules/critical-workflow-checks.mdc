@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
 # Critical Workflow Validation
@@ -14,6 +14,8 @@ This rule validates adherence to:
 - File structure compliance 
 - Quality standards maintenance
 - Development best practices
+- **FSD architecture boundaries**
+- **Dependency injection patterns**
 
 ## 📋 POST-STEP VERIFICATION
 
@@ -35,6 +37,14 @@ After each development step completion:
 4. ✅ FSD architecture compliance maintained
 ```
 
+### 🚨 MANDATORY ARCHITECTURE VALIDATION:
+```
+5. ✅ FSD layer boundary violations check: npm run lint [target-files]
+6. ✅ Dependency injection violations check: npm run lint [target-files]
+7. ✅ Zero tolerance: ALL FSD/DI errors must be fixed immediately
+8. ✅ Cross-layer import validation completed
+```
+
 ## 🔍 COMPLIANCE MONITORING
 
 ### Generator Compliance Check:
@@ -46,6 +56,34 @@ After each development step completion:
 - FSD layer boundaries respected
 - Import rules followed
 - Proper segment usage
+- **🚨 CRITICAL: Check for widget→feature imports**
+- **🚨 CRITICAL: Check for direct service/hook imports**
+
+### 🚨 ARCHITECTURAL VIOLATION DETECTION
+
+When ESLint detects these errors, **IMMEDIATELY STOP** and fix:
+
+#### Common FSD Violations:
+- `fsd/no-direct-service-imports` - Widgets importing from features
+- `enforce-fsd-layer-boundaries` - Invalid layer imports
+- Direct API imports in UI components
+- Cross-slice imports within same layer
+
+#### Common DI Violations:
+- Hook imports directly from feature layers
+- Service imports without dependency injection
+- Client imports in components
+
+#### Emergency Response Protocol:
+```
+🚨 ARCHITECTURAL VIOLATION DETECTED:
+1. STOP current development immediately
+2. ANALYZE the violation and root cause
+3. REFACTOR to follow proper FSD/DI patterns
+4. VALIDATE fix doesn't introduce new violations
+5. DOCUMENT the architectural decision
+6. ONLY THEN continue with development
+```
 
 ## 💡 IMPROVEMENT TRACKING
 
@@ -53,12 +91,41 @@ After each development step completion:
 - Am I consistently following project standards?
 - Are there recurring issues in my workflow?
 - What improvements can be made to prevent mistakes?
+- **Am I catching FSD/DI violations early?**
+- **Do I understand the layer hierarchy correctly?**
 
 ### Quality Metrics:
 - Reduced manual file creation incidents
 - Improved generator adoption rates
 - Better adherence to architectural patterns
 - Faster development cycles with fewer errors
+- **Zero FSD/DI violations in completed code**
+- **Improved architectural awareness**
+
+## 🚨 SYSTEMATIC ERROR PREVENTION
+
+### Before ANY File Creation:
+1. **Check generators first** - reference `enforce-plop-generator.mdc`
+2. **Understand FSD layer** where file belongs
+3. **Plan import dependencies** to avoid violations
+4. **Validate architecture** before implementation
+
+### Enhanced Validation Sequence:
+```
+1. npm run lint:fix (auto-fix common issues)
+2. npm run type-check (zero tolerance for type errors)
+3. npm run lint [target-files] (MANDATORY FSD/DI check)
+4. Fix ALL architectural violations immediately
+5. npm run test (functionality verification)
+6. Manual testing of features
+```
+
+### Root Cause Analysis Requirement:
+When violations occur, **always ask**:
+- Why did this violation happen?
+- What was the thought process that led to it?
+- How can the workflow prevent this in the future?
+- What gaps exist in the current validation?
 
 ## 🎯 INTEGRATION WITH OTHER RULES
 
@@ -67,7 +134,23 @@ This rule works as a validation layer for:
 - `enforce-project-structure.mdc` - FSD compliance
 - `feature-slice-baseline.mdc` - Feature requirements
 - `require-pure-function-tests.mdc` - Testing standards
+- **Enhanced ESLint rules** - Automated FSD/DI violation detection
 
-This rule serves as a quality gate to ensure consistent, high-quality development practices across all project work.
+## 🔄 CONTINUOUS LEARNING
+
+### From Violations to Improvements:
+- Each architectural violation is a learning opportunity
+- Update workflow based on recurring issues
+- Strengthen automation to catch violations earlier
+- Improve rule clarity based on common mistakes
+
+### Success Indicators:
+- ✅ Consistent use of generators for all supported file types
+- ✅ Zero FSD layer boundary violations
+- ✅ Zero dependency injection violations
+- ✅ Improved development speed through better practices
+- ✅ Reduced time spent fixing architectural issues
+
+This rule serves as a comprehensive quality gate to ensure consistent, architecturally-sound development practices across all project work.
 
 [Cursor Rule] Applying critical-workflow-checks.mdc — Workflow validation

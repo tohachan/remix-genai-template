@@ -174,6 +174,8 @@ const rules = {
         directApiImportInUI:
           'UI component should not directly import from API layer. Use hooks instead.',
         uiImportInApi: 'API layer should not import UI components',
+        widgetImportingFromFeature:
+          'Widget layer cannot import hooks/services from feature layer. Create abstracted hooks in shared layer instead.',
       },
       schema: [],
     },
@@ -198,6 +200,25 @@ const rules = {
           const importFSD = getFSDLayer(importPath);
 
           if (!currentFSD || !importFSD) return;
+
+          // Special case: Check for widgets importing hooks from features
+          if (currentFSD.layer === 'widgets' && importFSD.layer === 'features') {
+            // Check if importing hooks/services (common DI violation)
+            const importedNames = node.specifiers.map(spec => spec.local.name);
+            const hasHookImports = importedNames.some(name => name.startsWith('use'));
+
+            if (hasHookImports) {
+              context.report({
+                node,
+                messageId: 'widgetImportingFromFeature',
+                data: {
+                  fromLayer: currentFSD.layer,
+                  toLayer: importFSD.layer,
+                },
+              });
+              return; // Don't continue with general layer check
+            }
+          }
 
           // Check layer boundaries
           if (!layerHierarchy[currentFSD.layer]?.includes(importFSD.layer)) {
@@ -378,6 +399,8 @@ const rules = {
           'Avoid direct service import "{{service}}". Use DI hook like use{{ServiceName}}() instead.',
         directClientImport:
           'Avoid direct client import "{{client}}". Use DI pattern instead.',
+        directFeatureHookImport:
+          'Avoid importing hooks directly from feature layers. Use dependency injection or create abstracted hooks in shared layer.',
       },
       schema: [],
     },
@@ -394,6 +417,20 @@ const rules = {
 
           // Skip react-dom imports (they're allowed)
           if (importPath.includes('react')) return;
+
+          // NEW: Check for direct feature hook imports in widgets
+          if (filename.includes('/widgets/') && importPath.includes('/features/')) {
+            const importedNames = node.specifiers.map(spec => spec.local.name);
+            const hasHookImports = importedNames.some(name => name.startsWith('use'));
+
+            if (hasHookImports) {
+              context.report({
+                node,
+                messageId: 'directFeatureHookImport',
+                data: { hooks: importedNames.filter(name => name.startsWith('use')).join(', ') },
+              });
+            }
+          }
 
           // Check for service imports
           if (

@@ -114,7 +114,7 @@ async function promptForFeatureDetails(cliArgs = {}) {
     questions.push({
       type: 'input',
       name: 'featureName',
-      message: 'Enter feature name (e.g., user-management, product-catalog):',
+      message: 'Enter feature name (e.g., user-authentication, task-management):',
       validate: input => {
         if (!input.trim()) {
           return 'Feature name is required';
@@ -247,19 +247,6 @@ function generateFeatureFiles(options) {
     fs.writeFileSync(componentFile, componentContent);
     files.push(componentFile);
 
-    // Generate page component for features layer
-    if (layer === 'features') {
-      const pageTemplate = loadTemplate('page.hbs');
-      const pageContent = Handlebars.compile(pageTemplate)({
-        ...templateData,
-        componentName: `${componentName}Page`,
-        featureName,
-      });
-      const pageFile = path.join(uiPath, `${featureName}.page.tsx`);
-      fs.writeFileSync(pageFile, pageContent);
-      files.push(pageFile);
-    }
-
     // Generate tests if requested
     if (includeTests) {
       const testTemplate = loadTemplate('component.spec.hbs');
@@ -267,16 +254,6 @@ function generateFeatureFiles(options) {
       const testFile = path.join(uiPath, `${componentName}.spec.tsx`);
       fs.writeFileSync(testFile, testContent);
       files.push(testFile);
-
-      if (layer === 'features') {
-        const pageTestFile = path.join(uiPath, `${featureName}.page.spec.tsx`);
-        const pageTestContent = Handlebars.compile(testTemplate)({
-          ...templateData,
-          componentName: `${componentName}Page`,
-        });
-        fs.writeFileSync(pageTestFile, pageTestContent);
-        files.push(pageTestFile);
-      }
     }
 
     // Generate Storybook stories if requested
@@ -334,13 +311,13 @@ function showHelp() {
   console.log(`
 🚀 FSD Feature Generator
 
-Generate complete features with different templates (CRUD list, Chart widget, Kanban widget).
+Generate reusable business features following Feature-Sliced Design principles.
 
 USAGE:
   npm run generate:feature -- <featureName> --template <template> --layer <layer> [options]
 
 ARGUMENTS:
-  featureName              Feature name (kebab-case, e.g., user-management)
+  featureName              Feature name (kebab-case, e.g., user-authentication, task-management)
 
 OPTIONS:
   --template <template>    Feature template (crud-list | chart-widget | kanban-widget)
@@ -350,27 +327,44 @@ OPTIONS:
   -h, --help              Show this help message
 
 TEMPLATES:
-  crud-list               Full CRUD operations with list view
-  chart-widget            Data visualization with charts and stats  
-  kanban-widget           Drag-and-drop kanban board
+  crud-list               Full CRUD operations with reusable forms and lists
+  chart-widget            Data visualization components with charts and stats  
+  kanban-widget           Drag-and-drop kanban components
+
+LAYERS:
+  features                Reusable business components (LoginForm, TaskCard, UserProfile)
+  widgets                 Large UI compositions that combine multiple features
 
 EXAMPLES:
-  npm run generate:feature -- user-management --template crud-list --layer features --includeTests true --includeStorybook false
-  npm run generate:feature -- analytics-dashboard --template chart-widget --layer widgets --includeTests true --includeStorybook true
-  npm run generate:feature -- task-board --template kanban-widget --layer features --includeTests true --includeStorybook false
+  npm run generate:feature -- user-authentication --template crud-list --layer features --includeTests true
+  npm run generate:feature -- analytics-dashboard --template chart-widget --layer widgets --includeTests true
+  npm run generate:feature -- task-board --template kanban-widget --layer widgets --includeStorybook true
 
-GENERATED STRUCTURE:
-  app/[layer]/[featureName]/
+GENERATED STRUCTURE (Features Layer):
+  app/features/[featureName]/
   ├── ui/
-  │   ├── [FeatureName].tsx     # Main component
-  │   ├── [FeatureName].spec.tsx # Tests (if --includeTests)
-  │   └── [FeatureName].stories.tsx # Storybook (if --includeStorybook)
-  ├── api.ts                     # API (if template requires)
+  │   ├── [FeatureName].tsx     # Main business component (e.g., LoginForm, TaskCard)
+  │   └── [FeatureName].spec.tsx # Component tests (if --includeTests)
+  ├── api.ts                     # API interactions (if template requires)
   ├── api.spec.ts                # API tests
   ├── hooks.ts                   # Custom hooks (if template requires)
   ├── hooks.spec.ts              # Hooks tests
   ├── index.ts                   # Public exports
   └── README.md                  # Auto-generated documentation
+
+GENERATED STRUCTURE (Widgets Layer):
+  app/widgets/[featureName]/
+  ├── ui/
+  │   ├── [FeatureName].tsx     # Widget composition component
+  │   └── [FeatureName].spec.tsx # Widget tests (if --includeTests)
+  ├── index.ts                   # Public exports
+  └── README.md                  # Auto-generated documentation
+
+FSD ARCHITECTURE NOTES:
+  - Features contain REUSABLE business components, NOT pages
+  - Pages are created separately in app/pages/ layer
+  - Features are imported by pages and widgets for composition
+  - Each feature should solve ONE specific business problem
 `);
 }
 

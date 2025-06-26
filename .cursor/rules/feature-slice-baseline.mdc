@@ -3,10 +3,9 @@ description: "Feature Slice Baseline Structure"
 globs: []
 alwaysApply: true
 ---
-
 # Feature Slice Baseline Structure
 
-This rule enforces that each feature slice under `app/features/` contains the required baseline files and directories.
+This rule enforces that each feature slice under `app/features/` contains the required baseline files and directories for **reusable business features**.
 
 ## Required Structure
 
@@ -16,10 +15,26 @@ Each feature slice directory `app/features/<feature>/` **must** contain:
 - `api.spec.ts` — Unit tests for API functions (next to api.ts)
 - `hooks.ts` — React hooks specific to this feature  
 - `hooks.spec.ts` — Unit tests for hooks (next to hooks.ts)
-- `ui/` — UI components directory
-- `ui/<feature>.page.tsx` — Main page component (where `<feature>` matches the directory name)
-- `ui/<feature>.page.spec.ts` — Integration tests for page component (next to page.tsx)
+- `ui/` — UI components directory containing **reusable business components**
+- `ui/<ComponentName>.tsx` — Main business component (e.g., LoginForm, TaskCard, UserProfile)
+- `ui/<ComponentName>.spec.ts` — Unit tests for components
 - `README.md` — Feature documentation
+
+## ❌ What Features Should NOT Contain
+
+Features are **business logic**, not pages. Features should NOT contain:
+- `ui/<feature>.page.tsx` — Page components belong in `app/pages/` layer
+- Full page layouts or routing logic
+- Application-level concerns
+
+## ✅ What Features Should Contain
+
+Features should contain **reusable business functionality**:
+- Forms (LoginForm, TaskForm, UserProfileForm)
+- Cards (TaskCard, UserCard, ProductCard) 
+- Modals (ConfirmationModal, EditModal)
+- Business logic hooks (useAuth, useTaskManagement)
+- API interactions (loginUser, createTask, updateProfile)
 
 ## Enforcement Rules
 
@@ -28,56 +43,72 @@ When working in any feature slice directory (`app/features/<feature>/`):
 1. **Check for missing baseline files** before making changes
 2. **If any required files are missing**, immediately prompt:
    ```
-   Create missing file <path> with template from scripts/templates/feature_README.md.
+   Create missing file <path> with appropriate business component template.
    ```
 3. **Do not proceed** with feature development until baseline structure is complete
 
 ## Examples
 
-**✅ Correct Feature Structure:**
+**✅ Correct Feature Structure (Business Components):**
 ```
-app/features/auth/
-├── api.ts
+app/features/user-authentication/
+├── api.ts                    # Authentication API calls
 ├── api.spec.ts
-├── hooks.ts  
+├── hooks.ts                  # useAuth, useLogin hooks
 ├── hooks.spec.ts
 ├── ui/
-│   ├── LoginForm.tsx
-│   ├── SignupForm.tsx
-│   ├── auth.page.tsx
-│   └── auth.page.spec.ts
+│   ├── LoginForm.tsx         # Reusable login form
+│   ├── LoginForm.spec.tsx
+│   ├── SignupForm.tsx        # Reusable signup form
+│   └── SignupForm.spec.tsx
 └── README.md
 ```
 
-**❌ Missing Required Files:**
+**✅ Correct Feature Structure (Task Management):**
 ```
-app/features/profile/
-├── hooks.ts
+app/features/task-management/
+├── api.ts                    # Task CRUD operations
+├── api.spec.ts
+├── hooks.ts                  # useTaskManagement hooks
+├── hooks.spec.ts
 ├── ui/
-│   ├── ProfileCard.tsx
-│   └── profile.page.tsx
-# Missing: api.ts, api.spec.ts, hooks.spec.ts, ui/profile.page.spec.ts, README.md
+│   ├── TaskCard.tsx          # Reusable task display
+│   ├── TaskCard.spec.tsx
+│   ├── TaskForm.tsx          # Reusable task form
+│   └── TaskForm.spec.tsx
+└── README.md
 ```
 
-In the incorrect example above, the rule should prompt:
-- "Create missing file app/features/profile/api.ts with template from scripts/templates/feature_README.md."
-- "Create missing file app/features/profile/api.spec.ts with template from scripts/templates/feature_README.md."
-- "Create missing file app/features/profile/hooks.spec.ts with template from scripts/templates/feature_README.md."
-- "Create missing file app/features/profile/ui/profile.page.spec.ts with template from scripts/templates/feature_README.md."
-- "Create missing file app/features/profile/README.md with template from scripts/templates/feature_README.md."
+**❌ Incorrect Feature Structure (Page Components):**
+```
+app/features/dashboard/
+├── ui/
+│   └── dashboard.page.tsx    # ❌ Pages belong in app/pages/
+```
 
 ## Feature Name Matching
 
-- The `ui/<feature>.page.tsx` and related test files must use the exact directory name
-- For feature directory `app/features/user-profile/`, the files should be:
-  - `ui/user-profile.page.tsx`
-  - `ui/user-profile.page.spec.ts`
-  - `api.spec.ts`
-  - `hooks.spec.ts`
+- Component names should reflect **business purpose**, not page names
+- For feature directory `app/features/user-management/`, components should be:
+  - `ui/UserForm.tsx` (not `ui/user-management.page.tsx`)
+  - `ui/UserCard.tsx`
+  - `ui/UserList.tsx`
 
 ## Integration with FSD
 
 This rule works in conjunction with Feature-Sliced Design principles:
-- Each feature represents a complete product feature
-- All baseline files ensure consistent development patterns
-- The `ui/` directory can contain multiple components following FSD segment conventions
+- Each feature represents a **reusable business capability**
+- Features are **imported by pages and widgets** for composition
+- Features focus on **business logic**, not presentation layout
+- Page composition happens in the **pages layer**
+
+## Correct Architecture Flow
+
+```
+app/pages/dashboard/ui/index.tsx     ← Composes widgets and features
+    ↓ imports
+app/widgets/user-dashboard/          ← Composes multiple features  
+    ↓ imports
+app/features/user-management/        ← Provides UserCard, UserForm
+app/features/task-management/        ← Provides TaskCard, TaskList
+```

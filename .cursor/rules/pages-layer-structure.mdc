@@ -1,0 +1,151 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Pages Layer Structure
+
+This rule enforces that the `app/pages/` layer contains **full page components** that compose widgets and features according to FSD principles.
+
+## Required Structure
+
+Each page slice directory `app/pages/<page>/` **must** contain:
+
+- `ui/index.tsx` — Main page component that composes widgets and features
+- `ui/index.spec.tsx` — Integration tests for the full page
+- `README.md` — Page documentation including routing and SEO information
+
+## ✅ What Pages Should Contain
+
+Pages are **composition layers** that should:
+- **Import and compose widgets** from `app/widgets/`
+- **Import and compose features** from `app/features/`
+- **Handle page-level concerns**: routing, SEO, layout, data loading
+- **Provide page-specific context** and state management
+
+## ❌ What Pages Should NOT Contain
+
+Pages should NOT contain:
+- **Business logic** — belongs in features
+- **Reusable components** — belongs in features or shared
+- **API calls** — should be abstracted through features/widgets
+- **Complex state management** — should be in features or shared
+
+## Examples
+
+**✅ Correct Page Structure:**
+```
+app/pages/dashboard/
+├── ui/
+│   ├── index.tsx         # Main dashboard page
+│   └── index.spec.tsx    # Page integration tests
+└── README.md             # Page documentation
+```
+
+**✅ Correct Page Implementation:**
+```tsx
+// app/pages/dashboard/ui/index.tsx
+import { UserDashboard } from '~/widgets/user-dashboard';
+import { TaskBoard } from '~/widgets/task-board';
+import { AnalyticsWidget } from '~/widgets/analytics-widget';
+
+export default function DashboardPage() {
+  return (
+    <div className="dashboard-page">
+      <header>
+        <h1>Dashboard</h1>
+      </header>
+      
+      <main className="dashboard-grid">
+        <UserDashboard />
+        <TaskBoard />
+        <AnalyticsWidget />
+      </main>
+    </div>
+  );
+}
+```
+
+**❌ Incorrect Page Implementation:**
+```tsx
+// ❌ Page with business logic (should be in features)
+export default function DashboardPage() {
+  const [tasks, setTasks] = useState([]);
+  
+  useEffect(() => {
+    // ❌ Direct API calls in page
+    fetch('/api/tasks').then(/* ... */);
+  }, []);
+  
+  const handleCreateTask = () => {
+    // ❌ Business logic in page
+  };
+  
+  return (
+    <div>
+      {/* ❌ Inline business components */}
+      <TaskForm onSubmit={handleCreateTask} />
+      <TaskList tasks={tasks} />
+    </div>
+  );
+}
+```
+
+## Page Naming Convention
+
+- **File name**: Always `ui/index.tsx` (not `ui/<page>.page.tsx`)
+- **Component name**: `<Page>Page` (e.g., `DashboardPage`, `HomePage`)
+- **Export**: Default export
+
+## Integration with Remix Routing
+
+Pages should integrate with Remix routes:
+
+```tsx
+// app/routes/dashboard.tsx
+import DashboardPage from '~/pages/dashboard/ui';
+
+export default DashboardPage;
+```
+
+## Required Page Metadata
+
+Pages should include proper metadata for SEO:
+
+```tsx
+// app/pages/dashboard/ui/index.tsx
+import type { MetaFunction } from '@remix-run/node';
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Dashboard - MyApp' },
+    { name: 'description', content: 'User dashboard with tasks and analytics' },
+  ];
+};
+```
+
+## Enforcement Rules
+
+When working in pages layer:
+
+1. **Check for proper composition** — Pages should import from widgets/features, not implement business logic
+2. **Check for correct file naming** — Use `ui/index.tsx` pattern
+3. **Check for integration tests** — Each page should have corresponding tests
+4. **If violations found**, prompt for refactoring
+
+## Integration with FSD
+
+This rule supports Feature-Sliced Design by:
+- **Enforcing composition over implementation** in pages
+- **Maintaining clear separation** between page layout and business logic
+- **Supporting proper dependency flow**: pages → widgets → features → entities → shared
+- **Enabling reusability** of widgets and features across different pages
+
+## Benefits
+
+Following this structure provides:
+- **Clear separation of concerns** between layout and business logic
+- **Reusable widgets and features** across multiple pages
+- **Easier testing** with focused page integration tests
+- **Better maintainability** through proper composition patterns
+- **Scalable architecture** that grows with application complexity
