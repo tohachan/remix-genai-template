@@ -1,9 +1,28 @@
-/** *
-{{pascalCase slice}}
-Feature Hooks * React hooks specific to
-{{slice}}
-feature */ // TODO: Add
-{{slice}}-specific hooks when needed export const use{{pascalCase slice}}
-= () => { // Placeholder for future
-{{slice}}
-hook logic return { // TODO: Add hook return values }; };
+/**
+ * {{pascalCase slice}} Feature Hooks
+ * Provides React hooks for interacting with the {{slice}} feature
+ */
+
+import {
+  useGet{{pascalCase slice}}ItemsQuery,
+  useGet{{pascalCase slice}}ByIdQuery,
+  useCreate{{pascalCase slice}}Mutation,
+  useUpdate{{pascalCase slice}}Mutation,
+  useDelete{{pascalCase slice}}Mutation,
+} from './api';
+
+/**
+ * Custom hook for managing {{slice}} data
+ * Encapsulates API calls and provides a simplified interface for UI components
+ */
+export const use{{pascalCase slice}} = () => {
+  // TODO: Implement custom logic here, e.g., combining hooks, adding state, etc.
+  // This is just an example of re-exporting for a clean public API.
+  return {
+    useGet{{pascalCase slice}}ItemsQuery,
+    useGet{{pascalCase slice}}ByIdQuery,
+    useCreate{{pascalCase slice}}Mutation,
+    useUpdate{{pascalCase slice}}Mutation,
+    useDelete{{pascalCase slice}}Mutation,
+  };
+};

@@ -1,13 +1,25 @@
 // Jest is configured globally, no imports needed for describe, it, expect
-import { renderHook } from '@testing-library/react'; import { use{{pascalCase
-  slice
-}}
-} from './hooks'; describe('{{pascalCase slice}}
-Hooks', () => { describe('use{{pascalCase slice}}', () => { it('should be
-defined', () => { const { result } = renderHook(() => use{{pascalCase
-  slice
-}}()); expect(result.current).toBeDefined(); }); // TODO: Add specific hook
-tests when implementing business logic // Examples: // - Test hook return values
-and structure // - Test state changes and side effects // - Test error handling
-// - Test integration with API layer // - Mock external dependencies as needed
-}); });
+import { renderHook } from '@testing-library/react';
+import { use{{pascalCase slice}} } from './hooks';
+
+// Mock the API hooks for isolated hook testing
+jest.mock('./api', () => ({
+  useGet{{pascalCase slice}}ItemsQuery: jest.fn(),
+  useGet{{pascalCase slice}}ByIdQuery: jest.fn(),
+  useCreate{{pascalCase slice}}Mutation: jest.fn(),
+  useUpdate{{pascalCase slice}}Mutation: jest.fn(),
+  useDelete{{pascalCase slice}}Mutation: jest.fn(),
+}));
+
+describe('use{{pascalCase slice}}', () => {
+  it('should be defined', () => {
+    expect(use{{pascalCase slice}}).toBeDefined();
+  });
+
+  // TODO: Add specific hook tests when implementing business logic
+  // Example:
+  // it('should return the correct data structure', () => {
+  //   const { result } = renderHook(() => use{{pascalCase slice}}());
+  //   expect(result.current).toHaveProperty('useGet{{pascalCase slice}}ItemsQuery');
+  // });
+});

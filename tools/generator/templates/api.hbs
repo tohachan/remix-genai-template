@@ -4,13 +4,12 @@
  */
 
 import { baseApi } from '~/shared/lib/store/api';
-{{#if entityImports}}
-import type {
-  {{#each entityImports}}
-  {{this}},
-  {{/each}}
-} from '~/entities/{{camelCase slice}}';
-{{/if}}
+
+// TODO: Move to entities/{{kebabCase slice}}/model/types.ts
+export interface {{pascalCase slice}} {
+  id: string;
+  name: string;
+}
 
 // API Contract Definitions (Required by enforce-contracts rule)
 // These interfaces define the request/response contracts for {{slice}} API endpoints

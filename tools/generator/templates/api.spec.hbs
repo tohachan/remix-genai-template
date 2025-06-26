@@ -1,8 +1,17 @@
 // Jest is configured globally, no imports needed for describe, it, expect
-import {
-{{camelCase slice}}Api } from './api'; describe('{{pascalCase slice}}
-API', () => { describe('{{camelCase slice}}Api', () => { it('should be defined',
-() => { expect({{camelCase slice}}Api).toBeDefined(); }); // TODO: Add specific
-API function tests when implementing business logic // Examples: // - Test API
-endpoint definitions // - Test request/response transformations // - Test error
-handling // - Test caching and invalidation }); });
+import { {{camelCase slice}}Api } from './api';
+
+describe('{{pascalCase slice}} API', () => {
+  describe('{{camelCase slice}}Api', () => {
+    it('should be defined', () => {
+      expect({{camelCase slice}}Api).toBeDefined();
+    });
+
+    // TODO: Add specific API function tests when implementing business logic
+    // Examples:
+    // - Test API endpoint definitions
+    // - Test request/response transformations
+    // - Test error handling
+    // - Test caching and invalidation
+  });
+});

@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const inquirer = require('inquirer');
 const Handlebars = require('handlebars');
-const { generateReadmeForSlice } = require('./readme');
+const { generateReadme } = require('./readme');
 
 // Parse command line arguments
 function parseArgs() {
@@ -90,7 +90,7 @@ const FEATURE_TEMPLATES = {
     description: 'Feature component with API integration',
     componentTemplate: 'component.hbs',
     includeApi: true,
-    includeHooks: false,
+    includeHooks: true,
   },
   'with-hooks': {
     name: 'Feature with Hooks',
@@ -259,14 +259,22 @@ function generateFeatureFiles(options) {
       files.push(hooksTestFile);
     }
 
-    // Update index.ts
-    const indexFile = path.join(featurePath, 'index.ts');
-    updateIndexFile(indexFile, componentName, featureName);
-    files.push(indexFile);
+    // Update index file
+    const indexPath = path.join(featurePath, 'index.ts');
+    updateIndexFile(indexPath, componentName, featureName);
+
+    // Generate README
+    console.log('\n📝 Generating README...');
+    generateReadme(featurePath, featureName, layer, true);
+    console.log('✅ README generated successfully!');
 
     return files;
   } catch (error) {
-    console.error('Error generating feature files:', error.message);
+    console.error(`❌ Error generating files for ${featureName}:`, error.message);
+    // Clean up partially generated files
+    files.forEach(file => {
+      fs.removeSync(file);
+    });
     throw error;
   }
 }
@@ -357,28 +365,18 @@ async function main() {
 
     const generatedFiles = generateFeatureFiles(options);
 
-    console.log('✅ Feature generated successfully!\n');
-    console.log('📁 Generated files:');
+    console.log('\n✅ Feature generated successfully!');
+    console.log('\n📁 Generated files:');
     generatedFiles.forEach(file => {
       console.log(`   ${file.replace(process.cwd() + '/', '')}`);
     });
 
-    // Auto-generate README
-    console.log('\n📝 Generating README...');
-    try {
-      // generateReadmeForSlice will find the slice and generate README
-      await generateReadmeForSlice(options.featureName);
-      console.log('✅ README generated successfully!');
-    } catch (readmeError) {
-      console.warn('⚠️  README generation failed:', readmeError.message);
-    }
-
     console.log('\n🎉 Feature generation complete!');
-    console.log('\nNext steps:');
-    console.log(`1. Review generated files in app/${options.layer}/${options.featureName}/`);
-    console.log('2. Customize the generated components for your use case');
-    console.log('3. Add the feature to your routes if needed');
-    console.log(`4. Run tests: npm test -- ${options.layer}/${options.featureName}`);
+    console.log(`\nNext steps:
+1. Review generated files in ${FSD_LAYERS[options.layer].path}/${options.featureName}/
+2. Customize the generated components for your use case
+3. Add the feature to your routes if needed
+4. Run tests: npm test -- ${FSD_LAYERS[options.layer].path}/${options.featureName}`);
 
   } catch (error) {
     console.error('❌ Error:', error.message);
