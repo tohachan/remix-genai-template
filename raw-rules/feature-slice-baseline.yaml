@@ -3,7 +3,7 @@ id: feature-slice-baseline
 description: "Enforces required baseline files and directories for each feature slice under app/features/"
 globs:
   - "app/features/**/*"
-always_apply: true
+always_apply: false
 
 # REQUIRED STRUCTURE
 required_baseline_files:

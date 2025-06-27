@@ -4,7 +4,7 @@ description: "Ensures utility files in shared/utils/ that export functions have 
 globs:
   - "**/shared/utils/**/*.ts"
   - "**/shared/utils/**/*.js"
-always_apply: true
+always_apply: false
 
 # RULE REQUIREMENTS
 target_criteria:

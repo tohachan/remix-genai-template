@@ -2,7 +2,7 @@
 id: auto-generate-readme
 description: "Auto-suggests README generation command when files are modified in FSD slice directories"
 globs: ["app/features/**/*", "app/pages/**/*", "app/widgets/**/*", "app/entities/**/*"]
-always_apply: true
+always_apply: false
 
 # TRIGGER CONDITIONS
 triggers:
@@ -32,12 +32,11 @@ main_action:
       - "app/entities/product/ → `npm run generate:readme product`"
 
 # MESSAGE FORMAT
-suggestion_message: |
-  📝 Slice files modified. Consider updating documentation:
+mandatory_action:
+  description: "REQUIRED when business logic changes"
+  command_format: "npm run generate:readme <slice-name>"
 
-  npm run generate:readme <slice-name>
-
-  This will update the README.md with current slice structure and API information.
+enforcement: "MUST update README after any hooks/api logic changes"
 
 # DETECTION LOGIC
 processing_steps:

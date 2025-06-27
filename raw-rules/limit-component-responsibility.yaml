@@ -4,7 +4,7 @@ description: "Enforces component responsibility limits in React component files 
 globs:
   - "**/ui/**/*.tsx"
   - "**/ui/**/*.jsx"
-always_apply: true
+always_apply: false
 
 # RULE REQUIREMENTS
 limits:

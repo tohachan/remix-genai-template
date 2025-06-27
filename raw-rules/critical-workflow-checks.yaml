@@ -87,6 +87,14 @@ validation_checklist:
     - "✅ Security rules respected"
     - "✅ Design tokens used (no hard-coded values)"
     - "✅ Generator usage where required"
+    - "✅ README relevance verified after business logic changes"
+
+triggers:
+  - "Changes in hooks.ts files"
+  - "Changes in api.ts files"
+  - "New business logic implementation"
+
+requirement: "MUST verify and update README to reflect current functionality"
 
 conflict_detection_triggers:
   - "Import from higher FSD layer"

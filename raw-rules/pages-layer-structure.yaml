@@ -3,7 +3,7 @@ id: pages-layer-structure
 description: "Enforces that app/pages/ layer contains composition-focused page components according to FSD principles"
 globs:
   - "app/pages/**/*"
-always_apply: true
+always_apply: false
 
 # REQUIRED STRUCTURE
 required_files:

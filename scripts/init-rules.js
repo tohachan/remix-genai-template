@@ -43,59 +43,84 @@ function parseYamlWithComments(fileContent) {
   const metadata = yaml.load(fileContent);
   let content = '';
 
-  for (const line of lines) {
+  // Extract only the metadata we need
+  const { id, description, globs, alwaysApply, always_apply, ...restData } = metadata;
+
+  // Process lines to create markdown content
+  let isFirstSection = true;
+  let currentSection = '';
+  let inCodeBlock = false;
+  let skipUntilNextSection = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     const trimmedLine = line.trim();
-    if (trimmedLine.startsWith('#')) {
-      const header = trimmedLine.replace(/#/g, '').replace('===', '').trim();
-      if (header) {
-        content += `## ${header}\n\n`;
-      }
+
+    // Skip file header comment
+    if (trimmedLine.includes('===') && trimmedLine.includes('.yaml')) {
       continue;
     }
 
-    if (!trimmedLine) continue;
+    // Check if this is a metadata field at root level that should be skipped
+    if (trimmedLine && !line.startsWith(' ') && !line.startsWith('\t') && !inCodeBlock) {
+      const key = trimmedLine.split(':')[0].trim();
+      if (['id', 'description', 'globs', 'alwaysApply', 'always_apply'].includes(key)) {
+        skipUntilNextSection = true;
+        // If this is globs field, skip the entire array
+        if (key === 'globs') {
+          // Skip subsequent indented lines that are part of the globs array
+          let j = i + 1;
+          while (j < lines.length && (lines[j].startsWith('  ') || lines[j].startsWith('\t') || lines[j].trim() === '')) {
+            j++;
+          }
+          i = j - 1; // Set i to the last line we want to skip
+        }
+        continue;
+      } else {
+        skipUntilNextSection = false;
+      }
+    }
 
-    // Avoid duplicating metadata fields that are parsed separately.
-    const key = trimmedLine.split(':')[0];
-    if (['id', 'description', 'globs', 'alwaysApply', 'always_apply'].includes(key)) {
+    // Handle comments as section headers
+    if (trimmedLine.startsWith('#') && !trimmedLine.includes('===')) {
+      const headerText = trimmedLine.replace(/^#+\s*/, '').trim();
+      if (headerText) {
+        if (!isFirstSection) {
+          content += '\n';
+        }
+        content += `## ${headerText}\n\n`;
+        isFirstSection = false;
+        currentSection = headerText;
+        skipUntilNextSection = false;
+        continue;
+      }
+    }
+
+    // Skip lines if we're in a metadata section
+    if (skipUntilNextSection) {
       continue;
     }
 
-    // Fallback for any content not captured as a comment. This ensures no data is lost.
-    // This part tries to format simple key-value pairs that are not metadata.
-    if (line.includes(':')) {
-      // This simple split is naive; complex values will be handled by the full parser.
-      // The main goal here is to catch what's missed.
-      const parts = line.split(':');
-      const k = parts[0].trim();
-      const v = parts.slice(1).join(':').trim();
+    // Handle code blocks
+    if (trimmedLine.startsWith('```')) {
+      inCodeBlock = !inCodeBlock;
+      content += line + '\n';
+      continue;
+    }
 
-      // Heuristic to avoid re-printing complex structures already in metadata
-      if (metadata[k] === undefined) {
-        const title = k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        content += `### ${title}\n${v}\n\n`;
-      }
+    // Add content lines (preserve original formatting for better structure)
+    if (trimmedLine || inCodeBlock) {
+      content += line + '\n';
+    } else if (content && !content.endsWith('\n\n')) {
+      // Add spacing between sections
+      content += '\n';
     }
   }
 
-  // Use the full parsed data to generate a clean, structured version of the content.
-  let structuredContent = '';
-  for (const [key, value] of Object.entries(metadata)) {
-    if (['id', 'description', 'globs', 'alwaysApply', 'always_apply'].includes(key)) {
-      continue;
-    }
-    const title = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    structuredContent += `## ${title}\n\n`;
-    if (typeof value === 'string') {
-      structuredContent += `${value}\n\n`;
-    } else if (Array.isArray(value)) {
-      structuredContent += value.map(item => `- ${item}`).join('\n') + '\n\n';
-    } else if (typeof value === 'object' && value !== null) {
-      structuredContent += yaml.dump(value);
-    }
-  }
-
-  return { metadata, content: structuredContent.trim() };
+  return {
+    metadata: { id, description, globs, alwaysApply: alwaysApply || always_apply },
+    content: content.trim(),
+  };
 }
 
 async function getRawRules() {
@@ -147,13 +172,32 @@ async function generateForCursor(rules) {
 
   for (const rule of rules) {
     const { id, description, globs, alwaysApply, content } = rule;
-    const frontmatter = yaml.dump({
-      description: description || 'No description provided.',
-      globs: globs || [],
-      alwaysApply: alwaysApply || false,
-    });
 
-    const mdcContent = `---\n${frontmatter}---\n\n${content}`;
+    // Format globs as comma-separated string for Cursor
+    let formattedGlobs = '';
+    if (Array.isArray(globs)) {
+      formattedGlobs = globs.join(',');
+    } else if (globs) {
+      formattedGlobs = String(globs);
+    }
+
+    // Manually construct frontmatter to ensure proper Cursor format
+    let frontmatter = 'description: ';
+    if (description) {
+      // Handle multiline descriptions
+      if (description.includes('\n') || description.length > 60) {
+        frontmatter += `>\n  ${description.replace(/\n/g, '\n  ')}`;
+      } else {
+        frontmatter += description;
+      }
+    } else {
+      frontmatter += 'No description provided.';
+    }
+
+    frontmatter += `\nglobs: ${formattedGlobs}`;
+    frontmatter += `\nalwaysApply: ${Boolean(alwaysApply)}`;
+
+    const mdcContent = `---\n${frontmatter}\n---\n\n${content}`;
     const filePath = path.join(outputDir, `${id}.mdc`);
     await fs.writeFile(filePath, mdcContent);
     console.log(`✅ Created: ${path.relative(CWD, filePath)}`);

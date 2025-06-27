@@ -4,7 +4,7 @@ description: "Mandates CLI component generator usage with full arguments for Rea
 globs:
   - "**/ui/**/*.tsx"
   - "**/ui/**/*.ts"
-always_apply: true
+always_apply: false
 
 # 🚨 MANDATORY STOP POINTS
 mandatory_stop_points:
