@@ -100,6 +100,34 @@ mandatory_slice_baseline_verification:
       - "If ANY baseline file missing → auto-create using generators"
       - "No user confirmation needed - auto-create immediately"
 
+# Task complexity classification
+task_complexity_classification:
+  simple_task_definition: |
+    ✅ **Simple Task** (≤3 steps, single slice/component):
+    - Creating/editing single component
+    - Adding one API endpoint
+    - Writing single test file
+    - Small UI adjustments
+    - Bug fixes in single file
+    
+  complex_task_definition: |
+    🔥 **Complex Task** (>3 steps, multiple slices/cross-cutting):
+    - Feature development across multiple slices
+    - API integration with UI changes
+    - Migration/refactoring tasks
+    - Multi-component interactions
+    - Cross-layer dependencies
+
+  memory_management:
+    simple_tasks: "Keep all context and steps in active memory - no temporary files needed"
+    complex_tasks: "Create temporary markdown file with step-by-step plan, follow it, then delete file"
+    
+    complex_task_workflow: |
+      1. Create `/tmp/task-plan-[timestamp].md` with detailed steps
+      2. Follow plan step-by-step, updating progress
+      3. Delete temporary file after completion
+      4. Keep only essential context in memory
+
 # Step-by-step execution
 step_by_step_execution:
   simple_tasks_format: |
@@ -122,6 +150,8 @@ step_by_step_execution:
     - Baseline re-verification
 
   complex_tasks_format: |
+    📝 **Create temporary plan file: `/tmp/task-plan-[timestamp].md`**
+    
     # Task: [Description]
     
     ## STEP 0: 🚨 BASELINE VERIFICATION
@@ -139,6 +169,8 @@ step_by_step_execution:
     - [ ] npm run type-check (ALL errors fixed)
     - [ ] npm run test
     - [ ] Baseline re-verification ✅
+    
+    **🗑️ DELETE THIS FILE AFTER COMPLETION**
 
 # Enhanced validation workflow
 enhanced_validation_workflow:
@@ -187,18 +219,24 @@ anti_patterns:
   - "Manual creation without generator checks"
   - "Skipped validation steps"
   - "Unresolved TypeScript errors"
+  - "Using complex task approach for simple tasks"
+  - "Keeping temporary plan files after completion"
+  - "Not creating plan files for complex tasks"
 
 # Correct pattern
 correct_pattern: |
   **Process flow:**
-  1. Architectural validation checkpoint
-  2. File clarification if needed
-  3. README analysis for affected entities
-  4. Mandatory baseline verification (Step 0)
-  5. Execution plan with generator checks
-  6. Step-by-step implementation
-  7. Complete validation workflow
-  8. Baseline re-verification
+  1. Classify task complexity (simple ≤3 steps vs complex >3 steps)
+  2. Architectural validation checkpoint
+  3. File clarification if needed
+  4. README analysis for affected entities
+  5. Mandatory baseline verification (Step 0)
+  6. For complex tasks: Create temporary plan file in /tmp/
+  7. Execution plan with generator checks
+  8. Step-by-step implementation
+  9. Complete validation workflow
+  10. Baseline re-verification
+  11. For complex tasks: Delete temporary plan file
 
 # Enforcement - no exceptions
 enforcement_no_exceptions:
