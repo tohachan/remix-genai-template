@@ -1,14 +1,17 @@
 # Remix + Gen AI Template
 
+> [!IMPORTANT]  
+> This project is currently a working proof-of-concept, designed to explore the principles of "GenAI-Native" development. Think of it less as a production-ready tool and more as a research project and a source of ideas.
+
 > [!NOTE]  
 > **🤖 Multi-Platform AI Optimized**  
 > This template contains **platform-agnostic AI development rules** that can be automatically configured for **any AI coding assistant**. Choose your preferred platform (Cursor, Windsurf, Claude Code, or Copilot) and get optimized rules in the correct format. The comprehensive rule set ensures consistent, high-quality development across all AI tools.
 
-A comprehensive starter kit for building scalable Remix applications using **Feature-Sliced Design (FSD)** architecture, optimized for seamless **AI-assisted development** workflows with **any AI coding assistant**.
+This repository contains a **proof-of-concept** project for building scalable Remix applications using **Feature-Sliced Design (FSD)** architecture. It's designed to explore how architectural guardrails and embedded rules can create a more reliable and consistent workflow for **AI-assisted development**.
 
 ## 🚀 What This Template Provides
 
-This template combines modern web development tools with architectural best practices to ensure **consistent, high-quality results** when working with AI-assisted development:
+This project explores how combining modern web development tools with architectural best practices can lead to **consistent, high-quality results** when working with AI. Key components of this exploration include:
 
 - ⚡ **Remix + Vite** - Modern full-stack React framework with fast build tooling
 - 🎨 **Tailwind CSS + shadcn/ui** - Utility-first CSS with beautiful, accessible components
@@ -84,7 +87,7 @@ The template includes comprehensive rules covering:
 
 ## 🎯 Core Development Principles
 
-The template is built around a systematic approach that ensures predictable, high-quality development outcomes:
+The project is built around a systematic, two-phase workflow designed to make AI a more reliable engineering partner, ensuring predictable, high-quality development outcomes:
 
 ![Core Development Principles](./public/assets/main_principles.png)
 
