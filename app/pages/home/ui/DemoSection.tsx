@@ -7,7 +7,7 @@ export default function DemoSection() {
       <h2 className="text-2xl font-bold text-gray-900 mb-6">
         🎯 Explore & Learn
       </h2>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-3">
             🔄 RTK Query Demo
@@ -18,6 +18,27 @@ export default function DemoSection() {
           </p>
           <Link to="/rtk-example">
             <Button className="w-full">View RTK Query Demo</Button>
+          </Link>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">
+            🛍️ Products List Demo
+          </h3>
+          <p className="text-gray-600 mb-4 text-sm">
+            An example of displaying a list of products using the{' '}
+            <a
+              href="https://dummyjson.com/docs/products"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              dummyjson.com
+            </a>{' '}
+            API.
+          </p>
+          <Link to="/products">
+            <Button className="w-full">View Products Demo</Button>
           </Link>
         </div>
 
